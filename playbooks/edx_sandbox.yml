@@ -31,11 +31,11 @@
       SWAPFILE_SIZE: 4GB
     - role: nginx
       nginx_sites:
-      - certs
-      - cms
-      - lms
-      - forum
-      - xqueue
+        - certs
+        - cms
+        - lms
+        - forum
+        - xqueue
       nginx_default_sites:
       - lms
     - role: nginx
