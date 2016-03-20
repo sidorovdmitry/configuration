@@ -42,7 +42,7 @@
   notify: restart xsy
 
 - name: checkout the code
-  git: >
+  git_local: >
     dest="{{ xsy_code_dir }}" repo="{{ xsy_source_repo }}"
     version="{{ xsy_version }}" accept_hostkey=yes
   sudo_user: "{{ xsy_user }}"
