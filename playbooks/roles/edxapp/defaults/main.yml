@@ -15,6 +15,12 @@
 # Variables set to "None" will be converted to None
 # when the edxapp config is written to disk.
 
+## RACCOONGANG ##
+EDXAPP_AWS_BACKUP_ENABLE: false
+EDXAPP_AWS_BACKUP_REPO: ''
+EDXAPP_AWS_BACKUP_VERSION: ''
+## END RACCOONGANG ##
+
 # Bucket used for xblock file storage
 EDXAPP_XBLOCK_FS_STORAGE_BUCKET: "None"
 EDXAPP_XBLOCK_FS_STORAGE_PREFIX: "None"
