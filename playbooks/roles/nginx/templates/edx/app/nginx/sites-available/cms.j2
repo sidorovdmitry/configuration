@@ -8,6 +8,9 @@ upstream cms-backend {
     {% for host in nginx_cms_gunicorn_hosts %}
         server {{ host }}:{{ edxapp_cms_gunicorn_port }} fail_timeout=0;
     {% endfor %}
+    {% if EDXAPP_AWS_BACKUP_ENABLE %}
+        server localhost:8001 backup;
+    {% endif %}
 }
 
 server {
