@@ -88,6 +88,8 @@ CMS_HOSTNAME: '~^((stage|prod)-)?studio.*'
 ECOMMERCE_HOSTNAME: '~^((stage|prod)-)?ecommerce.*'
 CREDENTIALS_HOSTNAME: '~^((stage|prod)-)?credentials.*'
 
+NGINX_USER_API_ALLOW_ORIGIN: False
+
 nginx_template_dir: "edx/app/nginx/sites-available"
 
 nginx_xserver_gunicorn_hosts:
