@@ -37,17 +37,6 @@ geo $http_x_forwarded_for $embargo {
 server {
   # LMS configuration file for nginx, templated by ansible
 
-  {% if NGINX_EDXAPP_ENABLE_S3_MAINTENANCE %}
-
-  # Do not include a 502 error in NGINX_ERROR_PAGES when 
-  # NGINX_EDXAPP_ENABLE_MAINTENANCE is enabled.
-
-  error_page 502 @maintenance;
-
-    {% include "s3_maintenance.j2" %}
-  
-  {% endif %}
-
   # error pages
   {% for k, v in NGINX_EDXAPP_ERROR_PAGES.iteritems() %}
 error_page {{ k }} {{ v }};
@@ -95,6 +84,21 @@ error_page {{ k }} {{ v }};
   rewrite ^(.*)/favicon.ico$ /static/images/favicon.ico last;
 
   location @proxy_to_lms_app {
+
+    {% if NGINX_EDXAPP_ENABLE_MAINTENANCE %}
+
+      set $maintenance_file open;
+
+      if (-f /edx/var/maintenance/maintenance.file){
+         set $maintenance_file close;
+      }
+
+      if ($action = $maintenance_file){
+         return 503;
+      }
+
+    {% endif %}
+
     {% if NGINX_SET_X_FORWARDED_HEADERS %}
     proxy_set_header X-Forwarded-Proto $scheme;
     proxy_set_header X-Forwarded-Port $server_port;
@@ -109,6 +113,12 @@ error_page {{ k }} {{ v }};
     proxy_redirect off;
     proxy_pass http://lms-backend;
   }
+
+  {% if NGINX_EDXAPP_ENABLE_MAINTENANCE %}
+
+    {% include "maintenance.j2" %}
+
+  {% endif %}
 
   location / {
     {% include "basic-auth.j2" %}
