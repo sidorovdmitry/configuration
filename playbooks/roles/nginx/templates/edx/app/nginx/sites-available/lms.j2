@@ -13,6 +13,13 @@ upstream lms-backend {
     {% endif %}
 }
 
+server {
+  listen 80;
+  server_name university-sandbox.*;
+  rewrite ^/(.*)$ https://$host$1 permanent;
+}
+
+
 {%- if EDXAPP_ENABLE_RATE_LIMITING -%}
 # Make Zone
 limit_req_zone $cookie_{{ EDXAPP_SESSION_COOKIE_NAME }} zone=cookies:10m rate={{ EDXAPP_COURSES_REQUEST_RATE }};
@@ -53,7 +60,10 @@ server {
 error_page {{ k }} {{ v }};
   {% endfor %}
 
-  listen {{ EDXAPP_LMS_NGINX_PORT }} {{ default_site }};
+  listen 443 ssl {{ default_site }};
+
+  ssl_certificate     /etc/ssl/certs/raccoongang.com.crt;
+  ssl_certificate_key /etc/ssl/certs/raccoongang.com.key;
 
   {% if NGINX_ENABLE_SSL %}
   listen {{ EDXAPP_LMS_SSL_NGINX_PORT }} {{ default_site }} ssl;

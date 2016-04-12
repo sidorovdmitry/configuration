@@ -14,6 +14,13 @@ upstream cms-backend {
 }
 
 server {
+  listen 80;
+  server_name studio-sandbox.*;
+  rewrite ^/(.*)$ https://$host$1 permanent;
+}
+
+
+server {
   # CMS configuration file for nginx, templated by ansible
       
   # Proxy to a remote maintanence page
@@ -33,7 +40,10 @@ server {
 error_page {{ k }} {{ v }};
   {% endfor %}
 
-  listen {{ EDXAPP_CMS_NGINX_PORT }} {{ default_site }};
+  listen 443 ssl {{ default_site }};
+
+  ssl_certificate     /etc/ssl/certs/raccoongang.com.crt;
+  ssl_certificate_key /etc/ssl/certs/raccoongang.com.key;
 
   {% if NGINX_ENABLE_SSL %}
 
@@ -65,7 +75,7 @@ error_page {{ k }} {{ v }};
   }
   {% endif %}
   
-  server_name {{ CMS_HOSTNAME }};
+  server_name studio-sandbox.*;
 
   access_log {{ nginx_log_dir }}/access.log {{ NGINX_LOG_FORMAT_NAME }};
   error_log {{ nginx_log_dir }}/error.log error;
