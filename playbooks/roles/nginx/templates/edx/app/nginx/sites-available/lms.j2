@@ -11,6 +11,13 @@ upstream lms-backend {
 
 }
 
+server {
+  listen 0.0.0.0:80;
+  server_name ~^((stage|prod)-)?(courses|lms).*;
+  rewrite ^/(.*)$ https://lms.o365edu.com.ua/$1 permanent;
+}
+
+
 {%- if EDXAPP_ENABLE_RATE_LIMITING -%}
 # Make Zone
 limit_req_zone $cookie_{{ EDXAPP_SESSION_COOKIE_NAME }} zone=cookies:10m rate={{ EDXAPP_COURSES_REQUEST_RATE }};
@@ -52,6 +59,11 @@ error_page {{ k }} {{ v }};
   {% endfor %}
 
   listen {{ EDXAPP_LMS_NGINX_PORT }} {{ default_site }};
+
+  ssl on;
+  ssl_certificate        /etc/nginx/ssl/lms_o365edu_com_ua.crt;
+  ssl_certificate_key    /etc/nginx/ssl/lms.o365edu.com.ua.key;
+
 
   {% if NGINX_ENABLE_SSL %}
   listen {{ EDXAPP_LMS_SSL_NGINX_PORT }} {{ default_site }} ssl;
@@ -192,9 +204,8 @@ error_page {{ k }} {{ v }};
     try_files $uri @proxy_to_lms_app;
   }
 
-location ~ ^{{ EDXAPP_MEDIA_URL }}/(?P<file>.*) {
-    root {{ edxapp_media_dir }};
-    try_files /$file =404;
+location {{ EDXAPP_MEDIA_URL }} {
+    alias {{ edxapp_media_dir }}/;
     expires {{ EDXAPP_PROFILE_IMAGE_MAX_AGE }}s;
 }
 

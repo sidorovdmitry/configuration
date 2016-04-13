@@ -15,6 +15,11 @@
 # Variables set to "None" will be converted to None
 # when the edxapp config is written to disk.
 
+EDXAPP_THIRD_PARTY_AUTH_BACKENDS: []
+EDXAPP_LMS_MICROSOFT_MAKO_TEMPLATES: []
+EDXAPP_CMS_MICROSOFT_MAKO_TEMPLATES: []
+EDXAPP_AZURE_AD_ID: ""
+
 # Bucket used for xblock file storage
 EDXAPP_XBLOCK_FS_STORAGE_BUCKET: "None"
 EDXAPP_XBLOCK_FS_STORAGE_PREFIX: "None"
@@ -831,6 +836,11 @@ generic_env_config:  &edxapp_generic_env
   SESSION_SAVE_EVERY_REQUEST: "{{ EDXAPP_SESSION_SAVE_EVERY_REQUEST }}"
   SOCIAL_SHARING_SETTINGS: "{{ EDXAPP_SOCIAL_SHARING_SETTINGS }}"
   SESSION_COOKIE_SECURE: "{{ EDXAPP_SESSION_COOKIE_SECURE }}"
+  THIRD_PARTY_AUTH_BACKENDS: "{{ EDXAPP_THIRD_PARTY_AUTH_BACKENDS }}"
+
+  ##   RACCOONGANG   ##
+  COPYRIGHT_YEAR: "{{ EDXAPP_COPYRIGHT_YEAR }}"
+  ##   END RACCOONGANG   ##
 
 lms_auth_config:
   <<: *edxapp_generic_auth
@@ -864,7 +874,7 @@ lms_auth_config:
                 fs_root:  "{{ edxapp_course_data_dir }}"
                 render_template: 'edxmako.shortcuts.render_to_string'
   PROCTORING_BACKEND_PROVIDER: "{{ EDXAPP_PROCTORING_BACKEND_PROVIDER }}"
-
+  AZURE_AD_ID: "{{ EDXAPP_AZURE_AD_ID }}"
 
 lms_env_config:
   <<: *edxapp_generic_env
@@ -897,6 +907,7 @@ lms_env_config:
   CREDIT_HELP_LINK_URL: "{{ EDXAPP_CREDIT_HELP_LINK_URL }}"
   ELASTIC_SEARCH_CONFIG: "{{ EDXAPP_ELASTIC_SEARCH_CONFIG }}"
   MAILCHIMP_NEW_USER_LIST_ID: "{{ EDXAPP_MAILCHIMP_NEW_USER_LIST_ID }}"
+  MICROSOFT_MAKO_TEMPLATES: "{{ EDXAPP_LMS_MICROSOFT_MAKO_TEMPLATES }}"
 
 cms_auth_config:
   <<: *edxapp_generic_auth
@@ -922,10 +933,13 @@ cms_auth_config:
                 fs_root:  "{{ edxapp_course_data_dir }}"
                 render_template: 'edxmako.shortcuts.render_to_string'
   PARSE_KEYS: "{{ EDXAPP_PARSE_KEYS }}"
+  AZURE_AD_ID: "{{ EDXAPP_AZURE_AD_ID }}"
+
 cms_env_config:
   <<: *edxapp_generic_env
   SITE_NAME:  "{{ EDXAPP_CMS_SITE_NAME }}"
   GIT_REPO_EXPORT_DIR: "{{ EDXAPP_GIT_REPO_EXPORT_DIR }}"
+  MICROSOFT_MAKO_TEMPLATES: "{{ EDXAPP_CMS_MICROSOFT_MAKO_TEMPLATES }}"
 
 # install dir for the edx-platform repo
 edxapp_code_dir: "{{ edxapp_app_dir }}/edx-platform"

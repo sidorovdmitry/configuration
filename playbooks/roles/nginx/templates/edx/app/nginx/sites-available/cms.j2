@@ -11,6 +11,12 @@ upstream cms-backend {
 }
 
 server {
+  listen 0.0.0.0:80;
+  server_name ~^((stage|prod)-)?(studio|cms).*;
+  rewrite ^/(.*)$ https://cms.o365edu.com.ua/$1 permanent;
+}
+
+server {
   # CMS configuration file for nginx, templated by ansible
       
   # Proxy to a remote maintanence page
@@ -31,6 +37,10 @@ error_page {{ k }} {{ v }};
   {% endfor %}
 
   listen {{ EDXAPP_CMS_NGINX_PORT }} {{ default_site }};
+
+  ssl on;
+  ssl_certificate        /etc/nginx/ssl/cms_o365edu_com_ua.crt;
+  ssl_certificate_key    /etc/nginx/ssl/cms.o365edu.com.ua.key;
 
   {% if NGINX_ENABLE_SSL %}
 
@@ -62,7 +72,7 @@ error_page {{ k }} {{ v }};
   }
   {% endif %}
   
-  server_name {{ CMS_HOSTNAME }};
+  server_name cms.*;
 
   access_log {{ nginx_log_dir }}/access.log {{ NGINX_LOG_FORMAT_NAME }};
   error_log {{ nginx_log_dir }}/error.log error;
