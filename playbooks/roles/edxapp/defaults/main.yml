@@ -19,6 +19,8 @@ EDXAPP_THIRD_PARTY_AUTH_BACKENDS: []
 EDXAPP_LMS_MICROSOFT_MAKO_TEMPLATES: []
 EDXAPP_CMS_MICROSOFT_MAKO_TEMPLATES: []
 EDXAPP_AZURE_AD_ID: ""
+EDXAPP_CMS_MKTG_URLS: 
+  TOS: '/tos'
 
 # Bucket used for xblock file storage
 EDXAPP_XBLOCK_FS_STORAGE_BUCKET: "None"
@@ -940,6 +942,7 @@ cms_env_config:
   SITE_NAME:  "{{ EDXAPP_CMS_SITE_NAME }}"
   GIT_REPO_EXPORT_DIR: "{{ EDXAPP_GIT_REPO_EXPORT_DIR }}"
   MICROSOFT_MAKO_TEMPLATES: "{{ EDXAPP_CMS_MICROSOFT_MAKO_TEMPLATES }}"
+  CMS_MKTG_URLS: "{ EDXAPP_CMS_MKTG_URLS }"
 
 # install dir for the edx-platform repo
 edxapp_code_dir: "{{ edxapp_app_dir }}/edx-platform"
