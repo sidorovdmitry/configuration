@@ -942,7 +942,7 @@ cms_env_config:
   SITE_NAME:  "{{ EDXAPP_CMS_SITE_NAME }}"
   GIT_REPO_EXPORT_DIR: "{{ EDXAPP_GIT_REPO_EXPORT_DIR }}"
   MICROSOFT_MAKO_TEMPLATES: "{{ EDXAPP_CMS_MICROSOFT_MAKO_TEMPLATES }}"
-  CMS_MKTG_URLS: "{ EDXAPP_CMS_MKTG_URLS }"
+  CMS_MKTG_URLS: "{{ EDXAPP_CMS_MKTG_URLS }}"
 
 # install dir for the edx-platform repo
 edxapp_code_dir: "{{ edxapp_app_dir }}/edx-platform"
