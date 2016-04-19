@@ -18,6 +18,8 @@
 ## RACCOONGANG ##
 EDXAPP_COURSE_CATALOG_VISIBILITY_PERMISSION: 'see_exists'
 EDXAPP_COURSE_ABOUT_VISIBILITY_PERMISSION: 'see_exists'
+EDXAPP_CMS_MKTG_URLS:
+  TOS: "/tos"
 ## END RACCOONGANG ##
 
 # Bucket used for xblock file storage
@@ -1084,6 +1086,9 @@ cms_env_config:
   CELERY_QUEUES: "{{ EDXAPP_CMS_CELERY_QUEUES }}"
   ALTERNATE_WORKER_QUEUES: "lms"
   COURSE_IMPORT_EXPORT_BUCKET: "{{ EDXAPP_IMPORT_EXPORT_BUCKET }}"
+  ##   RACCOONGANG   ##
+  CMS_MKTG_URLS: "{{ EDXAPP_CMS_MKTG_URLS }}"
+  ## END RACCOONGANG ##
 
 # install dir for the edx-platform repo
 edxapp_code_dir: "{{ edxapp_app_dir }}/edx-platform"
