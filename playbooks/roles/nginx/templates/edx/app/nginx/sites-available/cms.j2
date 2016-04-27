@@ -61,7 +61,7 @@ error_page {{ k }} {{ v }};
 
   if ($do_redirect_to_https = "true")
   {
-  rewrite ^ https://$host$request_uri? permanent;
+  rewrite ^ https://$host/$request_uri? permanent;
   }
   {% endif %}
   
