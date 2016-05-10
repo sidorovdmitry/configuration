@@ -16,7 +16,7 @@ upstream cms-backend {
 server {
   listen 80;
   server_name studio-sandbox.*;
-  rewrite ^/(.*)$ https://$host$1 permanent;
+  rewrite ^/(.*)$ https://$host/$1 permanent;
 }
 
 
