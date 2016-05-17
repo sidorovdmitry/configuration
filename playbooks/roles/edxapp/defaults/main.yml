@@ -1,7 +1,7 @@
 # variables common to the lms role, automatically loaded
 # when the role is included
 ---
-
+EDXAPP_ADMINS: []
 # These are variables that default to a localhost
 # setup and are meant to be overwritten for
 # different environments.
@@ -841,6 +841,7 @@ generic_env_config:  &edxapp_generic_env
   THIRD_PARTY_AUTH_BACKENDS: "{{ EDXAPP_THIRD_PARTY_AUTH_BACKENDS }}"
 
   ##   RACCOONGANG   ##
+  ADMINS: "{{ EDXAPP_ADMINS }}"
   COPYRIGHT_YEAR: "{{ EDXAPP_COPYRIGHT_YEAR }}"
   ##   END RACCOONGANG   ##
 
