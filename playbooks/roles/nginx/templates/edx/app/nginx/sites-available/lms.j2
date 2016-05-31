@@ -59,13 +59,13 @@ error_page {{ k }} {{ v }};
   {% endfor %}
 
   listen {{ EDXAPP_LMS_NGINX_PORT }} {{ default_site }};
-
-  ssl on;
-  ssl_certificate        /etc/nginx/ssl/lms_o365edu_com_ua.crt;
-  ssl_certificate_key    /etc/nginx/ssl/lms.o365edu.com.ua.key;
-
-
+  
   {% if NGINX_ENABLE_SSL %}
+  ssl on;
+  ssl_certificate        /etc/nginx/ssl/lms.crt;
+  ssl_certificate_key    /etc/nginx/ssl/lms.key;
+
+
   listen {{ EDXAPP_LMS_SSL_NGINX_PORT }} {{ default_site }} ssl;
 
   ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
