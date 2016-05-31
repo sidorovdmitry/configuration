@@ -14,7 +14,11 @@ upstream lms-backend {
 server {
   listen 0.0.0.0:80;
   server_name ~^((stage|prod)-)?(courses|lms).*;
-  rewrite ^/(.*)$ https://lms.o365edu.com.ua/$1 permanent;
+  {% if NGINX_ENABLE_SSL %}
+  rewrite ^/(.*)$ https://courses.zsmu.edu.ua/$1 permanent;
+  {% else %}
+  rewrite ^/(.*)$ http://courses.zsmu.edu.ua/$1 permanent;
+  {% endif %}
 }
 
 

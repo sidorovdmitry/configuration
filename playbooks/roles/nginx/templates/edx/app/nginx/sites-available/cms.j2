@@ -13,7 +13,11 @@ upstream cms-backend {
 server {
   listen 0.0.0.0:80;
   server_name ~^((stage|prod)-)?(studio|cms).*;
-  rewrite ^/(.*)$ https://cms.o365edu.com.ua/$1 permanent;
+  {% if NGINX_ENABLE_SSL %}
+  rewrite ^/(.*)$ https://studio.zsmu.edu.ua/$1 permanent;
+  {% else %}
+  rewrite ^/(.*)$ http://studio.zsmu.edu.ua/$1 permanent;
+  {% endif %}
 }
 
 server {
