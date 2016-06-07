@@ -1,0 +1,12 @@
+server {
+  listen localhost:8001;
+  root {{ EDXAPP_AWS_BACKUP_DIR }}/www;
+
+  location / {
+   try_files $uri /index.html;
+  }
+
+  location /index_files/ {}
+
+  location /fonts/ {}
+}

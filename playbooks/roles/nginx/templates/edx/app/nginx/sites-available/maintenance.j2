@@ -1,0 +1,13 @@
+{% if NGINX_EDXAPP_ENABLE_MAINTENANCE %}
+
+  error_page 503 /maintenance.html;
+
+  location = /maintenance.html {
+      root /edx/var/maintenance/;
+  }
+
+  location ~ /maintenance_files/(?P<file>.*) {
+      root /edx/var/maintenance/;
+  }
+
+{% endif %}

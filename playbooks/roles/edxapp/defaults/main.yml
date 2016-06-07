@@ -35,6 +35,7 @@ EDXAPP_COURSE_CATALOG_VISIBILITY_PERMISSION: 'see_exists'
 EDXAPP_COURSE_ABOUT_VISIBILITY_PERMISSION: 'see_exists'
 EDXAPP_CMS_MKTG_URLS:
   TOS: "/tos"
+NGINX_EDXAPP_ENABLE_MAINTENANCE: true
 ## END RACCOONGANG ##
 
 # Bucket used for xblock file storage
@@ -982,8 +983,8 @@ edxapp_lms_gunicorn_host: 127.0.0.1
 # 'edxapp' upstart job.
 
 service_variants_enabled:
-  - lms
   - cms
+  - lms
 
 #Number of gunicorn worker processes to spawn, as a multiplier to number of virtual cores
 worker_core_mult:
