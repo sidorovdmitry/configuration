@@ -804,14 +804,11 @@ edxapp_generic_doc_store_config: &edxapp_generic_default_docstore
   # Not setting waitQueueTimeoutMS and waitQueueMultiple since pymongo defaults to nobody being allowed to wait
 
 
-EDXAPP_LMS_DRAFT_DOC_STORE_CONFIG:
-  <<: *edxapp_generic_default_docstore
+EDXAPP_LMS_DRAFT_DOC_STORE_CONFIG: "{{ edxapp_generic_doc_store_config }}"
 
-EDXAPP_LMS_SPLIT_DOC_STORE_CONFIG:
-  <<: *edxapp_generic_default_docstore
+EDXAPP_LMS_SPLIT_DOC_STORE_CONFIG: "{{ edxapp_generic_doc_store_config }}"
 
-EDXAPP_CMS_DOC_STORE_CONFIG:
-  <<: *edxapp_generic_default_docstore
+EDXAPP_CMS_DOC_STORE_CONFIG: "{{ edxapp_generic_doc_store_config }}"
 
 edxapp_databases:
 # edxapp's edxapp-migrate scripts and the edxapp_migrate play
@@ -885,8 +882,7 @@ edxapp_generic_auth_config:  &edxapp_generic_auth
       user: "{{ EDXAPP_MONGO_USER }}"
       ssl: "{{ EDXAPP_MONGO_USE_SSL }}"
     ADDITIONAL_OPTIONS: "{{ EDXAPP_CONTENTSTORE_ADDITIONAL_OPTS }}"
-    DOC_STORE_CONFIG:
-      <<: *edxapp_generic_default_docstore
+    DOC_STORE_CONFIG: "{{ edxapp_generic_doc_store_config }}"
   DATABASES: "{{ edxapp_databases }}"
   EMAIL_HOST_USER: "{{ EDXAPP_EMAIL_HOST_USER }}"
   EMAIL_HOST_PASSWORD: "{{ EDXAPP_EMAIL_HOST_PASSWORD }}"
