@@ -885,7 +885,8 @@ edxapp_generic_auth_config:  &edxapp_generic_auth
       user: "{{ EDXAPP_MONGO_USER }}"
       ssl: "{{ EDXAPP_MONGO_USE_SSL }}"
     ADDITIONAL_OPTIONS: "{{ EDXAPP_CONTENTSTORE_ADDITIONAL_OPTS }}"
-    DOC_STORE_CONFIG: *edxapp_generic_default_docstore
+    DOC_STORE_CONFIG:
+      <<: *edxapp_generic_default_docstore
   DATABASES: "{{ edxapp_databases }}"
   EMAIL_HOST_USER: "{{ EDXAPP_EMAIL_HOST_USER }}"
   EMAIL_HOST_PASSWORD: "{{ EDXAPP_EMAIL_HOST_PASSWORD }}"
