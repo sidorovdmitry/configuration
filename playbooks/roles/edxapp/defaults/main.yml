@@ -770,6 +770,10 @@ generic_env_config:  &edxapp_generic_env
   CDN_VIDEO_URLS: "{{ CDN_VIDEO_URLS }}"
   PERFORMANCE_GRAPHITE_URL: "{{ PERFORMANCE_GRAPHITE_URL }}"
 
+  # Enable "visibility in catalog" functionality
+  COURSE_CATALOG_VISIBILITY_PERMISSION: 'see_exists'
+  COURSE_ABOUT_VISIBILITY_PERMISSION: 'see_exists'
+
   # repo root for courses
   GITHUB_REPO_ROOT: "{{ edxapp_course_data_dir }}"
   CACHES:
