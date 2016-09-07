@@ -54,7 +54,7 @@ error_page {{ k }} {{ v }};
   {% endif %}
 
   {% if NGINX_REDIRECT_TO_HTTPS %}
-  if ($http_x_forwarded_proto = "http") {
+  if ($http_x_forwarded_proto != "https") {
   rewrite ^ https://$host$request_uri? permanent;
   }
   {% endif %}
