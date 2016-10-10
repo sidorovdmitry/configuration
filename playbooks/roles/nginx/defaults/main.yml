@@ -61,6 +61,8 @@ NGINX_SERVER_HTML_FILES:
 
 NGINX_APT_REPO: deb http://nginx.org/packages/ubuntu/ {{ ansible_distribution_release }} nginx
 
+EDXAPP_CMS_SSL_NGINX_PORT: 443
+EDXAPP_LMS_SSL_NGINX_PORT: 443
 
 nginx_app_dir: "{{ COMMON_APP_DIR }}/nginx"
 nginx_data_dir: "{{ COMMON_DATA_DIR }}/nginx"
