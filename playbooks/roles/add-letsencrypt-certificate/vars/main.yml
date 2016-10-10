@@ -5,3 +5,6 @@ le_packages:
     - dialog 
     - python-virtualenv
     - libssl1.0.0
+
+EDXAPP_CMS_SSL_NGINX_PORT: 443
+EDXAPP_LMS_SSL_NGINX_PORT: 443

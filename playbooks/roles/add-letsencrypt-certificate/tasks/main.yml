@@ -1,5 +1,7 @@
 ---
 
+- set_fact: NGINX_ENABLE_SSL=true
+
 - name: Installing certbot dependencies
   apt: name="{{ item }}" update_cache=yes
   with_items: "{{ le_packages }}"
