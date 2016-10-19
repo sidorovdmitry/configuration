@@ -24,6 +24,8 @@ EDXAPP_BADGR_API_TOKEN: None
 EDXAPP_BADGR_BASE_URL: "http://localhost:8005"
 EDXAPP_BADGR_ISSUER_SLUG: "example-issuer"
 
+EDXAPP_COURSE_CATALOG_VISIBILITY_PERMISSION: 'see_exists'
+￼EDXAPP_COURSE_ABOUT_VISIBILITY_PERMISSION: 'see_exists'
 ## END RACCOONGANG ##
 
 # Bucket used for xblock file storage
@@ -950,6 +952,9 @@ generic_env_config:  &edxapp_generic_env
     limits: "{{ EDXAPP_CODE_JAIL_LIMITS }}"
     user: '{{ edxapp_sandbox_user }}'
   AFFILIATE_COOKIE_NAME: "{{ EDXAPP_AFFILIATE_COOKIE_NAME }}"
+  # RACCOONGANG
+  COURSE_CATALOG_VISIBILITY_PERMISSION: "{{ EDXAPP_COURSE_CATALOG_VISIBILITY_PERMISSION }}"
+￼  COURSE_ABOUT_VISIBILITY_PERMISSION: "{{ EDXAPP_COURSE_ABOUT_VISIBILITY_PERMISSION }}"
 
 lms_auth_config:
   <<: *edxapp_generic_auth
