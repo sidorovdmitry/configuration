@@ -2,6 +2,12 @@
 
 - set_fact: NGINX_ENABLE_SSL=true
 
+- stat: path="/etc/letsencrypt/live/{{ EDXAPP_SITE_NAME }}/fullchain.pem" 
+  register: le_cert_exists
+  become_method: sudo
+  become: yes
+  become_user: root
+
 - name: Installing certbot dependencies
   apt: name="{{ item }}" update_cache=yes
   with_items: "{{ le_packages }}"
@@ -30,12 +36,14 @@
   become_method: sudo
   become: yes
   become_user: root
+  when: le_cert_exists.stat.islnk is not defined
 
 - name: Requesting LMS and CMS certificate
   command: /usr/local/bin/certbot-auto certonly --agree-tos --non-interactive --text --rsa-key-size 2048 --webroot -w /var/www/letsencrypt -d "{{ EDXAPP_SITE_NAME }}" -d "{{ EDXAPP_CMS_SITE_NAME }}" -d "{{ EDXAPP_PREVIEW_LMS_BASE }}"  --register-unsafely-without-email --force-renewal
   become_method: sudo
   become: yes
   become_user: root
+  when: le_cert_exists.stat.islnk is not defined
 
 - name: Updating nginx LMS configuration
   template:
