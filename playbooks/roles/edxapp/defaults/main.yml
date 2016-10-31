@@ -30,6 +30,13 @@ EDXAPP_COURSE_ABOUT_VISIBILITY_PERMISSION: 'see_exists'
 EDXAPP_AWS_BACKUP_ENABLE: false
 EDXAPP_AWS_BACKUP_REPO: ''
 EDXAPP_AWS_BACKUP_VERSION: ''
+
+EDXAPP_LMS_ROOT_URLCONF: 'multi_cookies.lms_urls'
+EDXAPP_CMS_ROOT_URLCONF: 'multi_cookies.cms_urls'
+
+EDXAPP_AUTH_SESSION_COOKIE_DOMAIN: '.kwn.education'
+
+EDXAPP_ADD_MIDDLEWARE_CLASSES: ['multi_cookies.middleware.RemoteUserAuthMiddleware']
 ## END RACCOONGANG ##
 
 # Bucket used for xblock file storage
