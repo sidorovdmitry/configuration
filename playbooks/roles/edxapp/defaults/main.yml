@@ -24,6 +24,7 @@ EDXAPP_BADGR_API_TOKEN: None
 EDXAPP_BADGR_BASE_URL: "http://localhost:8005"
 EDXAPP_BADGR_ISSUER_SLUG: "example-issuer"
 
+EDXAPP_CREDENTIALS_ROOT_URL: "https://localhost:8150/"
 ## END RACCOONGANG ##
 
 # Bucket used for xblock file storage
@@ -1025,6 +1026,7 @@ lms_env_config:
   BADGR_API_TOKEN: "{{ EDXAPP_BADGR_API_TOKEN }}"
   BADGR_BASE_URL: "{{ EDXAPP_BADGR_BASE_URL }}"
   BADGR_ISSUER_SLUG: "{{ EDXAPP_BADGR_ISSUER_SLUG }}"
+  CREDENTIALS_ROOT_URL: "{{ EDXAPP_CREDENTIALS_ROOT_URL }}"
   ## END RACCOONGANG ##
 
 cms_auth_config:
