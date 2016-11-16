@@ -1,0 +1,7 @@
+---
+- hosts: "{{ edx_hosts }}"
+  tasks:
+    - name: Gathering ec2 facts
+      action: ec2_facts
+
+    - include: instance_elb_state.yml

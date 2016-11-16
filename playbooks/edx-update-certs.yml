@@ -1,0 +1,29 @@
+---
+
+- hosts: certs
+  become: true
+  become_method: sudo
+  become_user: root
+  tasks:
+
+  - name: Update repositories cache and install packages
+    apt: name="{{ item }}" update_cache=yes
+    with_items:
+      - libtiff4-dev
+      - libjpeg8-dev
+      - zlib1g-dev
+      - libfreetype6-dev
+      - liblcms2-dev
+      - libwebp-dev
+      - tcl8.5-dev
+      - tk8.5-dev
+      - python-tk
+
+- hosts: certs
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  roles:
+    - certs
+

@@ -1,0 +1,47 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+    - name: Create {{AWS_MYSQL_S3_BACKUP_BUCKET_NAME}} S3 bucket
+      s3:
+        aws_access_key: "{{ EDXAPP_AWS_ACCESS_KEY_ID }}"
+        aws_secret_key: "{{ EDXAPP_AWS_SECRET_ACCESS_KEY }}"
+        bucket: "{{ AWS_MYSQL_S3_BACKUP_BUCKET_NAME }}"
+        mode: create
+        region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+      when: (AWS_MYSQL_S3_BACKUP_BUCKET_NAME is defined) and (MULTITENANT_VAR_AWS_REGION is defined) and (EDXAPP_AWS_ACCESS_KEY_ID is defined) and (EDXAPP_AWS_SECRET_ACCESS_KEY is defined)
+
+    - name: Create {{AWS_MONGO_S3_BACKUP_BUCKET_NAME}} S3 bucket
+      s3:
+        aws_access_key: "{{ EDXAPP_AWS_ACCESS_KEY_ID }}"
+        aws_secret_key: "{{ EDXAPP_AWS_SECRET_ACCESS_KEY }}"
+        bucket: "{{ AWS_MONGO_S3_BACKUP_BUCKET_NAME }}"
+        mode: create
+        region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+      when: (AWS_MONGO_S3_BACKUP_BUCKET_NAME is defined) and (MULTITENANT_VAR_AWS_REGION is defined) and (EDXAPP_AWS_ACCESS_KEY_ID is defined) and (EDXAPP_AWS_SECRET_ACCESS_KEY is defined)
+
+
+    - name: set lifecycle for {{AWS_MYSQL_S3_BACKUP_BUCKET_NAME}} S3 bucket
+      s3_lifecycle:
+        name: "{{ AWS_MYSQL_S3_BACKUP_BUCKET_NAME }}"
+        aws_access_key: "{{ EDXAPP_AWS_ACCESS_KEY_ID }}"
+        aws_secret_key: "{{ EDXAPP_AWS_SECRET_ACCESS_KEY }}"
+        expiration_days: "{{ AWS_MYSQL_S3_BACKUP_BUCKET_NAME_EXP_DATE | default (30) }}"
+        prefix: "/{{ item }}/"
+        status: enabled
+        state: present
+      with_items:
+        - mysql
+
+    - name: set lifecycle for {{AWS_MONGO_S3_BACKUP_BUCKET_NAME}} S3 bucket
+      s3_lifecycle:
+        name: "{{ AWS_MONGO_S3_BACKUP_BUCKET_NAME }}"
+        aws_access_key: "{{ EDXAPP_AWS_ACCESS_KEY_ID }}"
+        aws_secret_key: "{{ EDXAPP_AWS_SECRET_ACCESS_KEY }}"
+        expiration_days: "{{ AWS_MONGO_S3_BACKUP_BUCKET_NAME_EXP_DATE | default (30) }}"
+        prefix: "/{{ item }}/"
+        status: enabled
+        state: present
+      with_items:
+        - mongo
+

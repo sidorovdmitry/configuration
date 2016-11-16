@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    aws_access_key: "{{ EDXAPP_AWS_ACCESS_KEY_ID }}"
+    aws_secret_key: "{{ EDXAPP_AWS_SECRET_ACCESS_KEY }}"
+    region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+  roles:
+    - role: aws-bucket-create
+      bucket: "{{ EDXAPP_STAGE_TEST_BUCKET | default ('IGNORE') }}"
+    - role: aws-bucket-create
+      bucket: "{{ EDXAPP_GRADE_BUCKET | default ('IGNORE') }}"
+    - role: aws-bucket-create
+      bucket: "{{ EDXAPP_XBLOCK_FS_STORAGE_BUCKET | default ('IGNORE') }}"
+    - role: aws-bucket-create
+      bucket: "{{ EDXAPP_FILE_UPLOAD_STORAGE_BUCKET_NAME | default ('IGNORE') }}"
+    - role: aws-bucket-create
+      bucket: "{{ EDXAPP_FINANCIAL_REPORTS.BUCKET | default ('IGNORE') }}"
+    - role: aws-bucket-create
+      bucket: "{{ EDXAPP_VIDEO_UPLOAD_PIPELINE.BUCKET | default ('IGNORE') }}"
+

@@ -1,0 +1,246 @@
+---
+
+#- hosts: all
+#  become: true
+#  become_method: sudo
+#  become_user: root
+#  tasks:
+#    - name: update apt cache
+#      apt: >
+#          update_cache=yes
+
+#- hosts: mysql
+#  become: true
+#  become_method: sudo
+#  become_user: root
+#  gather_facts: True
+#  roles:
+#    - mysql-custom
+
+- hosts: all_host_rds_multitenant
+  become: true
+  become_method: sudo
+  become_user: root
+  tasks:
+    - name: update apt cache
+      apt: >
+          update_cache=yes
+
+- hosts: localhost
+  connection: local
+  gather_facts: True
+  roles:
+    - role: mysql-rds-custom
+
+- hosts: memcached
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  roles:
+    - memcache-custom
+
+- hosts: mongo
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  roles:
+    - mongo
+
+- hosts: 'rabbit*'
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  roles:
+     - { role: 'rabbitmq', rabbitmq_ip: " " }
+
+- hosts: elasticsearch
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  roles:
+    - oraclejdk
+    - common
+    - elasticsearch
+
+- hosts: xqueue
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  roles:
+    - role: nginx
+      nginx_sites:
+      - xqueue
+    - { role: "xqueue", update_users: true }
+
+- hosts: edx2
+  tasks:
+    - name: Gathering ec2 facts
+      action: ec2_facts
+
+    - name: set_fact ELB NODE_STATE absent
+      set_fact:
+        NODE_STATE: absent
+
+    - include: instance_elb_state.yml
+
+    - name: set_fact maintenance_state on
+      set_fact:
+        NGINX_MAINTENANCE_STATE: true
+
+    - include: maintenance-work/copy-maintenance.yml
+
+- hosts: edx2
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  vars:
+    service_variants_enabled:
+      - cms
+      - lms
+    migrate_db: "yes"
+    
+  roles:
+    - role: nginx
+      nginx_sites:
+      - cms
+      - lms
+    - edxapp
+
+- hosts: edx2
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  vars:
+    service_variants_enabled:
+      - cms
+      - lms
+    EDXAPP_WORKERS:
+      cms: 4
+      lms: 16
+  roles:
+    - { role: 'edxapp', celery_worker: True, celery_cms_worker: True, celery_lms_worker: True}  
+
+- hosts: edx2
+  tasks:
+    - name: set_fact maintenance_state off
+      set_fact:
+        NGINX_MAINTENANCE_STATE: false
+
+    - include: maintenance-work/copy-maintenance.yml
+
+    - name: set_fact ELB NODE_STATE absent
+      set_fact:
+        NODE_STATE: present
+
+    - include: instance_elb_state.yml
+
+- hosts: edx1
+  tasks:
+    - name: Gathering ec2 facts
+      action: ec2_facts
+
+    - name: set_fact ELB NODE_STATE absent
+      set_fact:
+        NODE_STATE: absent
+
+    - include: instance_elb_state.yml
+
+    - name: set_fact maintenance_state on
+      set_fact:
+        NGINX_MAINTENANCE_STATE: true
+
+    - include: maintenance-work/copy-maintenance.yml
+
+- hosts: edx1
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  vars:
+    service_variants_enabled:
+      - cms
+      - lms
+    migrate_db: "yes"
+    
+  roles:
+    - role: nginx
+      nginx_sites:
+      - cms
+      - lms
+    - edxapp
+
+- hosts: edx1
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  vars:
+    service_variants_enabled:
+      - cms
+      - lms
+    EDXAPP_WORKERS:
+      cms: 4
+      lms: 16
+  roles:
+    - { role: 'edxapp', celery_worker: True, celery_cms_worker: True, celery_lms_worker: True}  
+
+- hosts: edx1
+  tasks:
+
+    - name: set_fact maintenance_state off
+      set_fact:
+        NGINX_MAINTENANCE_STATE: false
+
+    - include: maintenance-work/copy-maintenance.yml
+
+    - name: set_fact ELB NODE_STATE absent
+      set_fact:
+        NODE_STATE: present
+
+    - include: instance_elb_state.yml
+
+- hosts: certs
+  become: true
+  become_method: sudo
+  become_user: root
+  tasks:
+
+  - name: Update repositories cache and install packages
+    apt: name="{{ item }}" update_cache=yes
+    with_items:
+      - libtiff4-dev
+      - libjpeg8-dev
+      - zlib1g-dev
+      - libfreetype6-dev
+      - liblcms2-dev
+      - libwebp-dev
+      - tcl8.5-dev
+      - tk8.5-dev
+      - python-tk
+
+- hosts: certs
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  roles:
+    - certs
+
+- hosts: forum
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  roles:
+    - role: nginx
+      nginx_sites:
+      - forum
+    - forum
+

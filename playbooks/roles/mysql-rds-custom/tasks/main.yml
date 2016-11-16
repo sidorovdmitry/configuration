@@ -1,0 +1,3 @@
+---
+- name: Check if RDS contain correct databases and users
+  script: update_rds.sh 

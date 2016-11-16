@@ -1,0 +1,48 @@
+---
+
+- name: set_fact ec2_facts_instances_item
+  set_fact:
+    ec2_facts_instances_item: "{{item}}"
+
+- name: set_fact ansible_ec2_instance_id
+  set_fact:
+    ansible_ec2_instance_id: "{{ ec2_facts_instances_item.id }}" 
+
+- name: set_fact ELB NODE_STATE absent
+  set_fact:
+    NODE_STATE: absent
+
+- include: ../instance_elb_state.yml
+
+- name: set_fact maintenance_state on
+  set_fact:
+    NGINX_MAINTENANCE_STATE: true
+
+- include: ../maintenance-work/copy-maintenance.yml
+
+- name: Snapshot the instance
+  ec2_snapshot:
+    aws_secret_key: "{{ MULTITENANT_VAR_AWS_SECRET_ACCESS_KEY }}"
+    aws_access_key: "{{ MULTITENANT_VAR_AWS_ACCESS_KEY_ID }}"
+    region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+    instance_id: "{{ ec2_facts_instances_item.id }}"
+    device_name: "{{ device_name }}"
+    description: "awsbackup snapshot taken on {{ ansible_date_time.date }} at {{ ansible_date_time.time }}"
+    snapshot_tags:
+      Name: "{{ ec2_facts_instances_item.tags.Name }}_{{ INCREMENTAL }}_{{ ansible_date_time.date }}"
+      identifier: "awsbackup"
+      instance: "{{ ec2_facts_instances_item.tags.Name }}"
+      incremental: "{{ INCREMENTAL }}"
+
+- name: set_fact maintenance_state off
+  set_fact:
+    NGINX_MAINTENANCE_STATE: false
+
+- include: ../maintenance-work/copy-maintenance.yml
+
+- name: set_fact ELB NODE_STATE absent
+  set_fact:
+    NODE_STATE: present
+
+- include: ../instance_elb_state.yml
+

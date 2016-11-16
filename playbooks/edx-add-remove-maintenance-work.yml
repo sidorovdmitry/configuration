@@ -1,0 +1,5 @@
+---
+- hosts: "{{ edx_hosts }}"
+  tasks:
+    - include: maintenance-work/copy-maintenance.yml
+

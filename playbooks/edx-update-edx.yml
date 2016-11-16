@@ -1,0 +1,65 @@
+---
+- hosts: "{{ edx_hosts }}"
+  tasks:
+    - name: Gathering ec2 facts
+      action: ec2_facts
+
+    - name: set_fact ELB NODE_STATE absent
+      set_fact:
+        NODE_STATE: absent
+
+    - include: instance_elb_state.yml
+
+    - name: set_fact maintenance_state on
+      set_fact:
+        NGINX_MAINTENANCE_STATE: true
+
+    - include: maintenance-work/copy-maintenance.yml
+
+- hosts: "{{ edx_hosts }}"
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  vars:
+    service_variants_enabled:
+      - cms
+      - lms
+    migrate_db: "yes"
+
+  roles:
+    - role: nginx
+      nginx_sites:
+      - cms
+      - lms
+    - edxapp
+
+- hosts: "{{ edx_hosts }}"
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  vars:
+    service_variants_enabled:
+      - cms
+      - lms
+    EDXAPP_WORKERS:
+      cms: 4
+      lms: 16
+  roles:
+    - { role: 'edxapp', celery_worker: True, celery_cms_worker: True, celery_lms_worker: True}
+
+- hosts: "{{ edx_hosts }}"
+  tasks:
+    - name: set_fact maintenance_state off
+      set_fact:
+        NGINX_MAINTENANCE_STATE: false
+
+    - include: maintenance-work/copy-maintenance.yml
+
+    - name: set_fact ELB NODE_STATE absent
+      set_fact:
+        NODE_STATE: present
+
+    - include: instance_elb_state.yml
+

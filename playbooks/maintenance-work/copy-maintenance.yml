@@ -1,0 +1,33 @@
+---
+- name: Copy maintenance files to edx instance
+  copy:
+    src: maintenance-work/maintenance
+    dest: /edx/var/nginx/server-static/
+    owner: root
+    group: www-data
+    mode: 0644
+  become: true
+  become_method: sudo
+  become_user: root
+
+- name: set_fact maintenance_state on
+  set_fact:
+    maintenance_state: 'touch'
+  when: (NGINX_MAINTENANCE_STATE is defined) and ("{{ NGINX_MAINTENANCE_STATE }}"=='true')
+
+- name: set_fact maintenance_state off
+  set_fact:
+    maintenance_state: 'absent'
+  when: (NGINX_MAINTENANCE_STATE is defined) and ("{{ NGINX_MAINTENANCE_STATE }}"=='false')
+
+- name: Enable maintenance works
+  file:
+    path: /edx/var/nginx/server-static/maintenance/maintenance
+    state: "{{ maintenance_state | default('absent')}}"
+    owner: root
+    group: www-data
+    mode: 0644
+  when: (NGINX_MAINTENANCE_STATE is defined)
+  become: true
+  become_method: sudo
+  become_user: root

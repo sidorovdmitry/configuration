@@ -1,0 +1,69 @@
+- hosts: localhost
+  connection: local
+  vars:
+    device_name: /dev/sdf
+  tasks:
+    - name: Check if extra vars is set
+      fail:
+         msg: "MULTITENANT_VAR_AWS_REGION, MULTITENANT_VAR_AWS_ACCESS_KEY_ID, MULTITENANT_VAR_AWS_SECRET_ACCESS_KEY, MULTITENANT_VAR_AWS_EC2_TAGS_PREFIX undefined (please add it to server-vars)"
+      when: ((MULTITENANT_VAR_AWS_REGION is undefined) or (MULTITENANT_VAR_AWS_ACCESS_KEY_ID is undefined) or (MULTITENANT_VAR_AWS_SECRET_ACCESS_KEY is undefined) or (MULTITENANT_VAR_AWS_EC2_TAGS_PREFIX is undefined))
+
+    - name: Gather EC2 facts
+      ec2_remote_facts:
+        aws_secret_key: "{{ MULTITENANT_VAR_AWS_SECRET_ACCESS_KEY }}"
+        aws_access_key: "{{ MULTITENANT_VAR_AWS_ACCESS_KEY_ID }}"
+        region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+        filters:
+          "tag:ec2_snapshot": "yes"
+      register: ec2_facts
+
+    - name: set_fact ec2_count_to_snapshot
+      set_fact:
+        ec2_count_to_snapshot: "{{ ec2_count_to_snapshot | default(0) | int + 1 }}"
+      with_items: "{{ ec2_facts.instances }}"
+
+    - name: Default to MULTITENANT_VAR_AWS_SNAPSHOT_COUNT daily snapshots
+      set_fact:
+        COUNT: "{{ MULTITENANT_VAR_AWS_SNAPSHOT_COUNT | int * ec2_count_to_snapshot | int }}"
+        INCREMENTAL: 'daily'
+
+    - include: snapshot-create-rotate.yml
+      with_items: "{{ ec2_facts.instances }}"
+
+    - name: Find snapshots
+      ec2_snapshot_facts:
+        aws_secret_key: "{{ MULTITENANT_VAR_AWS_SECRET_ACCESS_KEY }}"
+        aws_access_key: "{{ MULTITENANT_VAR_AWS_ACCESS_KEY_ID }}"
+        region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+        filters:
+          "tag:identifier": "awsbackup"
+          "tag:incremental": "{{ INCREMENTAL }}"
+      register: ec2_snapshot_facts_data
+
+    - name: Get ordered list of snapshots for each instance
+      set_fact:
+        snaps_fact_list:  "{{ ec2_snapshot_facts_data.snapshots|selectattr('tags.identifier', 'equalto', 'awsbackup')|selectattr('tags.incremental', 'equalto', INCREMENTAL)|sort(attribute='start_time')|reverse|map(attribute='snapshot_id')|list }}"
+      with_items: "{{ ec2_facts.instances }}"
+      register: snaps_fact_list_register
+
+    - name: Cut the list by our COUNT variable
+      set_fact:
+        snaps_cut: "{{ item['ansible_facts']['snaps_fact_list'][COUNT|int:] }}"
+      with_items: "{{ snaps_fact_list_register.results }}"
+      register: snaps_cut_register
+
+    - name: Join the nested list of snapshots that will be deleted
+      set_fact:
+        snaps_joined: "{{ snaps_joined | default([])}} + {{ item.ansible_facts.snaps_cut }}"
+      with_items: "{{ snaps_cut_register.results }}"
+
+    - name: Delete snapshots in the nested list of snapshots
+      ec2_snapshot:
+        aws_secret_key: "{{ MULTITENANT_VAR_AWS_SECRET_ACCESS_KEY }}"
+        aws_access_key: "{{ MULTITENANT_VAR_AWS_ACCESS_KEY_ID }}"
+        region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+        state: absent
+        snapshot_id: "{{ item }}"
+      with_items: "{{ snaps_joined }}"
+      register: deleted_snapshots
+

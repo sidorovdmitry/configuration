@@ -1,0 +1,42 @@
+---
+- hosts: "{{ edx_hosts }}"
+  tasks:
+    - name: Gathering ec2 facts
+      action: ec2_facts
+
+    - name: set_fact ELB NODE_STATE absent
+      set_fact:
+        NODE_STATE: absent
+
+    - include: instance_elb_state.yml
+
+    - name: set_fact maintenance_state on
+      set_fact:
+        NGINX_MAINTENANCE_STATE: true
+
+    - include: maintenance-work/copy-maintenance.yml
+
+- hosts: "{{ edx_hosts }}"
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  tasks:
+    - name: Update cms assets
+      command: sudo /edx/bin/edxapp-update-assets-cms
+    - name: Update lms assets
+      command: sudo /edx/bin/edxapp-update-assets-lms
+
+- hosts: "{{ edx_hosts }}"
+  tasks:
+    - name: set_fact maintenance_state off
+      set_fact:
+        NGINX_MAINTENANCE_STATE: false
+
+    - include: maintenance-work/copy-maintenance.yml
+
+    - name: set_fact ELB NODE_STATE absent
+      set_fact:
+        NODE_STATE: present
+
+    - include: instance_elb_state.yml

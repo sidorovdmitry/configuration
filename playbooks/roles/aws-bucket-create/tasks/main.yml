@@ -1,0 +1,10 @@
+---
+- name: Create "{{ bucket }}" AWS S3 buckets
+  s3:
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    bucket: "{{ bucket }}"
+    mode: create
+    region: "{{ region }}"
+  when: (bucket is defined) and ("{{ bucket }}"!="IGNORE") and (region is defined) and (aws_access_key is defined) and (aws_secret_key is defined)
+

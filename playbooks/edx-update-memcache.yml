@@ -1,0 +1,10 @@
+---
+
+- hosts: memcached
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  roles:
+    - memcache-custom
+

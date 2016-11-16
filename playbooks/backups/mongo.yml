@@ -1,0 +1,103 @@
+---
+- hosts: mongo
+  become: true
+  become_method: sudo
+  become_user: root
+  vars:
+    backup_tmp_path: "/tmp/mongo_tmp_backup_dir"
+    s3fs_bucket_mount_path: "/mnt/mongo_backup_bucket"
+  tasks:
+    - name: set_fact timestamp
+      set_fact: timestamp="{{lookup('pipe','date +%Y-%m-%d-%H:%M')}}"
+
+    - name: Remove backup tmp folder
+      file: path="{{ backup_tmp_path }}" state=absent
+
+    - name: Create backup tmp folder
+      file: path="{{ backup_tmp_path }}" state=directory
+
+    - name: dump mongo
+      shell: 'mongodump -h {{ EDXAPP_MONGO_HOSTS }}:27017 -u {{ MONGO_ADMIN_USER }} -p {{ MONGO_ADMIN_PASSWORD }} --out {{ backup_tmp_path }}/mongo-{{ timestamp }}'
+
+    - name: create tar.gz from dump
+      shell: 'tar -zcvf {{ backup_tmp_path }}/mongo-{{ timestamp }}.tar.gz {{ backup_tmp_path }}/mongo-{{ timestamp }}' 
+
+    - name: Make sure s3fs dependencies are present
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+      with_items:
+        - unzip
+        - fuse
+        - libssl-dev
+        - pkg-config
+        - build-essential
+        - libfuse-dev
+        - libcurl4-openssl-dev
+        - libxml2-dev
+        - mime-support
+        - automake
+        - libtool
+        - ntp
+
+    - name: Download s3fs source
+      git:
+        repo: https://github.com/s3fs-fuse/s3fs-fuse.git
+        dest: /tmp/s3fs-fuse-master
+        version: master
+
+    - name: Build s3fs
+      shell: "cd /tmp/s3fs-fuse-* && ./autogen.sh && ./configure && make"
+      changed_when: False
+
+    - name: Install s3fs
+      become: yes
+      shell: "cd /tmp/s3fs-fuse-* && make install"
+      args:
+        creates: "/usr/local/bin/s3fs"
+
+    - name: Add read permission to other users
+      become: yes
+      file:
+        path: /etc/fuse.conf
+        state: file
+        mode: "o=r"
+
+    - name: Allow non-root users to specify the allow_other or allow_root mount options
+      become: yes
+      lineinfile:
+        dest: "/etc/fuse.conf"
+        regexp: "^#user_allow_other$"
+        line: "user_allow_other"
+        state: present
+        backrefs: yes
+        owner: root
+        group: root
+        mode: 600
+
+    - name: configure s3fs credentials
+      lineinfile:
+        line: "{{ EDXAPP_AWS_ACCESS_KEY_ID }}:{{ EDXAPP_AWS_SECRET_ACCESS_KEY }}"
+        dest: /root/.passwd-s3fs
+        state: present
+        create: yes
+
+    - name: Create s3fs mount folder
+      file: path="{{ s3fs_bucket_mount_path }}" state=directory
+
+    - name: mount s3 bucket
+      shell: "s3fs -o nonempty {{ AWS_MONGO_S3_BACKUP_BUCKET_NAME }} {{ s3fs_bucket_mount_path }}"
+
+    - name: Create s3fs mount folder
+      file: path="{{ s3fs_bucket_mount_path }}/mongo" state=directory
+
+    - name: copy bacup into s3 bucket mount point
+      shell: "cp {{ backup_tmp_path }}/*.tar.gz {{ s3fs_bucket_mount_path }}/mongo/"
+
+    - name: umount s3 bucket
+      shell: "umount {{ s3fs_bucket_mount_path }}"
+
+    - name: Remove backup tmp folder
+      file: path="{{ backup_tmp_path }}" state=absent
+

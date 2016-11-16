@@ -1,0 +1,53 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    backup_tmp_path: "/tmp/mysql_tmp_backup_dir"
+    exclude_db:
+      - "Database"
+      - "innodb"
+      - "information_schema"
+      - "performance_schema"
+      - "mysql"
+      - "sys"
+  tasks:
+
+    - name: set_fact timestamp
+      set_fact: timestamp="{{lookup('pipe','date +%Y-%m-%d-%H:%M')}}"
+
+    - name: Remove backup tmp folder
+      file: path="{{ backup_tmp_path }}" state=absent
+    
+    - name: Create backup tmp folder
+      file: path="{{ backup_tmp_path }}" state=directory
+
+    - name: get db names
+      shell: 'mysql -u {{ EDXAPP_MYSQL_USER_ADMIN }} -p{{ EDXAPP_MYSQL_PASSWORD_ADMIN }} -h{{ endpoint }} -e "show databases;" '
+      register: dblist
+
+    - name: backup databases
+      mysql_db:
+        state: dump
+        name: "{{ item }}"
+        target: "{{ backup_tmp_path }}/{{ item }}-{{ timestamp }}.sql"
+        login_user: "{{ EDXAPP_MYSQL_USER_ADMIN }}"
+        login_password: "{{ EDXAPP_MYSQL_PASSWORD_ADMIN }}"
+        login_host: "{{ endpoint }}"
+      with_items: "{{ dblist.stdout_lines | difference(exclude_db) }}"
+
+    - name: Put mysql backup into S3 bucket
+      s3:
+        aws_access_key: "{{ EDXAPP_AWS_ACCESS_KEY_ID }}"
+        aws_secret_key: "{{ EDXAPP_AWS_SECRET_ACCESS_KEY }}"
+        bucket: "{{ AWS_MYSQL_S3_BACKUP_BUCKET_NAME }}"
+        object: "mysql/{{ item | basename }}"
+        src: "{{item}}"
+        mode: put
+        overwrite: yes
+        region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+      with_fileglob:
+        - "{{ backup_tmp_path }}/*"
+
+    - name: Remove backup tmp folder
+      file: path="{{ backup_tmp_path }}" state=absent
+

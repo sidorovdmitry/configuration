@@ -1,3 +1,10 @@
+edxvenv/*
+updatedvenv/*
+server-vars.yml
+hosts
+*.retry
+playbooks/themex_script/*
+playbooks/themex_script/.*
 *.swp
 *.pyc
 .idea/

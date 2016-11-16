@@ -1,0 +1,44 @@
+---
+- name: set_fact extra_vars_defined
+  set_fact:
+    extra_vars_defined: True
+  when: (MULTITENANT_VAR_AWS_REGION is defined) and (MULTITENANT_VAR_AWS_ACCESS_KEY_ID is defined) and (MULTITENANT_VAR_AWS_SECRET_ACCESS_KEY is defined) and (MULTITENANT_VAR_AWS_EC2_TAGS_PREFIX is defined)
+
+- name: list tags on an instance
+  local_action:
+    module: ec2_tag
+    aws_secret_key: "{{ MULTITENANT_VAR_AWS_SECRET_ACCESS_KEY }}"
+    aws_access_key: "{{ MULTITENANT_VAR_AWS_ACCESS_KEY_ID }}"
+    resource: "{{ ansible_ec2_instance_id }}"
+    region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+    state: list
+  when: (extra_vars_defined is defined) and (extra_vars_defined)
+  register: ec2_tags
+
+- name: set_fact elb_attached
+  set_fact:
+    elb_attached: True
+  when: (extra_vars_defined is defined) and (extra_vars_defined) and ("{{ ec2_tags.tags.LB }}" == "{{ MULTITENANT_VAR_AWS_EC2_TAGS_PREFIX }}-frontend-ELB")
+
+- name: Instance De-register
+  local_action:
+    module: ec2_elb
+    region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+    aws_access_key: "{{ MULTITENANT_VAR_AWS_ACCESS_KEY_ID }}"
+    aws_secret_key: "{{ MULTITENANT_VAR_AWS_SECRET_ACCESS_KEY }}"
+    instance_id: "{{ ansible_ec2_instance_id }}"
+    state: absent
+    ec2_elbs: "{{ MULTITENANT_VAR_AWS_EC2_TAGS_PREFIX }}-frontend-ELB"
+  when: (NODE_STATE is defined) and ("{{ NODE_STATE }}"=='absent') and (elb_attached is defined) and (elb_attached)
+
+- name: Instance Register
+  local_action:
+    module: ec2_elb
+    region: "{{ MULTITENANT_VAR_AWS_REGION }}"
+    aws_access_key: "{{ MULTITENANT_VAR_AWS_ACCESS_KEY_ID }}"
+    aws_secret_key: "{{ MULTITENANT_VAR_AWS_SECRET_ACCESS_KEY }}"
+    instance_id: "{{ ansible_ec2_instance_id }}"
+    state: present
+    ec2_elbs: "{{ MULTITENANT_VAR_AWS_EC2_TAGS_PREFIX }}-frontend-ELB"
+  when: (NODE_STATE is defined) and ("{{ NODE_STATE }}"=='present') and (elb_attached is defined) and (elb_attached)
+
