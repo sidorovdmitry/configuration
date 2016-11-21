@@ -222,10 +222,29 @@ error_page {{ k }} {{ v }};
     try_files $uri @proxy_to_lms_app;
   }
 
-location {{ EDXAPP_MEDIA_URL }} {
-    alias {{ edxapp_media_dir }}/;
-    expires {{ EDXAPP_PROFILE_IMAGE_MAX_AGE }}s;
-}
+
+  {%- if EDXAPP_GRADE_STORAGE_TYPE_LOCAL -%}
+
+    location ~ ^/grades/(?P<file>.*) {
+        root {{ edxapp_media_dir }}/grades;
+        try_files /$file =404;
+        expires {{ EDXAPP_PROFILE_IMAGE_MAX_AGE }}s;
+    }
+
+    location ~ ^{{ EDXAPP_MEDIA_URL }}(?P<file>.*) {
+        alias {{ edxapp_media_dir }}/;
+        try_files /$file /grades/$file;
+        expires {{ EDXAPP_PROFILE_IMAGE_MAX_AGE }}s;
+    }
+
+  {%- else -%}
+
+  location {{ EDXAPP_MEDIA_URL }} {
+      alias {{ edxapp_media_dir }}/;
+      expires {{ EDXAPP_PROFILE_IMAGE_MAX_AGE }}s;
+  }
+
+  {%- endif %}
 
   {% include "robots.j2" %}
   {% include "static-files.j2" %}
