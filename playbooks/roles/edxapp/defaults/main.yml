@@ -27,6 +27,13 @@ EDXAPP_THIRD_PARTY_AUTH_BACKENDS:
 - "social.backends.facebook.FacebookOAuth2"
 - "social.backends.twitter.TwitterOAuth"
 - "third_party_auth.saml.SAMLAuthBackend"
+- "sso_edx_microsoft.backends.microsoft.MicrosoftBackend"
+- "sso_edx_microsoft.backends.microsoft.CMSMicrosoftBackend"
+
+EDXAPP_LMS_MICROSOFT_MAKO_TEMPLATES: []
+EDXAPP_CMS_MICROSOFT_MAKO_TEMPLATES: []
+EDXAPP_AZURE_AD_ID: ""
+
 EDXAPP_ADDL_INSTALLED_APPS: []
 EDXAPP_ADDL_LMS_MIDDLEWARE_CLASSES: []
 EDXAPP_ADDL_CMS_MIDDLEWARE_CLASSES: []
@@ -855,6 +862,7 @@ generic_env_config:  &edxapp_generic_env
   SOCIAL_SHARING_SETTINGS: "{{ EDXAPP_SOCIAL_SHARING_SETTINGS }}"
   SESSION_COOKIE_SECURE: "{{ EDXAPP_SESSION_COOKIE_SECURE }}"
   ##   RACCOONGANG   ##
+  THIRD_PARTY_AUTH_BACKENDS: "{{ EDXAPP_THIRD_PARTY_AUTH_BACKENDS }}"
   ADMINS: "{{ EDXAPP_ADMINS }}"
   COPYRIGHT_YEAR: "{{ EDXAPP_COPYRIGHT_YEAR }}"
   ADDL_INSTALLED_APPS: "{{ EDXAPP_ADDL_INSTALLED_APPS }}"
@@ -892,7 +900,7 @@ lms_auth_config:
                 fs_root:  "{{ edxapp_course_data_dir }}"
                 render_template: 'edxmako.shortcuts.render_to_string'
   PROCTORING_BACKEND_PROVIDER: "{{ EDXAPP_PROCTORING_BACKEND_PROVIDER }}"
-
+  AZURE_AD_ID: "{{ EDXAPP_AZURE_AD_ID }}"
 
 lms_env_config:
   <<: *edxapp_generic_env
@@ -926,7 +934,7 @@ lms_env_config:
   ELASTIC_SEARCH_CONFIG: "{{ EDXAPP_ELASTIC_SEARCH_CONFIG }}"
   MAILCHIMP_NEW_USER_LIST_ID: "{{ EDXAPP_MAILCHIMP_NEW_USER_LIST_ID }}"
   ##   RACCOONGANG   ##
-  THIRD_PARTY_AUTH_BACKENDS: "{{ EDXAPP_THIRD_PARTY_AUTH_BACKENDS }}"
+  MICROSOFT_MAKO_TEMPLATES: "{{ EDXAPP_LMS_MICROSOFT_MAKO_TEMPLATES }}"
   ADDL_LMS_MIDDLEWARE_CLASSES: "{{ EDXAPP_ADDL_LMS_MIDDLEWARE_CLASSES }}"
   SOCIAL_AUTH_EXCLUDE_URL_PATTERN: "{{ EDXAPP_SOCIAL_AUTH_EXCLUDE_URL_PATTERN }}"
   COURSE_CATALOG_VISIBILITY_PERMISSION: "{{ EDXAPP_COURSE_CATALOG_VISIBILITY_PERMISSION }}"
@@ -957,11 +965,14 @@ cms_auth_config:
                 fs_root:  "{{ edxapp_course_data_dir }}"
                 render_template: 'edxmako.shortcuts.render_to_string'
   PARSE_KEYS: "{{ EDXAPP_PARSE_KEYS }}"
+  AZURE_AD_ID: "{{ EDXAPP_AZURE_AD_ID }}"
+
 cms_env_config:
   <<: *edxapp_generic_env
   SITE_NAME:  "{{ EDXAPP_CMS_SITE_NAME }}"
   GIT_REPO_EXPORT_DIR: "{{ EDXAPP_GIT_REPO_EXPORT_DIR }}"
   ##   RACCOONGANG   ##
+  MICROSOFT_MAKO_TEMPLATES: "{{ EDXAPP_CMS_MICROSOFT_MAKO_TEMPLATES }}"
   ADDL_CMS_MIDDLEWARE_CLASSES: "{{ EDXAPP_ADDL_CMS_MIDDLEWARE_CLASSES }}"
   CMS_MKTG_URLS: "{{ EDXAPP_CMS_MKTG_URLS }}"
   ## END RACCOONGANG ##
