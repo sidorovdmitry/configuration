@@ -135,8 +135,27 @@ error_page {{ k }} {{ v }};
       return 302 /embargo;
     }
     {% endif -%}
+    {% if EDXAPP_NGINX_BACKUP_MAINTENANCE_PAGE %}
+    if (-f {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_FILE }}) {
+            return 503;
+    }
+    {% endif %}
     try_files $uri @proxy_to_lms_app;
   }
+
+  {% if EDXAPP_NGINX_BACKUP_MAINTENANCE_PAGE %}
+  error_page 503 /{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX }};
+
+  location = /{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX }} {
+        root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }};
+        try_files /{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX }} =404;
+    }
+  
+  location ~ ^/{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX_STATIC }}/(?P<file>.*) {
+      root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX_STATIC}};
+      try_files /$file =404;
+  }
+  {% endif %}
 
 {% if NGINX_EDXAPP_EMBARGO_CIDRS %}
   location /embargo {
