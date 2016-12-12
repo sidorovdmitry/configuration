@@ -32,6 +32,8 @@
       nginx_sites:
       - cms
       - lms
+      - programs-multitenant-redirect
+      - credentials-multitenant-redirect
     - edxapp
 
 - hosts: "{{ edx_hosts }}"
