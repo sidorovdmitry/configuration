@@ -34,6 +34,8 @@
       - lms
       - programs-multitenant-redirect
       - credentials-multitenant-redirect
+      nginx_default_sites:
+      - lms
     - edxapp
 
 - hosts: "{{ edx_hosts }}"

@@ -1,16 +1,23 @@
 upstream programs_app_server {
-
     server {{ EDXAPP_PROGRAMS_BASE_LOCAL }}:{{ PROGRAMS_NGINX_PORT }} fail_timeout=0;
 }
 
 server {
   server_name {{ EDXAPP_PROGRAMS_BASE }};
   
+  {% if PROGRAMS_NGINX_REDIRECT %}
+  listen {{ PROGRAMS_NGINX_REDIRECT_PORT }};
+  {% else %}
   listen {{ PROGRAMS_NGINX_PORT }};
-  
-  {% if NGINX_ENABLE_SSL %}
+  {% endif %}
 
+  {% if NGINX_ENABLE_SSL %}
+  
+  {% if PROGRAMS_NGINX_REDIRECT %}
+  listen {{ PROGRAMS_NGINX_REDIRECT_PORT }} ssl;
+  {% else %}
   listen {{ PROGRAMS_SSL_NGINX_PORT }} ssl;
+  {% endif %}
 
   ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
   ssl_certificate_key /etc/ssl/private/{{ NGINX_SSL_KEY|basename }};

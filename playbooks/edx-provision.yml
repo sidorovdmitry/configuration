@@ -112,6 +112,8 @@
       - lms
       - programs-multitenant-redirect
       - credentials-multitenant-redirect
+      nginx_default_sites:
+      - lms
     - edxapp
 
 - hosts: edx2
@@ -178,6 +180,8 @@
       - lms
       - programs-multitenant-redirect
       - credentials-multitenant-redirect
+      nginx_default_sites:
+      - lms
     - edxapp
 
 - hosts: edx1
@@ -247,4 +251,48 @@
       nginx_sites:
       - forum
     - forum
+
+- hosts: programs
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  pre_tasks:
+    - name: Update repositories cache and install packages
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
+      with_items:
+        - python-pip
+        - libffi-dev
+        - gcc
+        - g++
+        - build-essential
+  roles:
+    - role: nginx
+      nginx_sites:
+      - programs
+    - programs
+
+- hosts: credentials
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  pre_tasks:
+    - name: Update repositories cache and install packages
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
+      with_items:
+        - python-pip
+        - libffi-dev
+        - gcc
+        - g++
+        - build-essential
+  roles:
+    - role: nginx
+      nginx_sites:
+      - credentials
+    - credentials
 
