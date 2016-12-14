@@ -17,9 +17,13 @@
     - role: aws-bucket-create
       bucket: "{{ EDXAPP_FINANCIAL_REPORTS.BUCKET | default ('IGNORE') }}"
     - role: aws-bucket-create
+      when: EDXAPP_FINANCIAL_REPORTS is defined
       bucket: "{{ EDXAPP_VIDEO_UPLOAD_PIPELINE.BUCKET | default ('IGNORE') }}"
+      when: EDXAPP_VIDEO_UPLOAD_PIPELINE is defined
     - role: aws-bucket-create
       bucket: "{{ PROGRAMS_MEDIA_STORAGE_BACKEND.AWS_STORAGE_BUCKET_NAME | default ('IGNORE') }}"
+      when: PROGRAMS_MEDIA_STORAGE_BACKEND is defined
     - role: aws-bucket-create
       bucket: "{{ CREDENTIALS_FILE_STORAGE_BACKEND.AWS_STORAGE_BUCKET_NAME | default ('IGNORE') }}"
+      when: PROGRAMS_MEDIA_STORAGE_BACKEND is defined
 
