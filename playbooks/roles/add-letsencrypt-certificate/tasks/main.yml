@@ -38,8 +38,17 @@
   become_user: root
   when: le_cert_exists.stat.islnk is not defined
 
-- name: Requesting LMS and CMS certificate
-  command: /usr/local/bin/certbot-auto certonly --agree-tos --non-interactive --text --rsa-key-size 2048 --webroot -w /var/www/letsencrypt -d "{{ EDXAPP_SITE_NAME }}" -d "{{ EDXAPP_CMS_SITE_NAME }}" -d "{{ EDXAPP_PREVIEW_LMS_BASE }}"  --register-unsafely-without-email --force-renewal
+- name: update LETSENCRYPT_ADDITIONAL_DOMAIN with LMS, CMS and PREVIEW
+  set_fact:
+    LETSENCRYPT_ADDITIONAL_DOMAIN: "{{ LETSENCRYPT_ADDITIONAL_DOMAIN|default([]) + [ EDXAPP_LMS_SITE_NAME ] + [ EDXAPP_CMS_SITE_NAME ] + [ EDXAPP_PREVIEW_LMS_BASE ] }}"
+
+- name: compare LETSENCRYPT_DOMAIN_STING
+  set_fact:
+    LETSENCRYPT_DOMAIN_STING: "{{ LETSENCRYPT_DOMAIN_STING|default('') + '-d  '+item+' ' }}"
+  with_items: "{{ LETSENCRYPT_ADDITIONAL_DOMAIN }}"
+   
+- name: Requesting for LMS, CMS and LETSENCRYPT_ADDITIONAL_DOMAIN certificates
+  command: /usr/local/bin/certbot-auto certonly --agree-tos --non-interactive --text --rsa-key-size 2048 --webroot -w /var/www/letsencrypt {{ LETSENCRYPT_DOMAIN_STING }}  --register-unsafely-without-email --force-renewal
   become_method: sudo
   become: yes
   become_user: root
