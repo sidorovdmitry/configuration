@@ -20,14 +20,25 @@ server {
   
   listen {{ PROGRAMS_NGINX_PORT }} {{ default_site }};
   
+  {% if PROGRAMS_NGINX_REDIRECT %}
+
+  {% else %}
+  
   {% if NGINX_ENABLE_SSL %}
-
   listen {{ PROGRAMS_SSL_NGINX_PORT }} ssl;
-
+  {% if USE_LETSENCRYPT == "yes" %}
+  ssl_certificate /etc/letsencrypt/live/{{ EDXAPP_LMS_SITE_NAME }}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/{{ EDXAPP_LMS_SITE_NAME }}/privkey.pem;
+  {% else %}
   ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
   ssl_certificate_key /etc/ssl/private/{{ NGINX_SSL_KEY|basename }};
+  
+  {% endif %}
+
   # Request that the browser use SSL for all connections.
   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+
+  {% endif %}
 
   {% endif %}
 
