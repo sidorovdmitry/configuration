@@ -36,6 +36,7 @@
       - credentials-multitenant-redirect
       nginx_default_sites:
       - lms
+      CMS_HOSTNAME: "{{ EDXAPP_CMS_SITE_NAME }}" 
     - edxapp
 
 - hosts: "{{ edx_hosts }}"
