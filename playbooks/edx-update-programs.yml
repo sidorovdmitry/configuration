@@ -22,3 +22,27 @@
       - programs
     - programs
 
+  post_tasks:
+    - name: Create static css dir
+      file:
+        path: "{{ PROGRAMS_DATA_DIR }}/staticfiles/css"
+        state: directory
+      become_method: sudo
+      become_user: programs
+      become: True
+
+    - name: compile sass
+      shell: >
+        chdir={{ programs_code_dir }}
+        {{ programs_venv_dir }}/bin/sassc {{ PROGRAMS_DATA_DIR }}/staticfiles/sass/main-ltr.scss {{ PROGRAMS_DATA_DIR }}/staticfiles/css/main-ltr.css
+      become_user: "{{ programs_user }}"
+      when: not devstack
+
+    - name: restart the application
+      supervisorctl:
+        state: restarted
+        supervisorctl_path: "{{ supervisor_ctl }}"
+        config: "{{ supervisor_cfg }}"
+        name: "{{ programs_service_name }}"
+      when: not disable_edx_services
+      become_user: "{{ supervisor_service_user }}"

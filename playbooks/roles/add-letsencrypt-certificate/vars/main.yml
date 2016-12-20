@@ -17,3 +17,4 @@ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX_STATIC: 'maintenance_index_files'
 
 LETSENCRYPT_ADDITIONAL_DOMAIN: []
 
+dhparamfile_dir: '/etc/nginx/ssl'

@@ -1,5 +1,4 @@
 ---
-
 - set_fact: NGINX_ENABLE_SSL=true
 
 - stat: path="/etc/letsencrypt/live/{{ EDXAPP_SITE_NAME }}/fullchain.pem" 
@@ -38,14 +37,27 @@
   become_user: root
   when: le_cert_exists.stat.islnk is not defined
 
-- name: update LETSENCRYPT_ADDITIONAL_DOMAIN with LMS, CMS and PREVIEW
+- name: Compare LETSENCRYPT_ADDITIONAL_DOMAIN with LMS, CMS and PREVIEW
   set_fact:
-    LETSENCRYPT_ADDITIONAL_DOMAIN: "{{ LETSENCRYPT_ADDITIONAL_DOMAIN|default([]) + [ EDXAPP_LMS_SITE_NAME ] + [ EDXAPP_CMS_SITE_NAME ] + [ EDXAPP_PREVIEW_LMS_BASE ] }}"
+    LETSENCRYPT_ALL_DOMAIN: "{{ LETSENCRYPT_ALL_DOMAIN|default([]) + [ EDXAPP_LMS_SITE_NAME ] + [ EDXAPP_CMS_SITE_NAME ] + [ EDXAPP_PREVIEW_LMS_BASE ] }}"
 
-- name: compare LETSENCRYPT_DOMAIN_STING
+- name: Compare LETSENCRYPT_ADDITIONAL_DOMAIN with LMS, CMS and PREVIEW
   set_fact:
-    LETSENCRYPT_DOMAIN_STING: "{{ LETSENCRYPT_DOMAIN_STING|default('') + '-d  '+item+' ' }}"
+    LETSENCRYPT_ALL_DOMAIN: "{{ LETSENCRYPT_ALL_DOMAIN|default([]) + [ item ] }}"
   with_items: "{{ LETSENCRYPT_ADDITIONAL_DOMAIN }}"
+  when: LETSENCRYPT_ADDITIONAL_DOMAIN is defined
+
+- debug: "{{ item }}"
+  with_items: "{{ LETSENCRYPT_ALL_DOMAIN }}"
+
+- name: Compare LETSENCRYPT_DOMAIN_STING
+  set_fact:
+    LETSENCRYPT_DOMAIN_STING: "{{ LETSENCRYPT_DOMAIN_STING|default('')+ '-d  '+item+' ' }}"
+  with_items: "{{ LETSENCRYPT_ALL_DOMAIN }}"
+  when: LETSENCRYPT_ALL_DOMAIN is defined
+
+- fail:
+    msg: "/usr/local/bin/certbot-auto certonly --agree-tos --non-interactive --text --rsa-key-size 2048 --webroot -w /var/www/letsencrypt {{ LETSENCRYPT_DOMAIN_STING }}  --register-unsafely-without-email --force-renewal"
    
 - name: Requesting for LMS, CMS and LETSENCRYPT_ADDITIONAL_DOMAIN certificates
   command: /usr/local/bin/certbot-auto certonly --agree-tos --non-interactive --text --rsa-key-size 2048 --webroot -w /var/www/letsencrypt {{ LETSENCRYPT_DOMAIN_STING }}  --register-unsafely-without-email --force-renewal
@@ -67,6 +79,24 @@
   template:
     src: "cms.j2"
     dest: "{{ nginx_sites_available_dir }}/cms"
+    force: yes
+  become_method: sudo
+  become: yes
+  become_user: root
+
+- name: Updating nginx programs-multitenant-redirect configuration
+  template:
+    src: "programs-multitenant-redirect.j2"
+    dest: "{{ nginx_sites_available_dir }}/programs-multitenant-redirect"
+    force: yes
+  become_method: sudo
+  become: yes
+  become_user: root
+
+- name: Updating nginx credentials-multitenant-redirect configuration
+  template:
+    src: "credentials-multitenant-redirect.j2"
+    dest: "{{ nginx_sites_available_dir }}/credentials-multitenant-redirect"
     force: yes
   become_method: sudo
   become: yes
