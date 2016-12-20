@@ -22,8 +22,8 @@
       when: EDXAPP_VIDEO_UPLOAD_PIPELINE is defined
     - role: aws-bucket-create
       bucket: "{{ PROGRAMS_MEDIA_STORAGE_BACKEND.AWS_STORAGE_BUCKET_NAME | default ('IGNORE') }}"
-      when: PROGRAMS_MEDIA_STORAGE_BACKEND is defined
+      when: (PROGRAMS_MEDIA_STORAGE_BACKEND is defined) and (PROGRAMS_MEDIA_STORAGE_BACKEND.AWS_STORAGE_BUCKET_NAME is defined)
     - role: aws-bucket-create
       bucket: "{{ CREDENTIALS_FILE_STORAGE_BACKEND.AWS_STORAGE_BUCKET_NAME | default ('IGNORE') }}"
-      when: PROGRAMS_MEDIA_STORAGE_BACKEND is defined
+      when: (PROGRAMS_MEDIA_STORAGE_BACKEND is defined) and (CREDENTIALS_FILE_STORAGE_BACKEND.AWS_STORAGE_BUCKET_NAME is defined)
 
