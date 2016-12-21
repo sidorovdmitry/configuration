@@ -56,7 +56,7 @@ error_page {{ k }} {{ v }};
   listen {{ EDXAPP_LMS_NGINX_PORT }} {{ default_site }};
 
   {% if NGINX_ENABLE_SSL and USE_LETSENCRYPT == "yes" %}
-  listen {{ EDXAPP_LMS_SSL_NGINX_PORT }} {{ default_site }} ssl;
+  listen {{ EDXAPP_LMS_SSL_NGINX_PORT }} {{ default_site }} ssl proxy_protocol;
 
   ssl_certificate /etc/letsencrypt/live/{{ EDXAPP_SITE_NAME }}/fullchain.pem;
   ssl_certificate_key /etc/letsencrypt/live/{{ EDXAPP_SITE_NAME }}/privkey.pem;

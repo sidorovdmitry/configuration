@@ -37,30 +37,19 @@
   become_user: root
   when: le_cert_exists.stat.islnk is not defined
 
-- name: Compare LETSENCRYPT_ADDITIONAL_DOMAIN with LMS, CMS and PREVIEW
+- name: Compare LETSENCRYPT_MAIN_DOMAIN with LMS, CMS and PREVIEW
   set_fact:
-    LETSENCRYPT_ALL_DOMAIN: "{{ LETSENCRYPT_ALL_DOMAIN|default([]) + [ EDXAPP_LMS_SITE_NAME ] + [ EDXAPP_CMS_SITE_NAME ] + [ EDXAPP_PREVIEW_LMS_BASE ] }}"
+    LETSENCRYPT_MAIN_DOMAIN: "{{ LETSENCRYPT_MAIN_DOMAIN|default([]) + [EDXAPP_LMS_SITE_NAME] + [EDXAPP_CMS_SITE_NAME] + [EDXAPP_PREVIEW_LMS_BASE]  }}"
 
-- name: Compare LETSENCRYPT_ADDITIONAL_DOMAIN with LMS, CMS and PREVIEW
+- name: Compare LETSENCRYPT_MAIN_DOMAIN with LETSENCRYPT_ADDITIONAL_DOMAIN
   set_fact:
-    LETSENCRYPT_ALL_DOMAIN: "{{ LETSENCRYPT_ALL_DOMAIN|default([]) + [ item ] }}"
-  with_items: "{{ LETSENCRYPT_ADDITIONAL_DOMAIN }}"
-  when: LETSENCRYPT_ADDITIONAL_DOMAIN is defined
+    LETSENCRYPT_ALL_DOMAIN: "{{ LETSENCRYPT_MAIN_DOMAIN + LETSENCRYPT_ADDITIONAL_DOMAIN }}"
 
-- debug: "{{ item }}"
-  with_items: "{{ LETSENCRYPT_ALL_DOMAIN }}"
-
-- name: Compare LETSENCRYPT_DOMAIN_STING
-  set_fact:
-    LETSENCRYPT_DOMAIN_STING: "{{ LETSENCRYPT_DOMAIN_STING|default('')+ '-d  '+item+' ' }}"
-  with_items: "{{ LETSENCRYPT_ALL_DOMAIN }}"
-  when: LETSENCRYPT_ALL_DOMAIN is defined
-
-- fail:
-    msg: "/usr/local/bin/certbot-auto certonly --agree-tos --non-interactive --text --rsa-key-size 2048 --webroot -w /var/www/letsencrypt {{ LETSENCRYPT_DOMAIN_STING }}  --register-unsafely-without-email --force-renewal"
+#- fail:
+#    msg: "/usr/local/bin/certbot-auto certonly --agree-tos --non-interactive --text --rsa-key-size 2048 --webroot -w /var/www/letsencrypt {{ LETSENCRYPT_ALL_DOMAIN|join(' -d ') }}  --register-unsafely-without-email --force-renewal"
    
 - name: Requesting for LMS, CMS and LETSENCRYPT_ADDITIONAL_DOMAIN certificates
-  command: /usr/local/bin/certbot-auto certonly --agree-tos --non-interactive --text --rsa-key-size 2048 --webroot -w /var/www/letsencrypt {{ LETSENCRYPT_DOMAIN_STING }}  --register-unsafely-without-email --force-renewal
+  command: /usr/local/bin/certbot-auto certonly --agree-tos --non-interactive --text --rsa-key-size 2048 --webroot -w /var/www/letsencrypt -d {{ LETSENCRYPT_ALL_DOMAIN|join(' -d ') }}  --register-unsafely-without-email --force-renewal
   become_method: sudo
   become: yes
   become_user: root

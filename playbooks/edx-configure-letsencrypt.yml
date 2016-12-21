@@ -1,0 +1,70 @@
+---
+- hosts: "{{ edx_hosts }}"
+  pre_tasks:
+    - name: Creates directory
+      file: 
+        path: "{{ dhparamfile_dir }}"
+        state: directory
+      become_method: sudo
+      become_user: root
+      become: True
+
+    - name: Check if themes root dir exist
+      stat:
+        path: "{{ dhparamfile_dir }}"
+      register: check_dhparamfile_dir_exist
+      become_method: sudo
+      become_user: root
+      become: True
+
+    - name: Generate dhparam.pem
+      command: openssl dhparam -out "{{ dhparamfile_dir }}"/dhparam.pem 2048
+      when: check_dhparamfile_dir_exist.stat.exists
+      become_method: sudo
+      become_user: root
+      become: True
+
+    - name: Ensure that server-vars contain NGINX_SSL_KEY
+      local_action: lineinfile dest="{{ server_vars_path }}"
+                    regexp='^NGINX_SSL_KEY:'
+                    insertafter=EOF
+                    line='NGINX_SSL_KEY{{':'}} "/etc/letsencrypt/live/{{ EDXAPP_LMS_BASE }}/privkey.pem"'
+                    state=present
+      when: server_vars_path is defined
+
+    - name: Ensure that server-vars contain NGINX_SSL_CERTIFICATE
+      local_action: lineinfile dest="{{ server_vars_path }}"
+                    regexp='^NGINX_SSL_CERTIFICATE:'
+                    insertafter=EOF
+                    line='NGINX_SSL_CERTIFICATE{{':'}} "/etc/letsencrypt/live/{{ EDXAPP_LMS_BASE }}/fullchain.pem"'
+                    state=present
+      when: server_vars_path is defined
+
+  roles:
+    - role: add-letsencrypt-certificate
+      when: some_undefined_viriable_to_skip_role is defined
+
+- hosts: "{{ edx_hosts }}"
+  become_method: sudo
+  become_user: root
+  become: True
+  gather_facts: True
+  vars:
+    service_variants_enabled:
+      - cms
+      - lms
+  roles:
+    - role: nginx
+      nginx_sites:
+      - cms
+      - lms
+      - programs-multitenant-redirect
+      - credentials-multitenant-redirect
+      nginx_default_sites:
+      - lms
+      when: some_undefined_viriable_to_skip_role is defined
+      CMS_HOSTNAME: "{{ EDXAPP_CMS_SITE_NAME }}"
+    - { role: add-letsencrypt-certificate, when: USE_LETSENCRYPT == 'yes' and CMS_NGINX_SSL_CERTIFICATE is undefined and CMS_NGINX_SSL_KEY is undefined, nginx_default_sites: lms }
+    - role: edxapp
+      when: some_undefined_viriable_to_skip_role is defined
+

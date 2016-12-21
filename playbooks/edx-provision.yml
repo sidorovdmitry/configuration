@@ -115,6 +115,7 @@
       nginx_default_sites:
       - lms
       CMS_HOSTNAME: "{{ EDXAPP_CMS_SITE_NAME }}"
+    - { role: add-letsencrypt-certificate, when: USE_LETSENCRYPT == 'yes' and CMS_NGINX_SSL_CERTIFICATE is undefined and CMS_NGINX_SSL_KEY is undefined, nginx_default_sites: lms }
     - edxapp
 
 - hosts: edx2
@@ -184,6 +185,7 @@
       nginx_default_sites:
       - lms
       CMS_HOSTNAME: "{{ EDXAPP_CMS_SITE_NAME }}"
+    - { role: add-letsencrypt-certificate, when: USE_LETSENCRYPT == 'yes' and CMS_NGINX_SSL_CERTIFICATE is undefined and CMS_NGINX_SSL_KEY is undefined, nginx_default_sites: lms }
     - edxapp
 
 - hosts: edx1
