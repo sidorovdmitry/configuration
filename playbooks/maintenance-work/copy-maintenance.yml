@@ -1,7 +1,7 @@
 ---
 - name: Copy maintenance files to edx instance
   copy:
-    src: maintenance-work/maintenance
+    src: /encrypted/ansible/edx/playbooks/maintenance-work/maintenance
     dest: /edx/var/nginx/server-static/
     owner: root
     group: www-data

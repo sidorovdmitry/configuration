@@ -14,11 +14,11 @@
 
 - include: ../instance_elb_state.yml
 
-- name: set_fact maintenance_state on
-  set_fact:
-    NGINX_MAINTENANCE_STATE: true
+#- name: set_fact maintenance_state on
+#  set_fact:
+#    NGINX_MAINTENANCE_STATE: true
 
-- include: ../maintenance-work/copy-maintenance.yml
+#- include: ../maintenance-work/copy-maintenance.yml
 
 - name: Snapshot the instance
   ec2_snapshot:
@@ -34,13 +34,13 @@
       instance: "{{ ec2_facts_instances_item.tags.Name }}"
       incremental: "{{ INCREMENTAL }}"
 
-- name: set_fact maintenance_state off
-  set_fact:
-    NGINX_MAINTENANCE_STATE: false
+#- name: set_fact maintenance_state off
+#  set_fact:
+#    NGINX_MAINTENANCE_STATE: false
 
-- include: ../maintenance-work/copy-maintenance.yml
+#- include: ../maintenance-work/copy-maintenance.yml
 
-- name: set_fact ELB NODE_STATE absent
+- name: set_fact ELB NODE_STATE present
   set_fact:
     NODE_STATE: present
 
