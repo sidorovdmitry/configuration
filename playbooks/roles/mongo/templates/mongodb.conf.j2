@@ -12,8 +12,14 @@ logappend={{ mongo_logappend }}
 {# Bind to all ips(default) if in clustered mode, 
    otherwise only to the specified local ip.
 #}
-{% if MONGO_CLUSTERED is not defined %}
+{% if MONGO_CLUSTERED %}
 bind_ip = {{ MONGO_BIND_IP }}
+{% else %}
+{% if MONGO_MULTITENANT %}
+bind_ip = {{ MONGO_BIND_IP }}
+{% else %}
+bind_ip = 127.0.0.1
+{% endif %}
 {% endif %}
 
 port = {{ mongo_port }}
@@ -36,7 +42,7 @@ replSet = {{ mongo_repl_set }}
 
 # Turn on/off security.  Off is currently the default
 #noauth = true
-#auth = true
+auth = true
 
 # Verbose logging output.
 #verbose = true
