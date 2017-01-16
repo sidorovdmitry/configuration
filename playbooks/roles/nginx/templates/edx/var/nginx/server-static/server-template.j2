@@ -1,42 +1,95 @@
 <!DOCTYPE html>
+
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <title>{{ item.title }}</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://fonts.googleapis.com/css?family=Titillium+Web:200,300,400,600,700&amp;subset=latin-ext" rel="stylesheet">
         <style media="screen" type="text/css">
-          h1, h2{
-            font-family: "Helvetica Neue",Helvetica,Roboto,Arial,sans-serif;
-            margin-bottom: .3em;
-            font-size: 2.0em;
-            line-height: 1.25em;
-            text-rendering: optimizeLegibility;
-            font-weight: bold;
-            color: #000000;
-          }
-          h2 {
-            font-size: 1.8em;
-            color: #5b5e63;
-          }
-          p {
-            font-family: Georgia,Cambria,"Times New Roman",Times,serif;
-            margin: auto;
-            margin-bottom: 1em;
-            font-weight: 200;
-            line-height: 1.4em;
-            font-size: 1.1em;
-            max-width: 80%;
-          }
-        </style>
+        html {
+          background: #cecece url("/static/thellpa/images/error-bg.jpg") no-repeat center center fixed; 
+          -webkit-background-size: cover;
+          -moz-background-size: cover;
+          -o-background-size: cover;
+          background-size: cover;
+        }
+
+        body {
+          font-size: 1.6rem;
+          font-family: 'Titillium Web', sans-serif;
+          font-weight: 300;
+          color: #354652;
+          margin: 0;
+        }
+
+        .error-layer {
+          max-width: 800px;
+          width: 80%;
+          color: #fff;
+          display:block;
+          margin: 3em auto auto;
+          text-align: center;
+        }
+
+        h1 {
+          font-size: 3rem;
+          color: #fff;
+          font-weight: 200;
+          margin-bottom: 1.5em;
+        }
+
+        h2 {
+          font-size: 1.5rem;
+          color: #fff;
+          font-weight: 600;
+          margin: 1em auto 0.7em auto;
+        }
+
+        .error-description {
+          font-size: 1rem;
+          color: #fff;
+          font-weight: 300;
+          line-height: 130%;
+        }
+
+        .error-description a {
+          color: #e24800;
+          font-weight: 400;
+          text-decoration: none;
+        }
+
+        .error-description a:hover {
+          color: #e24800;
+          font-weight: 400;
+          text-decoration: underline;
+        }
+        </style> 
     </head>
     <body>
-      <div style="margin: auto; width: 800px; text-align: center; padding:20px 0px 0px 0px;">
+      <div class="error-layer">
         <h1>{{ item.heading }}</h1>
-        <img src="{{ item.img}}" alt="">
+        <svg width="100" height="130" viewBox="0 0 150 200">
+          <defs>
+            <style>
+              .cls-1 {
+                fill: #e34619;
+              }
+
+              .cls-2 {
+                fill: #fff;
+              }
+            </style>
+          </defs>
+          <title>error</title>
+          <path class="cls-1" d="M107.01037-24.609H39.17153A41.16722,41.16722,0,0,0-1.908,16.55473V84.53819a41.16677,41.16677,0,0,0,41.07953,41.16164h9.74376L73.09409,170.391,97.2708,125.69983h9.74167A41.16678,41.16678,0,0,0,148.092,84.53819V16.55265A41.16992,41.16992,0,0,0,107.01037-24.609Z" transform="translate(1.908 24.60901)"/>
+          <path class="cls-2" d="M141.8265,84.53611a34.89047,34.89047,0,0,1-34.81614,34.88509H93.5378L73.092,157.21862,52.64618,119.4212H39.17153A34.89047,34.89047,0,0,1,4.3554,84.53611V16.55265A34.89092,34.89092,0,0,1,39.17153-18.33454h67.84094a34.89092,34.89092,0,0,1,34.81614,34.88719V84.53611h-0.0021Z" transform="translate(1.908 24.60901)"/>
+          <polygon class="cls-1" points="100.279 46.947 74.996 72.281 49.715 46.947 45.286 51.384 70.57 76.718 45.286 102.055 49.715 106.492 74.996 81.158 100.279 106.492 104.707 102.055 79.424 76.718 104.707 51.384 100.279 46.947"/>
+        </svg>
         <h2>{{ item.title }}</h2>
-        <p>{{ item.msg }}
-      </div
+        <div class="error-description">We have been notified of the error,<br>if it persist please let us know at <a href="mailto:training@thellpa.com">training@thellpa.com</a>
+      </div>
     </body>
 </html>
 
