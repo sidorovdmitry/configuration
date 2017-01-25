@@ -132,6 +132,16 @@ error_page {{ k }} {{ v }};
       root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX_STATIC}};
       try_files /$file =404;
   }
+
+  location ~ ^/{{ EDXAPP_NGINX_LANDING_PAGE_CSS }}/(?P<file>.*) {
+        root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{ EDXAPP_NGINX_LANDING_PAGE_CSS}};
+        try_files /$file =404;
+    }
+  location ~ ^/{{ EDXAPP_NGINX_LANDING_PAGE_IMAGES }}/(?P<file>.*) {
+        root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{ EDXAPP_NGINX_LANDING_PAGE_IMAGES }};
+        try_files /$file =404;
+    }
+
   {% endif %}
 
   # No basic auth security on the github_service_hook url, so that github can use it for cms
