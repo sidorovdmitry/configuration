@@ -1,0 +1,18 @@
+- name: Deploy all hadoop service configurations to a single node 
+  hosts: all
+  become: True
+  gather_facts: True
+  pre_tasks:
+    - include_vars: edx-insights-override-defaults.yml
+  roles:
+    - role: common_vars
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: hadoop_common
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: analytics_api
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: insights
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - insights-app-config
+    - analytics_api-app-config
+    - hadoop_config 

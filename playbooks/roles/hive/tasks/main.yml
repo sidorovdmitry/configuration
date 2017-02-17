@@ -34,12 +34,12 @@
 - name: distribution extracted
   shell: >
     chdir={{ HADOOP_COMMON_USER_HOME }}
-    tar -xzf {{ hive_temporary_dir }}/{{ hive_dist.filename }} && chown -R {{ hadoop_common_user }}:{{ hadoop_common_group }} hive-{{ HIVE_VERSION }}-bin
+    tar -xzf {{ hive_temporary_dir }}/{{ hive_dist.filename }} && chown -R {{ hadoop_common_user }}:{{ hadoop_common_group }} apache-hive-{{ HIVE_VERSION }}-bin
   when: not extracted_dir.stat.exists
 
 - name: versioned directory symlink created
   file: >
-    src={{ HADOOP_COMMON_USER_HOME }}/hive-{{ HIVE_VERSION }}-bin
+    src={{ HADOOP_COMMON_USER_HOME }}/apache-hive-{{ HIVE_VERSION }}-bin
     dest={{ HIVE_HOME }}
     owner={{ hadoop_common_user }} group={{ hadoop_common_group }} state=link
 

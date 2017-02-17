@@ -1,0 +1,155 @@
+---
+#edxapp
+EDXAPP_MYSQL_DB_NAME: 'edxapp'
+EDXAPP_MYSQL_PORT: '3306'
+EDXAPP_LMS_BASE: '127.0.0.1:8000'
+#override.cfg variables
+EDXAPP_LMS_ROOT_URL: "{{ EDXAPP_LMS_BASE_SCHEME | default('https') }}://{{ EDXAPP_LMS_BASE }}"
+ANALYTICS_API_REPORTS_DB_NAME: 'reports'
+
+ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST: '127.0.0.1'
+
+INSIGHTS_PIPELINE_INTERVAL_START: 2017-01-01
+INSIGHTS_PIPELINE_INTERVAL_END: 2097-01-01
+
+INSIGHTS_PIPELINE_N_REDUCE_TASKS: 1
+pipeline_event_logs_pattern: '.*tracking.log.*.gz'
+INSIGHTS_PIPELINE_OVERRIDE_N_DAYS_TASKS: 2
+
+ANALYTICS_PIPELINE_LOGGING_CFG: "logging.cfg"
+
+hdfs_pipeline_root_name: "edx-analytics-pipeline"
+hdfs_warehouse_root_name: "warehouse"
+
+hdfs_root: "{{ HADOOP_CORE_SITE_DEFAULT_CONFIG['fs.default.name'] }}"
+hdfs_tmp: "{{ hdfs_root }}/tmp"
+hdfs_pipeline_configs: "{{ hdfs_root }}/pipeline-configs"
+hdfs_event_log_source: "{{ hdfs_root }}/data"
+
+hdfs_database_export: "{{ hdfs_pipeline_configs }}/database-export"
+hdfs_pipeline: "{{ hdfs_root }}/{{ hdfs_pipeline_root_name }}"
+hdfs_database_import: "{{ hdfs_pipeline_configs }}/database-import"
+hdfs_warehouse: "{{ hdfs_pipeline }}/{{ hdfs_warehouse_root_name }}"
+hdfs_map_reduce_marker: "{{ hdfs_pipeline }}/marker"
+
+hdfs_event_export_root: "{{ hdfs_pipeline }}/event_export"
+hdfs_event_export_output: "{{ hdfs_event_export_root }}/output"
+hdfs_event_export_gpg_keys: "{{ hdfs_event_export_root }}/gpg-keys"
+
+hdfs_event_export_course_output_root: "{{ hdfs_pipeline }}/event-export-by-course/output/"
+
+hdfs_obfuscation_output_root: "{{ hdfs_pipeline }}/obfuscation/output/"
+
+hdfs_manifest_packages: "{{ hdfs_pipeline }}/packages"
+hdfs_manifest: "{{ hdfs_pipeline }}/manifest"
+
+hdfs_user_activity_output_root: "{{ hdfs_pipeline }}/activity"
+
+hdfs_report_output_root: "{{ hdfs_pipeline }}/problem-reports"
+
+hdfs_enrollment_reports_root: "{{ hdfs_pipeline }}/enrollment_reports"
+hdfs_enrollment_reports_src: "{{ hdfs_event_log_source }}"
+hdfs_enrollment_reports_destination: "{{ hdfs_enrollment_reports_root }}/output"
+
+hdfs_calendar: "{{ hdfs_warehouse }}/calendar"
+hdfs_course_enrollment_events: "{{ hdfs_warehouse }}/course_enrollment_events"
+
+hdfs_outputs: "{{ hdfs_pipeline }}/outputs"
+hdfs_answer_distribution: "{{ hdfs_pipeline }}/answer_distribution" 
+hdfs_answer_distribution_raw: "{{ hdfs_pipeline }}/answer_distribution_raw"
+
+SECRET_INSIGHTS_OAUTH2_APP_CLIENT_NAME: 'insights'
+SECRET_INSIGHTS_OAUTH2_KEY: 'client'
+SECRET_INSIGHTS_OAUTH2_SECRET: 'secret'
+
+HDFS_DIRS:
+    - "{{ hdfs_tmp }}"
+    - "{{ hdfs_pipeline_configs }}"
+    - "{{ hdfs_event_log_source }}"
+    - "{{ hdfs_database_export }}"
+    - "{{ hdfs_pipeline }}"
+    - "{{ hdfs_database_import }}"
+    - "{{ hdfs_warehouse }}"
+    - "{{ hdfs_map_reduce_marker }}"
+    - "{{ hdfs_event_export_root }}"
+    - "{{ hdfs_event_export_output }}"
+    - "{{ hdfs_event_export_gpg_keys }}"
+    - "{{ hdfs_event_export_course_output_root }}"
+    - "{{ hdfs_obfuscation_output_root }}"
+    - "{{ hdfs_manifest_packages }}"
+    - "{{ hdfs_manifest }}"
+    - "{{ hdfs_user_activity_output_root }}"
+    - "{{ hdfs_report_output_root }}"
+    - "{{ hdfs_enrollment_reports_root }}"
+    - "{{ hdfs_enrollment_reports_src }}"
+    - "{{ hdfs_enrollment_reports_destination }}"
+    - "{{ hdfs_calendar }}"
+    - "{{ hdfs_course_enrollment_events }}"
+    - "{{ hdfs_tmp }}/{{ hdfs_pipeline_root_name }}/{{ hdfs_warehouse_root_name }}/course_catalog_raw"
+    - "{{ hdfs_tmp }}/{{ hdfs_pipeline_root_name }}/{{ hdfs_warehouse_root_name }}/calendar"
+    - "{{ hdfs_tmp }}/{{ hdfs_pipeline_root_name }}/{{ hdfs_warehouse_root_name }}/course_enrollment_events"
+    - "{{ hdfs_tmp }}/{{ hdfs_pipeline_root_name }}/{{ hdfs_warehouse_root_name }}/auth_user"
+    - "{{ hdfs_tmp }}/{{ hdfs_pipeline_root_name }}/{{ hdfs_warehouse_root_name }}/student_courseenrollment"
+    - "{{ hdfs_tmp }}/{{ hdfs_pipeline_root_name }}/{{ hdfs_warehouse_root_name }}/course_list_raw"
+    - "{{ hdfs_outputs }}"
+    - "{{ hdfs_tmp }}/{{ hdfs_pipeline_root_name }}/{{ hdfs_warehouse_root_name }}/outputs"
+    - "{{ hdfs_outputs }}/marker"
+    - "{{ hdfs_answer_distribution }}"
+    - "{{ hdfs_answer_distribution_raw }}"
+    - "{{ hdfs_tmp }}/{{ hdfs_pipeline_root_name }}/{{ hdfs_warehouse_root_name }}/outputs/answer_distribution"
+    - "{{ hdfs_tmp }}/{{ hdfs_pipeline_root_name }}/{{ hdfs_warehouse_root_name }}/outputs/answer_distribution_raw"
+
+
+#database-export
+ANALYTICS_API_REPORTS_DB_HOST: "127.0.0.1"
+ANALYTICS_API_REPORTS_DB_PORT: "3306"
+ANALYTICS_API_DATABASE_REPORTS_USERNAME: "reports001"
+ANALYTICS_API_DATABASE_REPORTS_PASSWORD: "password"
+
+#database-import
+INSIGHTS_LMS_MYSQL_USERNAME: "analitycs"
+INSIGHTS_LMS_MYSQL_PASSWORD: "password"
+
+#edx-analytics-pipeline repo git
+ANALYTICS_PIPELINE_GIT_PROTOCOL: "{{ COMMON_GIT_PROTOCOL }}"
+ANALYTICS_PIPELINE_GIT_MIRROR: "{{ COMMON_GIT_MIRROR }}"
+ANALYTICS_PIPELINE_GIT_PATH: "{{ COMMON_GIT_PATH }}"
+ANALYTICS_PIPELINE_REPO: "edx-analytics-pipeline.git"
+ANALYTICS_PIPELINE_VERSION: "master"
+ANALYTICS_REPO_DIR: "edx-analytics-pipeline"
+ANALYTICS_PIPELINE_CODE_DIR: "{{ HADOOP_COMMON_USER_HOME }}/{{ ANALYTICS_REPO_DIR }}"
+ANALYTICS_PIPELINE_GIT_IDENTITY: !!null
+
+ANALYTICS_PIPELINE_REPOS:
+  - PROTOCOL: "{{ ANALYTICS_PIPELINE_GIT_PROTOCOL }}"
+    DOMAIN: "{{ ANALYTICS_PIPELINE_GIT_MIRROR }}"
+    PATH: "{{ ANALYTICS_PIPELINE_GIT_PATH }}"
+    REPO: "{{ ANALYTICS_PIPELINE_REPO }}"
+    VERSION: "{{ ANALYTICS_PIPELINE_VERSION }}"
+    DESTINATION: "{{ ANALYTICS_PIPELINE_CODE_DIR }}"
+    SSH_KEY: "{{ ANALYTICS_PIPELINE_GIT_IDENTITY }}"
+
+pipeline_repo: "{{ANALYTICS_PIPELINE_GIT_PROTOCOL}}://{{ ANALYTICS_PIPELINE_GIT_MIRROR }}/{{ ANALYTICS_PIPELINE_GIT_PATH }}/{{ ANALYTICS_PIPELINE_REPO }}"
+
+hadoop_additional_files_tmp: "/tmp"
+
+#edx_analytics_pipeline requirements
+edx_analytics_pipeline_venv_dir: "{{ HADOOP_COMMON_USER_HOME }}/venvs/{{ ANALYTICS_REPO_DIR }}"
+edx_analytics_pipeline_base: "{{ ANALYTICS_PIPELINE_CODE_DIR }}/requirements"
+edx_analytics_pipeline_requirements:
+  - pre.txt
+  - default.txt
+  - extra.txt
+
+#analytics instance ssh configuration (hadoop required)
+#remote_ubuntu_pub_rsa: "/home/ubuntu/.ssh/id_rsa.pub"
+#remote_ubuntu_priv_rsa: "/home/ubuntu/.ssh/id_rsa"
+#fetched_pub_rsa_from_remote_dir: "/tmp/remote_rsa_pub"
+#fetched_pub_rsa_from_remote_file: "/tmp/remote_rsa_pub/{{ inventory_hostname }}/home/ubuntu/.ssh/id_rsa.pub"
+#analytics_instance_hadoop_tasks_user: "ubuntu"
+
+#pipeline tasks provision parameters:
+PIPELINE_REMOTE_NAME: "uuid"
+root_data_dir: "/var/lib/analytics-tasks"
+pipeline_repo_dir_name: "repo"
+
