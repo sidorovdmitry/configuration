@@ -1,0 +1,206 @@
+---
+- name: install required packages
+  apt: name={{item}} state=present
+  with_items:
+    - libpq-dev
+
+- name: install edx-analytics-pipeline requirements
+  pip:
+    requirements: "{{ edx_analytics_pipeline_base }}/{{ item }}"
+    virtualenv: "{{ edx_analytics_pipeline_venv_dir }}"
+    state: present
+    extra_args: "--exists-action w"
+  become_user: "{{ hadoop_common_user }}"
+  with_items: "{{ edx_analytics_pipeline_requirements }}"
+
+- name: Run edx_analytics_pipeline make install
+  shell : ". {{ edx_analytics_pipeline_venv_dir }}/bin/activate && cd {{ ANALYTICS_PIPELINE_CODE_DIR }}/ && make install"
+  become_user: "{{ hadoop_common_user }}"
+
+- name: Create hadoop pipeline dirs in hdfs
+  command: "{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -mkdir -p {{ item }}"
+  with_items:
+    - "{{ HDFS_DIRS }}"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: Check if "{{ hadoop_additional_files_tmp }}" exist
+  stat:
+    path: "{{ hadoop_additional_files_tmp }}"
+  register: check_hadoop_additional_files_tmp
+
+- name: Create "{{ hadoop_additional_files_tmp }}" if not exist
+  file: 
+    path: "{{ hadoop_additional_files_tmp }}"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+  when: check_hadoop_additional_files_tmp.stat.exists == False
+
+- name: "Copy hadoop additional files to {{ hadoop_additional_files_tmp }} on analytics instance"
+  copy:
+    src: "{{ item }}"
+    dest: "{{ hadoop_additional_files_tmp }}/{{ item }}"
+  with_items:
+    - "GeoIP.dat"
+    #- "hadoop-streaming-2.7.1-amzn-1.jar"
+    #- "oddjob-1.3.0.jar"
+  become_method: sudo
+  become: yes
+  become_user: ubuntu
+
+- name: "Copy hadoop additional files to {{ hdfs_pipeline }}"
+  command: "{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -put -f {{ item }} {{ hdfs_pipeline }}/"
+  with_items:
+    - "{{ hadoop_additional_files_tmp }}/GeoIP.dat"
+    #- "{{ hadoop_additional_files_tmp }}/hadoop-streaming-2.7.1-amzn-1.jar"
+    #- "{{ hadoop_additional_files_tmp }}/oddjob-1.3.0.jar"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: "Copy hadoop additional files to {{ hdfs_manifest_packages }}"
+  command: "{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -put -f {{ item }} {{ hdfs_manifest_packages }}/"
+  with_items:
+    - "{{ HADOOP_COMMON_USER_HOME }}/lib/edx-analytics-hadoop-util.jar"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: Create override.cfg {{ HADOOP_COMMON_USER_HOME }} at (on analytics instance) from template
+  template:
+    src: "override.cfg.j2"
+    dest: "{{ HADOOP_COMMON_USER_HOME }}/override.cfg"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+
+- name: Create hadoop_tasks.sh at {{ HADOOP_COMMON_USER_HOME }} (on analytics instance) from template
+  template:
+    src: "hadoop_tasks.sh.j2"
+    dest: "{{ HADOOP_COMMON_USER_HOME }}/hadoop_tasks.sh"
+    mode: "u=rwx,g=rxw,o=r"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: Create hadoop_tasks.sh at {{ HADOOP_COMMON_USER_HOME }} (on analytics instance) from template
+  template:
+    src: "hadoop_tasks.sh.j2"
+    dest: "{{ root_data_dir }}/{{ PIPELINE_REMOTE_NAME }}/{{ pipeline_repo_dir_name }}/hadoop_tasks.sh"
+    mode: "u=rwx,g=rxw,o=r"
+  when: PIPELINE_REMOTE_NAME != "uuid"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: Create database-export_credentials.json.j2 at {{ hadoop_additional_files_tmp }} (on analytics instance) from template
+  template:
+    src: "database-export_credentials.json.j2"
+    dest: "{{ hadoop_additional_files_tmp }}/database-export_credentials.json"
+
+- name: Create database-import_credentials.json.j2 at {{ hadoop_additional_files_tmp }} (on analytics instance) from template
+  template:
+    src: "database-import_credentials.json.j2"
+    dest: "{{ hadoop_additional_files_tmp }}/database-import_credentials.json"
+  become_method: sudo
+  become: yes
+  become_user: ubuntu
+
+- name: "Copy database-export_credentials.json to hdfs"
+  command: "{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -put -f {{ hadoop_additional_files_tmp }}/database-export_credentials.json {{ hdfs_database_export }}/credentials.json"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: "Copy database-import_credentials.json to hdfs"
+  command: "{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -put -f {{ hadoop_additional_files_tmp }}/database-import_credentials.json {{ hdfs_database_import }}/credentials.json"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: "Cleanup in {{ hadoop_additional_files_tmp }} "
+  file:
+    path: "{{ hadoop_additional_files_tmp }}/{{ item }}"
+    state: absent
+  with_items:
+    - "GeoIP.dat"
+    #- "hadoop-streaming-2.7.1-amzn-1.jar"
+    #- "oddjob-1.3.0.jar"
+    - "database-export_credentials.json"
+    - "database-import_credentials.json"
+  become_method: sudo
+  become: yes
+
+- name: Create luigi role defaults.yml {{ ANALYTICS_PIPELINE_CODE_DIR }}/share/roles/luigi/defaults (on analytics instance) from template
+  template:
+    src: "luigi-defaults.yml.j2"
+    dest: "{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/roles/luigi/defaults/main.yml"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: Check if "{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/group_vars" exist
+  stat:
+    path: "{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/group_vars"
+  register: pipeline_group_vars
+
+- name: Create "{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/group_vars" if not exist
+  file:
+    path: "{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/group_vars"
+    state: directory
+    owner: "{{ hadoop_common_user }}"
+    group: "{{ hadoop_common_user }}"
+  when: pipeline_group_vars.stat.exists == False
+
+- name: Create group_vars all.yml in {{ ANALYTICS_PIPELINE_CODE_DIR }}/share/group_vars (on analytics instance) from template
+  template:
+    src: "pipeline_provision_group_vars.yml.j2"
+    dest: "{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/group_vars/all.yml"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: Create client.cfg (on analytics instance) from template
+  template:
+    src: "client.cfg.j2"
+    dest: "{{ item }}"
+  with_items:
+    - "{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/roles/luigi/templates/client.cfg.j2"
+    - "{{ HADOOP_COMMON_USER_HOME }}/client.cfg"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: set_fact analyticstack_remote_name
+  set_fact:
+    analyticstack_remote_name: "-e 'uuid={{ PIPELINE_REMOTE_NAME }}'"
+#    analyticstack_remote_name: " --remote-name {{ PIPELINE_REMOTE_NAME }}"
+  when: PIPELINE_REMOTE_NAME != "uuid"
+
+- name: set_fact analyticstack_remote_name uuid
+  set_fact:
+    analyticstack_remote_name: ""
+  when:  PIPELINE_REMOTE_NAME == "uuid"
+
+#- debug: msg="{{ edx_analytics_pipeline_venv_dir }}/bin/remote-task --host localhost --user {{ hadoop_common_user }} --override-config {{ HADOOP_COMMON_USER_HOME }}/override.cfg --local-scheduler {{ analyticstack_remote_name }} --branch {{ ANALYTICS_PIPELINE_VERSION }} --repo {{ pipeline_repo }}"
+
+#- name: Provision pipeline
+#  command: "{{ edx_analytics_pipeline_venv_dir }}/bin/remote-task --host localhost --user {{ hadoop_common_user }} --override-config {{ HADOOP_COMMON_USER_HOME }}/override.cfg --local-scheduler {{ analyticstack_remote_name }} --branch {{ ANALYTICS_PIPELINE_VERSION }} --repo {{ pipeline_repo }}"
+#  become_method: sudo
+#  become: yes
+#  become_user: "{{ hadoop_common_user }}"
+#  register: provision_pipeline_out
+
+#- debug: var=provision_pipeline_out.stdout_lines
+
+- debug: msg="{{ edx_analytics_pipeline_venv_dir }}/bin/ansible-playbook -c local -i ',localhost' {{ ANALYTICS_PIPELINE_CODE_DIR }}/share/task.yml -e 'name=all' {{ analyticstack_remote_name }} -u {{ hadoop_common_user }} -e@{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/roles/luigi/defaults/main.yml"
+
+- name: Provision pipeline
+  command: "{{ edx_analytics_pipeline_venv_dir }}/bin/ansible-playbook -c local -i ',localhost' {{ ANALYTICS_PIPELINE_CODE_DIR }}/share/task.yml -e 'name=all' {{ analyticstack_remote_name }} -u {{ hadoop_common_user }} -e@{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/roles/luigi/defaults/main.yml"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+

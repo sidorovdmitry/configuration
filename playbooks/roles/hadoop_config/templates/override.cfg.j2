@@ -1,0 +1,154 @@
+[core]
+logging_conf_file = {{ ANALYTICS_PIPELINE_LOGGING_CFG }}
+hdfs-tmp-dir = {{ hdfs_tmp }}
+
+[hadoop]
+python-executable=/usr/bin/python2.7
+luigi_hadoop_version: apache1
+luigi_hadoop_command: {{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hadoop
+luigi_hadoop_streaming_jar: {{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/share/hadoop/tools/lib/hadoop-streaming-2.3.0.jar
+streaming-jar: {{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/share/hadoop/tools/lib/hadoop-streaming-2.3.0.jar
+
+[hdfs]
+client = hadoopcli
+
+##########################################################################################################
+[hive]
+release = apache
+version = 0.14
+database = default
+warehouse_path = {{ hdfs_warehouse }}
+
+[database-export]
+database = {{ ANALYTICS_API_REPORTS_DB_NAME }}
+credentials = {{ hdfs_database_export }}/credentials.json
+
+[database-import]
+database = {{ EDXAPP_MYSQL_DB_NAME }}
+credentials = {{ hdfs_database_import }}/credentials.json
+destination = {{ hdfs_warehouse }}
+
+# [otto-database-import]
+# database = ecommerce
+# credentials = /edx/etc/edx-analytics-pipeline/input.json
+
+[map-reduce]
+engine = hadoop
+marker = {{ hdfs_map_reduce_marker }}
+remote_log_level = DEBUG
+
+[event-logs]
+pattern = {{ pipeline_event_logs_pattern }}
+expand_interval = 2 days
+source = {{ hdfs_event_log_source }}
+
+[event-export]
+output_root = {{ hdfs_event_export_output }}
+environment = simple
+config = {{ hdfs_event_export_root }}/config.yaml
+gpg_key_dir = {{ hdfs_event_export_gpg_keys }}
+gpg_master_key = master@key.org
+required_path_text = FakeServerGroup
+
+[event-export-course]
+output_root = {{ hdfs_event_export_course_output_root }}
+
+[obfuscation]
+output_root = {{ hdfs_obfuscation_output_root }}
+explicit_event_whitelist = explicit_events.tsv
+xblock_obfuscation_config = xblock_obfuscation_config.yml
+
+[id-codec]
+seed_value = 42
+
+[manifest]
+threshold = 500
+input_format = org.edx.hadoop.input.ManifestTextInputFormat
+lib_jar = {{ hdfs_manifest_packages }}/edx-analytics-hadoop-util.jar
+path = {{ hdfs_manifest }}
+
+[user-activity]
+output_root = {{ hdfs_user_activity_output_root }}
+
+[enrollments]
+interval_start = {{ INSIGHTS_PIPELINE_INTERVAL_START }}
+overwrite_n_days = 2
+
+[enrollment-reports]
+src = {{ hdfs_enrollment_reports_src }}
+destination = {{ hdfs_enrollment_reports_destination }}
+offsets = {{ hdfs_enrollment_reports_root }}/offsets.tsv
+blacklist = {{ hdfs_enrollment_reports_root }}/course_blacklist.tsv
+history = {{ hdfs_enrollment_reports_root }}/enrollment_history.tsv
+
+[financial-reports]
+shoppingcart-partners = {"DEFAULT": "edx"}
+
+[geolocation]
+geolocation_data = {{ hdfs_pipeline }}/GeoIP.dat
+
+[calendar]
+interval = {{ INSIGHTS_PIPELINE_INTERVAL_START }}-{{ INSIGHTS_PIPELINE_INTERVAL_END }}
+
+[videos]
+dropoff_threshold = 0.05
+
+[module-engagement]
+alias = roster
+overwrite_n_days = 2
+throttle = 10
+number_of_shards = 5
+allow_empty_insert = True
+
+[ccx]
+enabled = false
+
+[run-vertica-sql-script]
+schema = testing
+read_timeout = 5
+
+[problem-response]
+interval_start = {{ INSIGHTS_PIPELINE_INTERVAL_START }}
+report_fields = [
+    "username",
+    "problem_id",
+    "answer_id",
+    "location",
+    "question",
+    "score",
+    "max_score",
+    "correct",
+    "answer",
+    "total_attempts",
+    "first_attempt_date",
+    "last_attempt_date"]
+report_output_root = {{ hdfs_report_output_root }}
+
+[edx-rest-api]
+# Create using:
+# ./manage.py lms --settings=devstack create_oauth2_client  \
+#   http://localhost:9999  # URL doesn't matter \
+#   http://localhost:9999/complete/edx-oidc/  \
+#   confidential \
+#   --client_name "Analytics Pipeline" \
+#   --client_id oauth_id \
+#   --client_secret oauth_secret \
+#   --trusted
+client_name = {{ SECRET_INSIGHTS_OAUTH2_APP_CLIENT_NAME }}
+client_id = {{ SECRET_INSIGHTS_OAUTH2_KEY }}
+client_secret = {{ SECRET_INSIGHTS_OAUTH2_SECRET }}
+auth_url = {{ EDXAPP_LMS_ROOT_URL }}/oauth2/access_token/
+
+[course-list]
+api_root_url = {{ EDXAPP_LMS_ROOT_URL }}/api/courses/v1/courses/
+
+[course-blocks]
+api_root_url = {{ EDXAPP_LMS_ROOT_URL }}/api/courses/v1/blocks/
+
+[elasticsearch]
+# # Point to the vagrant host's port 9201 where we assume elasticsearch is running
+host = http://{{ ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST }}:9201/
+
+[answer-distribution]
+valid_response_types = choiceresponse,optionresponse,multiplechoiceresponse,numericalresponse,stringresponse,formularesponse
+

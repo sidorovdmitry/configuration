@@ -1,0 +1,81 @@
+#ansible-playbook -i ",localhost" -c local -e@/edx/app/edx_ansible/server-vars.yml /edx/app/edx_ansible/edx_ansible/playbooks/edx-insights.yml
+---
+- name: Deploy all analytics services to a single node
+  hosts: all
+  become: True
+  gather_facts: True
+  vars:
+    migrate_db: "yes"
+    disable_edx_services: false
+    ENABLE_DATADOG: False
+    ENABLE_SPLUNKFORWARDER: False
+    ENABLE_NEWRELIC: False
+  pre_tasks:
+    - include_vars: edx-insights-override-defaults.yml
+  roles:
+    - mysql
+    - mysql-insights-custom
+    - edxlocal
+    - memcache
+    - oraclejdk
+    - common
+    - elasticsearch
+    - analytics_api
+    - analytics_pipeline
+    - insights
+    - role: nginx
+      nginx_sites:
+        - insights
+        - analytics_api
+      nginx_default_sites:
+        - insights
+    - role: insights-letsencrypt
+      NGINX_REDIRECT_TO_HTTPS: True
+      nginx_sites:
+        - analytics_api
+        - insights
+      nginx_default_sites:
+        - insights
+      when: INSIGHTS_USE_LETSENCRYPT|lower == 'yes'
+    - insights-app-config
+    - analytics_api-app-config
+    - hadoop_config
+
+- name: Remove Insights services
+  hosts: localhost
+  become: True
+  gather_facts: True
+  pre_tasks:
+    - include_vars: edx-insights-override-defaults.yml
+  roles:
+    - role: edxapp
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: insights
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: analytics_api
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: nginx
+      nginx_sites:
+        - insights
+        - analytics_api
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: insights-to-edx
+    - role: insights-remove-services
+
+- name: Create tracking logs upload playbook
+  hosts: localhost
+  become: True
+  gather_facts: True
+  pre_tasks:
+    - include_vars: edx-insights-override-defaults.yml
+  roles:
+    - role: edxapp
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: common_vars
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: hadoop_common
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: hadoop_config
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: tracking-log-hdfs-upload-job
+

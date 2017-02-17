@@ -1,0 +1,231 @@
+---
+#---------------------------------------------------------------------
+#edx-analytics-data-api:
+ANALYTICS_API_NGINX_PORT: "18100"
+ANALYTICS_API_NGINX_SSL_PORT: "443"
+
+ANALYTICS_API_DEFAULT_DB_NAME: 'analytics_api'
+ANALYTICS_API_DATABASE_DEFAULT_HOST: '127.0.0.1'
+ANALYTICS_API_DATABASE_DEFAULT_PORT: '3306'
+
+ANALYTICS_API_REPORTS_DB_NAME: 'reports'
+ANALYTICS_API_REPORTS_DB_HOST: '127.0.0.1'
+ANALYTICS_API_REPORTS_DB_PORT: '3306'
+
+ANALYTICS_API_DATABASES:
+  # rw user
+  default:
+    ENGINE: 'django.db.backends.mysql'
+    NAME: '{{ ANALYTICS_API_DEFAULT_DB_NAME }}'
+    USER: '{{ ANALYTICS_API_DATABASE_DEFAULT_USERNAME }}'
+    PASSWORD: '{{ ANALYTICS_API_DATABASE_DEFAULT_PASSWORD }}'
+    HOST: '{{ ANALYTICS_API_DATABASE_DEFAULT_HOST }}'
+    PORT: '{{ ANALYTICS_API_DATABASE_DEFAULT_PORT }}'
+  # read-only user
+  reports:
+    ENGINE: 'django.db.backends.mysql'
+    NAME: '{{ ANALYTICS_API_REPORTS_DB_NAME }}'
+    USER: '{{ ANALYTICS_API_DATABASE_REPORTS_USERNAME }}'
+    PASSWORD: '{{ ANALYTICS_API_DATABASE_REPORTS_PASSWORD }}'
+    HOST: '{{ ANALYTICS_API_REPORTS_DB_HOST }}'
+    PORT: '{{ ANALYTICS_API_REPORTS_DB_PORT }}'
+
+ANALYTICS_API_SECRET_KEY: '{{ SECRET_ANALYTICS_API_SECRET_KEY }}'
+ANALYTICS_API_EMAIL_HOST: '{{ EDXAPP_EMAIL_HOST }}'
+ANALYTICS_API_EMAIL_HOST_USER: '{{ EDXAPP_EMAIL_HOST_USER }}'
+ANALYTICS_API_EMAIL_HOST_PASSWORD: '{{ EDXAPP_EMAIL_HOST_PASSWORD }}'
+ANALYTICS_API_EMAIL_PORT: '{{ EDXAPP_EMAIL_PORT }}'
+ANALYTICS_API_AUTH_TOKEN: '{{ SECRET_ANALYTICS_API_AUTH_TOKEN }}'
+
+
+ANALYTICS_API_ELASTICSEARCH_LEARNERS_HOST: '127.0.0.1'
+ANALYTICS_API_ELASTICSEARCH_LEARNERS_INDEX: 'roster'
+ANALYTICS_API_ELASTICSEARCH_LEARNERS_UPDATE_INDEX: 'index_updates'
+ANALYTICS_API_ELASTICSEARCH_CONNECTION_CLASS: !!null
+ANALYTICS_API_DATE_FORMAT: '%Y-%m-%d'
+ANALYTICS_API_DATETIME_FORMAT: '%Y-%m-%dT%H%M%S'
+ANALYTICS_API_DEFAULT_PAGE_SIZE: 25
+ANALYTICS_API_MAX_PAGE_SIZE: 100
+
+
+ANALYTICS_API_BASE_URL: "{{ ANALYTICS_API_BASE_SCHEME | default('https') }}://{{ ANALYTICS_API_BASE }}"
+
+ANALYTICS_API_DATA_DIR: '{{ COMMON_DATA_DIR }}/{{ analytics_api_service_name }}'
+ANALYTICS_API_MEDIA_ROOT: '{{ ANALYTICS_API_DATA_DIR }}/static/reports'
+ANALYTICS_API_MEDIA_URL: '/static/reports/'
+
+ANALYTICS_API_REPORT_DOWNLOAD_BACKEND:
+  DEFAULT_FILE_STORAGE: 'django.core.files.storage.FileSystemStorage'
+  MEDIA_ROOT: '{{ ANALYTICS_API_MEDIA_ROOT }}'
+  MEDIA_URL: '{{ ANALYTICS_API_BASE_URL }}{{ ANALYTICS_API_MEDIA_URL }}'
+  COURSE_REPORT_FILE_LOCATION_TEMPLATE: '{course_id}_{report_name}.csv'
+
+ANALYTICS_API_GIT_IDENTITY: !!null
+ANALYTICS_API_REPOS:
+  - PROTOCOL: "{{ COMMON_GIT_PROTOCOL }}"
+    DOMAIN: "{{ COMMON_GIT_MIRROR }}"
+    PATH: "{{ ANALYTICS_API_GIT_PATH }}"
+    REPO: edx-analytics-data-api.git
+    VERSION: "{{ ANALYTICS_API_VERSION }}"
+    DESTINATION: "{{ analytics_api_code_dir }}"
+    SSH_KEY: "{{ ANALYTICS_API_GIT_IDENTITY }}"
+
+ANALYTICS_API_GUNICORN_WORKERS: "2"
+ANALYTICS_API_GUNICORN_EXTRA: ""
+ANALYTICS_API_GUNICORN_EXTRA_CONF: ""
+
+
+analytics_api_gunicorn_host: "127.0.0.1"
+analytics_api_gunicorn_port: "8100"
+analytics_api_gunicorn_timeout: "300"
+
+analytics_api_django_settings: "production"
+
+#---------------------------------------------------------------------
+#edx-analytics-pipeline:
+ANALYTICS_PIPELINE_OUTPUT_DATABASE_NAME: "{{ ANALYTICS_API_REPORTS_DB_NAME }}"
+ANALYTICS_PIPELINE_OUTPUT_DATABASE:
+  username: '{{ ANALYTICS_PIPELINE_OUTPUT_DATABASE_USERNAME }}'
+  password: '{{ ANALYTICS_PIPELINE_OUTPUT_DATABASE_PASSWORD }}'
+  host: localhost
+  port: 3306
+
+ANALYTICS_PIPELINE_INPUT_DATABASE:
+  username: "{{ ANALYTICS_PIPELINE_INPUT_DATABASE_USERNAME }}"
+  password: "{{ ANALYTICS_PIPELINE_INPUT_DATABASE_PASSWORD }}"
+  host: localhost
+  port: 3306
+
+ANALYTICS_PIPELINE_CONFIG_DIR: "{{ COMMON_CFG_DIR }}/edx-analytics-pipeline"
+
+ANALYTICS_PIPELINE_LUIGI_HADOOP_VERSION: apache1
+ANALYTICS_PIPELINE_LUIGI_HADOOP_COMMAND: "{{ HADOOP_COMMON_HOME }}/bin/hadoop"
+ANALYTICS_PIPELINE_LUIGI_HADOOP_STREAMING_JAR: "{{ HADOOP_COMMON_HOME }}/share/hadoop/tools/lib/hadoop-streaming-{{ HADOOP_COMMON_VERSION }}.jar"
+
+
+analytics_pipeline_role_name: analytics_pipeline
+
+analytics_pipeline_util_library:
+  path: /var/tmp/edx-analytics-hadoop-util
+  repo: https://github.com/edx/edx-analytics-hadoop-util
+  version: master
+
+hadoop_common_protobuf_dist:
+  filename: "protobuf-{{ HADOOP_COMMON_PROTOBUF_VERSION }}.tar.gz"
+  url: "https://github.com/google/protobuf/releases/download/v{{ HADOOP_COMMON_PROTOBUF_VERSION }}/protobuf-{{ HADOOP_COMMON_PROTOBUF_VERSION }}.tar.gz"
+  sha256sum: c55aa3dc538e6fd5eaf732f4eb6b98bdcb7cedb5b91d3b5bdcf29c98c293f58e
+
+ANALYTICS_PIPELINE_GIT_PROTOCOL: "{{ COMMON_GIT_PROTOCOL }}"
+ANALYTICS_PIPELINE_GIT_MIRROR: "{{ COMMON_GIT_MIRROR }}"
+
+ANALYTICS_PIPELINE_REPO: "edx-analytics-pipeline.git"
+ANALYTICS_REPO_DIR: "edx-analytics-pipeline"
+ANALYTICS_PIPELINE_CODE_DIR: "{{ HADOOP_COMMON_USER_HOME }}/{{ ANALYTICS_REPO_DIR }}"
+ANALYTICS_PIPELINE_GIT_IDENTITY: !!null
+
+HADOOP_COMMON_USER_HOME: "{{ COMMON_APP_DIR }}/hadoop"
+
+HADOOP_CORE_SITE_DEFAULT_CONFIG:
+  fs.default.name: "hdfs://localhost:9000"
+
+edx_analytics_pipeline_configs: "{{ HADOOP_CORE_SITE_DEFAULT_CONFIG['fs.default.name'] }}/pipeline-configs"
+edx_analytics_pipeline_outputs_root: "{{ HADOOP_CORE_SITE_DEFAULT_CONFIG['fs.default.name'] }}/pipeline-outputs"
+edx_analytics_pipeline_tracking_logs: "{{ HADOOP_CORE_SITE_DEFAULT_CONFIG['fs.default.name'] }}/data"
+edx_analytics_pipeline_libs: "{{ HADOOP_CORE_SITE_DEFAULT_CONFIG['fs.default.name'] }}/pipeline-libs"
+edx_analytics_report_output_root: "{{ HADOOP_CORE_SITE_DEFAULT_CONFIG['fs.default.name'] }}/pipeline-outputs"
+edx_analytics_map_reduce_marker: "{{ HADOOP_CORE_SITE_DEFAULT_CONFIG['fs.default.name'] }}/map_reduce/marker"
+
+ANALYTICS_PIPELINE_LOGGING_CFG: "logging.cfg"
+ANALYTICS_PIPELINE_HDFS_TMP_DIR: "{{ HADOOP_CORE_SITE_DEFAULT_CONFIG['fs.default.name'] }}/tmp"
+
+ANALYTICS_PIPELINE_HDFS_DATA_DIR: "{{ edx_analytics_pipeline_tracking_logs }}"
+
+#---------------------------------------------------------------------
+#edx-analytics-dashboard:
+INSIGHTS_LMS_BASE: '{{ EDXAPP_LMS_ROOT_URL }}'
+INSIGHTS_CMS_BASE: '{{ EDXAPP_CMS_ROOT_URL }}'
+INSIGHTS_BASE_URL: "{{ INSIGHTS_BASE_SCHEME | default('https') }}://{{ INSIGHTS_BASE }}"
+INSIGHTS_MEMCACHE: [ '127.0.0.1:11211' ]
+INSIGHTS_FEEDBACK_EMAIL: '{{ EDXAPP_DEFAULT_FROM_EMAIL }}'
+INSIGHTS_MKTG_BASE: '{{ INSIGHTS_BASE_URL }}'
+INSIGHTS_LOGOUT_URL: '{{ INSIGHTS_MKTG_BASE }}/accounts/logout/'
+INSIGHTS_PRIVACY_POLICY_URL: '{{ INSIGHTS_MKTG_BASE }}/privacy-policy'
+INSIGHTS_TERMS_OF_SERVICE_URL: '{{ INSIGHTS_MKTG_BASE }}/terms-service'
+# Delete the 'INSIGHTS_SUPPORT_URL' once the release will out for 'INSIGHTS_SUPPORT_EMAIL'
+INSIGHTS_SUPPORT_URL: '{{ INSIGHTS_BASE_URL }}'
+INSIGHTS_SUPPORT_EMAIL: '{{ EDXAPP_DEFAULT_FROM_EMAIL }}'
+INSIGHTS_CMS_COURSE_SHORTCUT_BASE_URL: '{{ INSIGHTS_CMS_BASE }}/course'
+INSIGHTS_OAUTH2_SECRET: '{{ SECRET_INSIGHTS_OAUTH2_SECRET }}'
+INSIGHTS_OAUTH2_URL_ROOT: '{{ INSIGHTS_LMS_BASE }}/oauth2'
+INSIGHTS_OIDC_LOGOUT_URL: '{{ INSIGHTS_LMS_BASE }}/logout'
+INSIGHTS_OAUTH2_APP_CLIENT_NAME: '{{ SECRET_INSIGHTS_OAUTH2_APP_CLIENT_NAME }}'
+INSIGHTS_OAUTH2_APP_USERNAME: '{{ SECRET_INSIGHTS_OAUTH2_APP_USERNAME }}'
+INSIGHTS_OAUTH2_APP_COMPLETE_URL: '{{ INSIGHTS_BASE_URL }}/complete/edx-oidc/'
+INSIGHTS_SOCIAL_AUTH_REDIRECT_IS_HTTPS: false
+INSIGHTS_SECRET_KEY: '{{ SECRET_INSIGHTS_SECRET_KEY }}'
+INSIGHTS_OAUTH2_KEY: '{{ SECRET_INSIGHTS_OAUTH2_KEY }}'
+INSIGHTS_DOC_BASE: '{{ INSIGHTS_BASE_URL }}/en/latest'
+ANALYTICS_API_ENDPOINT: 'http://127.0.0.1:8100/api/v0'
+INSIGHTS_DATA_API_AUTH_TOKEN: '{{ SECRET_INSIGHTS_DATA_API_AUTH_TOKEN }}'
+INSIGHTS_SEGMENT_IO_KEY: '{{ SECRET_INSIGHTS_SEGMENT_IO_KEY }}'
+# email config
+INSIGHTS_EMAIL_HOST: '{{ EDXAPP_EMAIL_HOST }}'
+INSIGHTS_EMAIL_HOST_PASSWORD: '{{ EDXAPP_EMAIL_HOST_PASSWORD }}'
+INSIGHTS_EMAIL_HOST_USER: '{{ EDXAPP_EMAIL_HOST_USER }}'
+INSIGHTS_EMAIL_PORT: '{{ EDXAPP_EMAIL_PORT }}'
+INSIGHTS_ENABLE_AUTO_AUTH: false
+INSIGHTS_SEGMENT_IGNORE_EMAIL_REGEX: !!null
+INSIGHTS_THEME_SCSS: 'sass/themes/open-edx.scss'
+
+# Comma-delimited list of field names to include in the Learner List CSV download
+# e.g., "username,segments,cohort,engagements.videos_viewed,last_updated"
+# Default (null) includes all available fields, in alphabetical order
+INSIGHTS_LEARNER_API_LIST_DOWNLOAD_FIELDS: !!null
+
+INSIGHTS_DATABASE_NAME: 'dashboard'
+INSIGHTS_DATABASE_HOST: '127.0.0.1'
+INSIGHTS_DATABASE_PORT: '3306'
+
+INSIGHTS_DATABASES:
+  # rw user
+  default:
+    ENGINE: 'django.db.backends.mysql'
+    NAME: '{{ INSIGHTS_DATABASE_NAME }}'
+    USER: '{{ SECRET_INSIGHTS_DATABASES_USERNAME }}'
+    PASSWORD: '{{ SECRET_INSIGHTS_DATABASES_PASSWORD }}'
+    HOST: '{{ INSIGHTS_DATABASE_HOST }}'
+    PORT: '{{ INSIGHTS_DATABASE_PORT }}'
+
+# INSIGHTS_LMS_COURSE_SHORTCUT_BASE_URL: "URL_FOR_LMS_COURSE_LIST_PAGE"
+INSIGHTS_LMS_COURSE_SHORTCUT_BASE_URL: '{{ INSIGHTS_LMS_BASE }}/courses'
+
+INSIGHTS_NGINX_PORT: "18110"
+#INSIGHTS_NGINX_PORT: "80"
+INSIGHTS_NGINX_SSL_PORT: "443"
+
+INSIGHTS_GUNICORN_WORKERS: "2"
+INSIGHTS_GUNICORN_EXTRA: ""
+INSIGHTS_COURSE_API_URL: "{{ INSIGHTS_LMS_BASE }}/api/courses/v1/"
+INSIGHTS_GRADING_POLICY_API_URL: "{{ INSIGHTS_LMS_BASE }}/api/grades/v0/"
+INSIGHTS_MODULE_PREVIEW_URL: "{{ INSIGHTS_LMS_BASE }}/xblock"
+
+
+INSIGHTS_GIT_IDENTITY: !!null
+
+INSIGHTS_REPOS:
+  - PROTOCOL: "{{ COMMON_GIT_PROTOCOL }}"
+    DOMAIN: "{{ COMMON_GIT_MIRROR }}"
+    PATH: "{{ INSIGHTS_GIT_PATH }}"
+    REPO: edx-analytics-dashboard.git
+    VERSION: "{{ INSIGHTS_VERSION }}"
+    DESTINATION: "{{ insights_code_dir }}"
+    SSH_KEY: "{{ INSIGHTS_GIT_IDENTITY }}"
+
+
+insights_gunicorn_host: "127.0.0.1"
+insights_gunicorn_port: "8110"
+insights_gunicorn_timeout: "300"
+insights_wsgi: "analytics_dashboard.wsgi:application"
+
+#---------------------------------------------------------------------
+

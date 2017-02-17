@@ -1,0 +1,37 @@
+[hadoop]
+python-executable=/usr/bin/python2.7
+luigi_hadoop_version: {{ ANALYTICS_PIPELINE_LUIGI_HADOOP_VERSION }}
+luigi_hadoop_command: {{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hadoop
+luigi_hadoop_streaming_jar: {{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/share/hadoop/tools/lib/hadoop-streaming-2.3.0.jar
+streaming-jar: {{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/share/hadoop/tools/lib/hadoop-streaming-2.3.0.jar
+
+[hdfs]
+client = hadoopcli
+
+[hive]
+release = apache
+database = default
+
+[database-export]
+database = {{ ANALYTICS_API_REPORTS_DB_NAME }}
+
+[database-import]
+database = {{ EDXAPP_MYSQL_DB_NAME }}
+
+[core]
+logging_conf_file = {{ ANALYTICS_PIPELINE_LOGGING_CFG }}
+hdfs-tmp-dir = /tmp/
+
+[map-reduce]
+engine = hadoop
+remote_log_level = INFO
+
+[event-logs]
+expand_interval = 2 days
+
+[manifest]
+threshold = 500
+input_format = oddjob.ManifestTextInputFormat
+
+[answer-distribution]
+valid_response_types = choiceresponse,optionresponse,multiplechoiceresponse,numericalresponse,stringresponse,formularesponse

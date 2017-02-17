@@ -1,0 +1,21 @@
+---
+le_packages:
+    - augeas-doc 
+    - augeas-tools
+    - libssl-dev
+    - dialog 
+    - python-virtualenv
+    - libssl1.0.0
+
+EDXAPP_NGINX_MAINTENANCE_PAGE: True
+EDXAPP_NGINX_MAINTENANCE_PATH: '/edx/var/nginx/server-static/maintenance'
+EDXAPP_NGINX_MAINTENANCE_FILE: 'maintenance'
+EDXAPP_NGINX_MAINTENANCE_INDEX: 'maintenance.html'
+EDXAPP_NGINX_MAINTENANCE_INDEX_STATIC: 'maintenance_index_files'
+
+LETSENCRYPT_ALL_DOMAIN: ''
+LETSENCRYPT_ADDITIONAL_DOMAIN: []
+INSIGHTS_USE_LETSENCRYPT: 'no'
+NGINX_REDIRECT_TO_HTTPS: False
+
+dhparamfile_dir: '/etc/nginx/ssl'

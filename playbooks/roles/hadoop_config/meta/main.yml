@@ -1,0 +1,7 @@
+---
+dependencies:
+ - role: git_clone
+   repo_owner: "{{ hadoop_common_user }}"
+   repo_group: "{{ hadoop_common_group }}"
+   git_home: "{{ HADOOP_COMMON_HOME }}"
+   GIT_REPOS: "{{ ANALYTICS_PIPELINE_REPOS }}"

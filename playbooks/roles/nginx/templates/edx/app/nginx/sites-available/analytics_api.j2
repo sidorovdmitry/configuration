@@ -5,7 +5,13 @@ upstream analytics_api_app_server {
 }
 
 server {
-  listen {{ ANALYTICS_API_NGINX_PORT }} default_server;
+  {% if nginx_default_sites is defined and "analytics_api" in nginx_default_sites %}
+    {% set default_site = "default_server" %}
+  {% else %}
+    {% set default_site = "" %}
+  {% endif %}
+
+  listen {{ ANALYTICS_API_NGINX_PORT }} {{ default_site }};
 
   # Nginx does not support nested condition or or conditions so
   # there is an unfortunate mix of conditonals here.

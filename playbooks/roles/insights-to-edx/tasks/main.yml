@@ -1,0 +1,42 @@
+---
+
+- name: setup the {{ INSIGHTS_LMS_MYSQL_USERNAME }} db user for edx host
+  mysql_user: >
+    name={{ INSIGHTS_LMS_MYSQL_USERNAME }}
+    password={{ INSIGHTS_LMS_MYSQL_PASSWORD }}
+    priv='{{ EDXAPP_MYSQL_DB_NAME }}.*:SELECT'
+    append_privs=yes
+    host={{ item }}
+  with_items:
+    - "{{ ANALYTICS_API_MYSQL_EDXAPP_RO_HOST }}"
+
+- name: edx-analytics-dashboard create_oauth2_client
+  shell: >
+      chdir={{ edxapp_code_dir }}
+      {{ edxapp_venv_bin }}/python ./manage.py lms --settings=aws create_oauth2_client  \
+      {{ INSIGHTS_BASE_URL }}/ \
+      {{ INSIGHTS_BASE_URL }}/complete/edx-oidc/  \
+      confidential \
+      --username={{ SECRET_INSIGHTS_OAUTH2_APP_USERNAME }} \
+      --client_name={{ SECRET_INSIGHTS_OAUTH2_APP_CLIENT_NAME }} \
+      --client_id={{ SECRET_INSIGHTS_OAUTH2_KEY }} \
+      --client_secret={{ SECRET_INSIGHTS_OAUTH2_SECRET }} \
+      --trusted
+  become_method: sudo
+  become: yes
+  become_user: "{{ edxapp_user }}"
+
+# - name: edx-rest-api create_oauth2_client
+#   shell: >
+#       chdir={{ edxapp_code_dir }}
+#       {{ edxapp_venv_bin }}/python ./manage.py lms --settings=aws create_oauth2_client  \
+#       {{ ANALYTICS_API_BASE_URL }} \
+#       {{ ANALYTICS_API_BASE_URL }}/complete/edx-oidc/  \
+#       confidential \
+#       --client_name "Analytics Pipeline" \
+#       --client_id {{ ANALYTICS_API_AUTH_TOKEN }} \
+#       --client_secret {{ SECRET_ANALYTICS_API_SECRET_KEY }} \
+#       --trusted
+#   become_method: sudo
+#   become: yes
+#   become_user: "{{ edxapp_user }}"

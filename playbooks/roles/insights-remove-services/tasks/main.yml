@@ -1,0 +1,126 @@
+---
+- name: stop insights
+  supervisorctl: >
+    state=stopped
+    supervisorctl_path={{ supervisor_ctl }}
+    config={{ supervisor_cfg }}
+    name={{ insights_service_name }}
+  when: disable_insights_edx_services|lower == 'yes'
+  ignore_errors: True
+  become_user: "{{ supervisor_service_user }}"
+  become_method: sudo
+  become: yes
+
+- name: remove insights supervisor config
+  file: >
+    path="{{ supervisor_available_dir }}/{{ insights_service_name }}.conf"
+    state=absent
+    force=yes
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+
+- name: Remove "{{ insights_home }}" directroy
+  file: >
+    path="{{ insights_home }}"
+    state=absent
+    force=yes
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+
+- name: remove insights common config
+  file: >
+    path="{{ COMMON_CFG_DIR }}/{{ insights_service_name }}.yml"
+    state=absent
+    force=yes
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+
+- name: remove insights dir from "{{ COMMON_CFG_DIR }}"
+  file: >
+    path="{{ COMMON_CFG_DIR }}/{{ insights_service_name }}"
+    state=absent
+    force=yes
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+
+- name: Remove "{{ nginx_sites_available_dir }}/{{ item }}" nginx config
+  file: >
+    path="{{ nginx_sites_available_dir }}/{{ item }}"
+    state=absent
+    force=yes
+  with_items: "{{ nginx_sites }}"
+  notify: reload nginx
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+
+- name: Remove "{{ nginx_sites_available_dir }}/{{ item }}" nginx config link
+  file: >
+    path="{{ nginx_sites_enabled_dir }}/{{ item }}"
+    state=absent
+    force=yes
+  with_items: "{{ nginx_sites }}"
+  notify: reload nginx
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+
+
+- name: stop analytics_api
+  supervisorctl: >
+    state=stopped
+    supervisorctl_path={{ supervisor_ctl }}
+    config={{ supervisor_cfg }}
+    name={{ analytics_api_service_name }}
+  when: disable_insights_edx_services|lower == 'yes'
+  become_user: "{{ supervisor_service_user }}"
+  become_method: sudo
+  become: yes
+
+- name: remove analytics_api supervisor config
+  file: >
+    path="{{ supervisor_cfg_dir }}/{{ analytics_api_service_name }}.conf"
+    state=absent
+    force=yes
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+
+- name: remove analytics_api common config
+  file: >
+    path="{{ COMMON_CFG_DIR }}/{{ analytics_api_service_name }}.yml"
+    state=absent
+    force=yes
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+
+- name: remove analytics_api dir from "{{ COMMON_CFG_DIR }}"
+  file: >
+    path="{{ COMMON_CFG_DIR }}/{{ analytics_api_service_name }}"
+    state=absent
+    force=yes
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+
+- name: update supervisor configuration
+  shell: "{{ supervisor_ctl }} -c {{ supervisor_cfg }} update"
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+  become_user: "{{ supervisor_service_user }}"
+
+- name: Remove "{{ analytics_api_home }}" directroy
+  file: >
+    path="{{ analytics_api_home }}"
+    state=absent
+    force=yes
+  when: disable_insights_edx_services|lower == 'yes'
+  become_method: sudo
+  become: yes
+

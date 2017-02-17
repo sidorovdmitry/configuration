@@ -1,0 +1,10 @@
+---
+- name: Create tracking-log-hdfs-upload.yml in {{ COMMON_DATA_DIR }} (on current edx instance)
+  template:
+    src: "tracking-log-hdfs-upload.yml.j2"
+    dest: "{{ edxapp_app_dir }}/tracking-log-hdfs-upload.yml"
+    owner: "{{ edxapp_user }}"
+    group: "{{ edxapp_user }}"
+  become_method: sudo
+  become: yes
+  become_user: "{{ edxapp_user }}"

@@ -1,0 +1,50 @@
+---
+- name: migrate analytics_api database=default
+  shell: >
+    chdir={{ analytics_api_code_dir }}
+    DB_MIGRATION_USER='{{ COMMON_MYSQL_MIGRATE_USER }}'
+    DB_MIGRATION_PASS='{{ COMMON_MYSQL_MIGRATE_PASS }}'
+    export ANALYTICS_API_CFG={{ analytics_api_environment['ANALYTICS_API_CFG'] }} && {{ analytics_api_home }}/venvs/{{ analytics_api_service_name }}/bin/python ./manage.py migrate --noinput --run-syncdb --database=default --settings={{ analytics_api_environment['DJANGO_SETTINGS_MODULE'] }}
+  become_user: "{{ analytics_api_user }}"
+  environment: "{{ analytics_api_environment }}"
+  when: migrate_db is defined and migrate_db|lower == "yes"
+
+- name: migrate analytics_api database=reports
+  shell: >
+    chdir={{ analytics_api_code_dir }}
+    DB_MIGRATION_USER='{{ COMMON_MYSQL_MIGRATE_USER }}'
+    DB_MIGRATION_PASS='{{ COMMON_MYSQL_MIGRATE_PASS }}'
+    export ANALYTICS_API_CFG={{ analytics_api_environment['ANALYTICS_API_CFG'] }} && {{ analytics_api_home }}/venvs/{{ analytics_api_service_name }}/bin/python ./manage.py migrate --noinput --run-syncdb --database=reports --settings={{ analytics_api_environment['DJANGO_SETTINGS_MODULE'] }}
+  become_user: "{{ analytics_api_user }}"
+  environment: "{{ analytics_api_environment }}"
+  when: migrate_db is defined and migrate_db|lower == "yes"
+
+- name: Create analytics_api User and Token
+  shell: >
+    chdir={{ analytics_api_code_dir }}
+    export ANALYTICS_API_CFG={{ analytics_api_environment['ANALYTICS_API_CFG'] }} && {{ analytics_api_home }}/venvs/{{ analytics_api_service_name }}/bin/python ./manage.py set_api_key {{ INSIGHTS_DATA_API_AUTH_USER  }} {{ SECRET_INSIGHTS_DATA_API_AUTH_TOKEN }} --settings={{ analytics_api_environment['DJANGO_SETTINGS_MODULE'] }}
+  become_user: "{{ analytics_api_user }}"
+  environment: "{{ analytics_api_environment }}"
+
+#- name: Create mysql_reports_created_query.sh
+#  template:
+#    src: mysql_reports_created_query.sh.j2
+#    dest: /tmp/mysql_reports_created_query.sh
+#  become_method: sudo
+#  become: yes
+#  become_user: ubuntu
+
+#- name: Fix MySQL database tables - add default to created fields
+#  shell: "sudo chmod +x /tmp/mysql_reports_created_query.sh; /tmp/mysql_reports_created_query.sh"
+#  become_method: sudo
+#  become: yes
+#  become_user: ubuntu
+
+#- name: Remove tmp script
+#  file:
+#    path: /tmp/mysql_reports_created_query.sh
+#    state: absent
+#  become_method: sudo
+#  become: yes
+#  become_user: ubuntu
+
