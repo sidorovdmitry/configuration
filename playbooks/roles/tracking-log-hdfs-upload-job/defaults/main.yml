@@ -1,0 +1,13 @@
+---
+COMMON_BASE_DIR: /edx
+COMMON_LOG_DIR: "{{ COMMON_DATA_DIR }}/log"
+COMMON_DATA_DIR: "{{ COMMON_BASE_DIR}}/var"
+edxapp_user: edxapp
+
+hadoop_tracking_files_tmp: "/tmp/tracking"
+
+HADOOP_COMMON_USER_HOME: "{{ COMMON_APP_DIR }}/hadoop"
+hadoop_common_user: hadoop
+
+hdfs_tracking_logs: "data"
+

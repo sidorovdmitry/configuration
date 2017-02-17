@@ -13,16 +13,36 @@ server {
 
   listen {{ INSIGHTS_NGINX_PORT }} {{ default_site }};
 
+  server_name {{ INSIGHTS_BASE }};
+
   {% if NGINX_ENABLE_SSL %}
   listen {{ INSIGHTS_NGINX_SSL_PORT }} ssl;
 
-  {% include "common-settings.j2" %}
+  ssl_certificate /etc/letsencrypt/live/{{ INSIGHTS_BASE }}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/{{ INSIGHTS_BASE }}/privkey.pem;
 
-  ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
-  ssl_certificate_key /etc/ssl/private/{{ NGINX_SSL_KEY|basename }};
   # request the browser to use SSL for all connections
   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+
+  ssl_protocols           TLSv1 TLSv1.1 TLSv1.2;
+  # Diffie-Hellman parameter for DHE ciphersuites, recommended 2048 bits
+  ssl_dhparam {{ dhparamfile_dir }}/dhparam.pem;
+  ssl_session_timeout  24h;
+  ssl_session_cache shared:SSL:50m;
+  ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!3DES:!MD5:!PSK';
+  ssl_stapling on;
+  ssl_stapling_verify on;
+  ssl_prefer_server_ciphers   on;
+  ssl_trusted_certificate     /etc/ssl/certs/ca-certificates.crt;
+  resolver                8.8.8.8;
+
   {% endif %}
+
+  location '/.well-known/acme-challenge' {
+    allow all;
+    default_type "text/plain";
+    root /var/www/letsencrypt;
+  }
 
   location ~ ^/static/(?P<file>.*) {
     root {{ COMMON_DATA_DIR }}/{{ insights_service_name }};
@@ -41,15 +61,17 @@ server {
   {% include "robots.j2" %}
 
 location @proxy_to_app {
+    {% if NGINX_ENABLE_SSL %}
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Port $server_port;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header Host $http_host;
+    {% else %}
     proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
     proxy_set_header X-Forwarded-Port $http_x_forwarded_port;
     proxy_set_header X-Forwarded-For $http_x_forwarded_for;
-
-    # newrelic-specific header records the time when nginx handles a request.
-    proxy_set_header X-Queue-Start "t=${msec}";
-
     proxy_set_header Host $http_host;
-
+    {% endif %}
     proxy_redirect off;
     proxy_pass http://insights_app_server;
   }

@@ -1,0 +1,62 @@
+---
+- name: Upload tracking logs to insighs hdfs
+  hosts: all
+  become_method: sudo
+  become: yes
+  become_user: ubuntu
+  tasks:
+
+  - name: Check if "{{ hadoop_tracking_files_tmp }}" exist
+    stat:
+      path: "{{ hadoop_tracking_files_tmp }}"
+    register: check_hadoop_tracking_files_tmp
+
+  - name: Create "{{ hadoop_tracking_files_tmp }}" if not exist
+    file: 
+      path: "{{ hadoop_tracking_files_tmp }}"
+      state: directory
+      owner: ubuntu
+      group: ubuntu
+    when: check_hadoop_tracking_files_tmp.stat.exists == False
+
+  - name: "Copy hadoop additional files to {{ hadoop_tracking_files_tmp }} on analytics instance"
+    synchronize:
+      src: "{{ COMMON_LOG_DIR }}/tracking/"
+      dest: "{{ hadoop_tracking_files_tmp }}/"
+      mode: push
+
+  - name: recursive chmod
+    command: |
+      chmod -c -R ug=rw,o=r,a-x+X "{{ '{{ item }}' }}"
+    register: chmod_status
+    changed_when: chmod_status.stdout != ""
+    with_items:
+      - "{{ hadoop_tracking_files_tmp }}"
+    become_method: sudo
+    become: yes
+    become_user: root
+
+  - shell: ls {{ hadoop_tracking_files_tmp }}/*
+    register: path_files
+
+  - name: "Clean hdfs tracking log dir"
+    command: "{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -rm -r /{{ hdfs_tracking_logs }}/*"
+    become_method: sudo
+    ignore_errors: yes
+    become: yes
+    become_user: "{{ hadoop_common_user }}"
+
+  - name: "Copy tracking files to hdfs"
+    command: "{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -put -f {{ '{{ item }}' }} /{{ hdfs_tracking_logs }}/"
+    with_items: '{{ "{{ path_files.stdout_lines }}" }}'
+    become_method: sudo
+    become: yes
+    become_user: "{{ hadoop_common_user }}"
+
+  - name: Delete "{{ hadoop_tracking_files_tmp }}" dir
+    file: 
+      path: "{{ hadoop_tracking_files_tmp }}"
+      state: absent
+    become_method: sudo
+    become: yes
+    become_user: root

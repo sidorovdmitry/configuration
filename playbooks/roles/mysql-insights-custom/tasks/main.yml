@@ -1,0 +1,50 @@
+---
+- name: install python mysql bindings
+  apt: name=python-mysqldb state=installed
+  become: yes
+  become_method: sudo
+
+- name: setup the migration db user for {{ ANALYTICS_API_REPORTS_DB_NAME }} insights hosts
+  mysql_user: >
+    name={{ COMMON_MYSQL_MIGRATE_USER }}
+    password={{ COMMON_MYSQL_MIGRATE_PASS }}
+    priv='{{ ANALYTICS_API_REPORTS_DB_NAME }}.*:ALL'
+    append_privs=yes
+    host={{ item }}
+  with_items:
+    - "{{ ANALYTICS_API_REPORTS_DB_HOST }}"
+    - "127.0.0.1"
+
+- name: setup the migration db user for {{ ANALYTICS_API_DEFAULT_DB_NAME }} insights hosts
+  mysql_user: >
+    name={{ COMMON_MYSQL_MIGRATE_USER }}
+    password={{ COMMON_MYSQL_MIGRATE_PASS }}
+    priv='{{ ANALYTICS_API_DEFAULT_DB_NAME }}.*:ALL'
+    append_privs=yes
+    host={{ item }}
+  with_items:
+    - "{{ ANALYTICS_API_DATABASE_DEFAULT_HOST }}"
+    - "127.0.0.1"
+
+- name: setup the {{ ANALYTICS_API_DATABASE_DEFAULT_USERNAME }} db user for {{ ANALYTICS_API_REPORTS_DB_NAME }} insights hosts
+  mysql_user: >
+    name={{ ANALYTICS_API_DATABASE_DEFAULT_USERNAME }}
+    password={{ ANALYTICS_API_DATABASE_DEFAULT_PASSWORD }}
+    priv='{{ ANALYTICS_API_DEFAULT_DB_NAME }}.*:ALL'
+    append_privs=yes
+    host={{ item }}
+  with_items:
+    - "{{ ANALYTICS_API_REPORTS_DB_HOST }}"
+    - "127.0.0.1"
+
+- name: setup the {{ ANALYTICS_API_DATABASE_REPORTS_USERNAME }} db user for {{ ANALYTICS_API_DEFAULT_DB_NAME }} insights hosts
+  mysql_user: >
+    name={{ ANALYTICS_API_DATABASE_REPORTS_USERNAME }}
+    password={{ ANALYTICS_API_DATABASE_REPORTS_PASSWORD }}
+    priv='{{ ANALYTICS_API_REPORTS_DB_NAME }}.*:ALL'
+    append_privs=yes
+    host={{ item }}
+  with_items:
+    - "{{ ANALYTICS_API_DATABASE_DEFAULT_HOST }}"
+    - "127.0.0.1"
+
