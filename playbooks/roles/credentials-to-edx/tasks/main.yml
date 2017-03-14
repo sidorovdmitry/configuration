@@ -1,0 +1,26 @@
+- name: set URL_ROOT for singe domain
+  set_fact:
+    URL_ROOT: "{{ CREDENTIALS_URL_ROOT_SINGLE_DOMAIN }}"
+  when: CREDENTIALS_SINGLE_DOMAIN|lower == 'yes'
+
+- name: set URL_ROOT for non-single domain
+  set_fact:
+    URL_ROOT: "{{ CREDENTIALS_URL_ROOT }}"
+  when: CREDENTIALS_SINGLE_DOMAIN|lower == 'no'
+
+- name: create_oauth2_client
+  shell: >
+      chdir={{ edxapp_code_dir }}
+      {{ edxapp_venv_bin }}/python ./manage.py lms --settings=aws create_oauth2_client  \
+      {{ URL_ROOT }}/ \
+      {{ URL_ROOT }}/complete/edx-oidc/  \
+      confidential \
+      --client_name=credentials \
+      --client_id={{ CREDENTIALS_SOCIAL_AUTH_EDX_OIDC_KEY }} \
+      --client_secret={{ CREDENTIALS_SOCIAL_AUTH_EDX_OIDC_SECRET }} \
+      --trusted
+  become_method: sudo
+  become: yes
+  become_user: "{{ edxapp_user }}"
+
+

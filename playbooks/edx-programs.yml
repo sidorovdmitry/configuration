@@ -1,0 +1,24 @@
+#ansible-playbook -i ",localhost" -c local -e@/edx/app/edx_ansible/server-vars.yml /edx/app/edx_ansible/edx_ansible/playbooks/edx-programs.yml
+---
+- hosts: localhost
+  become: true
+  gather_facts: True
+  pre_tasks:
+    - name: Update repositories cache and install packages
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
+      with_items:
+        - python-pip
+        - libffi-dev
+        - gcc
+        - g++
+        - build-essential
+  roles:
+    - role: nginx
+      nginx_sites:
+      - programs
+    - role: programs
+    - role: edxapp
+      when: edx_programs_some_undefined_variable_to_skip_role is defined
+    - role: programs-to-edx

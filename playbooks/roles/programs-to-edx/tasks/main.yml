@@ -1,0 +1,15 @@
+- name: create_oauth2_client
+  shell: >
+      chdir={{ edxapp_code_dir }}
+      {{ edxapp_venv_bin }}/python ./manage.py lms --settings=aws create_oauth2_client  \
+      {{ EDXAPP_PROGRAMS_BASE_SCHEME }}://{{ PROGRAMS_URL_ROOT }}/ \
+      {{ EDXAPP_PROGRAMS_BASE_SCHEME }}://{{ PROGRAMS_URL_ROOT }}/complete/edx-oidc/  \
+      confidential \
+      --client_name=programs \
+      --client_id={{ PROGRAMS_SOCIAL_AUTH_EDX_OIDC_KEY }} \
+      --client_secret={{ PROGRAMS_SOCIAL_AUTH_EDX_OIDC_SECRET }} \
+      --trusted
+  become_method: sudo
+  become: yes
+  become_user: "{{ edxapp_user }}"
+
