@@ -7,23 +7,23 @@
     CLUSTER_NAME: 'edxapp'
   serial: "{{ serial_count }}"
   roles:
-    - aws
-    - role: nginx
-      nginx_sites:
-      - lms
-      - cms
-      nginx_default_sites:
-      - lms
-      nginx_extra_sites: "{{ NGINX_EDXAPP_EXTRA_SITES }}"
-      nginx_extra_configs: "{{ NGINX_EDXAPP_EXTRA_CONFIGS }}"
-      nginx_redirects: "{{ NGINX_EDXAPP_CUSTOM_REDIRECTS }}"
-    - edxapp
-    #- ec2-snapshot
-    - role: datadog
-      when: COMMON_ENABLE_DATADOG
-    - role: splunkforwarder
-      when: COMMON_ENABLE_SPLUNKFORWARDER
-    - role: newrelic
-      when: COMMON_ENABLE_NEWRELIC
-    - role: minos
-      when: COMMON_ENABLE_MINOS
+   - aws
+   - role: nginx
+     nginx_sites:
+     - lms
+     - cms
+     nginx_default_sites:
+     - lms
+     nginx_extra_sites: "{{ NGINX_EDXAPP_EXTRA_SITES }}"
+     nginx_extra_configs: "{{ NGINX_EDXAPP_EXTRA_CONFIGS }}"
+     nginx_redirects: "{{ NGINX_EDXAPP_CUSTOM_REDIRECTS }}"
+   - configure-backups 
+   - edxapp
+   - role: datadog
+     when: COMMON_ENABLE_DATADOG
+   - role: splunkforwarder
+     when: COMMON_ENABLE_SPLUNKFORWARDER
+   - role: newrelic
+     when: COMMON_ENABLE_NEWRELIC
+   - role: minos
+     when: COMMON_ENABLE_MINOS
