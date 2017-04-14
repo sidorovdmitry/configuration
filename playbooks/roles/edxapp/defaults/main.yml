@@ -43,6 +43,8 @@ EDXAPP_AWS_BACKUP_VERSION: ''
 EDXAPP_GRADE_STORAGE_TYPE_LOCAL: false
 
 EDXAPP_ELASTIC_SEARCH_HOST: 'localhost'
+
+EDXAPP_JIVOSITE_WIDGET_ID: 'lLvd9S7fRb'
 ## END RACCOONGANG ##
 
 # Bucket used for xblock file storage
@@ -207,6 +209,8 @@ EDXAPP_ENABLE_CREDIT_API: false
 EDXAPP_CUSTOM_COURSES_EDX: false
 
 EDXAPP_ENABLE_SYSADMIN_DASHBOARD: false
+
+EDXAPP_ENABLE_JIVOSITE: true
 # This is different from lms/envs/common.py
 # We're turning it on in config because it needs a lot more configuration
 # support, such as settings.DATABASES and initial database creation which is
@@ -273,6 +277,7 @@ EDXAPP_FEATURES:
   CUSTOM_COURSES_EDX: "{{ EDXAPP_CUSTOM_COURSES_EDX }}"
   ENABLE_CSMH_EXTENDED: "{{ EDXAPP_ENABLE_CSMH_EXTENDED }}"
   ENABLE_READING_FROM_MULTIPLE_HISTORY_TABLES: "{{ EDXAPP_ENABLE_READING_FROM_MULTIPLE_HISTORY_TABLES }}"
+  ENABLE_JIVOSITE: "{{ EDXAPP_ENABLE_JIVOSITE }}"
 
 EDXAPP_BOOK_URL: ""
 # This needs to be set to localhost
@@ -1050,6 +1055,7 @@ lms_env_config:
   BADGR_BASE_URL: "{{ EDXAPP_BADGR_BASE_URL }}"
   BADGR_ISSUER_SLUG: "{{ EDXAPP_BADGR_ISSUER_SLUG }}"
   THIRD_PARTY_AUTH_BACKENDS: "{{ EDXAPP_THIRD_PARTY_AUTH_BACKENDS }}"
+  JIVOSITE_WIDGET_ID: "{{ EDXAPP_JIVOSITE_WIDGET_ID }}"
   ## END RACCOONGANG ##
 
 cms_auth_config:
