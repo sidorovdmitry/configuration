@@ -82,7 +82,11 @@ error_page {{ k }} {{ v }};
   client_max_body_size 4M;
 
   rewrite ^(.*)/favicon.ico$ /static/images/favicon.ico last;
-
+  location '/.well-known/acme-challenge' {
+    allow all;
+    default_type "text/plain";
+    root /var/www/letsencrypt;
+  }
   location @proxy_to_lms_app {
 
     {% if NGINX_EDXAPP_ENABLE_MAINTENANCE %}
