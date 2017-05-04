@@ -1,5 +1,5 @@
 {%- if "lms" in nginx_default_sites -%}
-  {%- set default_site = "default_server" -%}
+  {%- set default_site = "default" -%}
 {%- else -%}
   {%- set default_site = "" -%}
 {%- endif -%}
@@ -8,23 +8,11 @@ upstream lms-backend {
     {% for host in nginx_lms_gunicorn_hosts %}
         server {{ host }}:{{ edxapp_lms_gunicorn_port }} fail_timeout=0;
     {% endfor %}
-
 }
 
 {%- if EDXAPP_ENABLE_RATE_LIMITING -%}
 # Make Zone
 limit_req_zone $cookie_{{ EDXAPP_SESSION_COOKIE_NAME }} zone=cookies:10m rate={{ EDXAPP_COURSES_REQUEST_RATE }};
-
-{% for agent in EDXAPP_RATE_LIMITED_USER_AGENTS %}
-
-# Map of http user agent with name limit_bot_agent_alias having binary IP of the agent
-map $http_user_agent {{ "$limit_bot_" ~ agent.alias }} {
-          {{ agent.agent_name }} $binary_remote_addr;
-      }
-
-limit_req_zone {{ "$limit_bot_" ~ agent.alias }} zone=agents:10m rate={{ agent.rate }};
-{% endfor %}
-
 {%- endif %}
 
 
@@ -64,11 +52,11 @@ error_page {{ k }} {{ v }};
 
   listen {{ EDXAPP_LMS_NGINX_PORT }} {{ default_site }};
 
-  {% if NGINX_ENABLE_SSL %}
+  {% if NGINX_ENABLE_SSL and USE_LETSENCRYPT == "yes" %}
   listen {{ EDXAPP_LMS_SSL_NGINX_PORT }} {{ default_site }} ssl;
 
-  ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
-  ssl_certificate_key /etc/ssl/private/{{ NGINX_SSL_KEY|basename }};
+  ssl_certificate /etc/letsencrypt/live/{{ EDXAPP_SITE_NAME }}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/{{ EDXAPP_SITE_NAME }}/privkey.pem;
   # request the browser to use SSL for all connections
   add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
   {% endif %}
@@ -119,24 +107,6 @@ error_page {{ k }} {{ v }};
     root /var/www/letsencrypt;
   }
 
-  {% include "python_lib.zip.j2" %}
-  {% include "common-settings.j2" %}
-
-  {% if NGINX_EDXAPP_EMBARGO_CIDRS -%}
-  #only redirect to embargo when $embargo == true and $uri != $embargo_url
-  #this is a hack to do multiple conditionals
-  set $embargo_url "/embargo/blocked-message/courseware/embargo/";
-  if ( $embargo ) {
-    set $do_embargo "A";
-  }
-  if ( $uri != $embargo_url ) {
-    set $do_embargo "${do_embargo}B";
-  }
-  if ( $do_embargo = "AB" ) {
-    return 302 $embargo_url;
-  }
-  {% endif -%}
-
   location @proxy_to_lms_app {
     {% if NGINX_SET_X_FORWARDED_HEADERS %}
     proxy_set_header X-Forwarded-Proto $scheme;
@@ -147,10 +117,6 @@ error_page {{ k }} {{ v }};
     proxy_set_header X-Forwarded-Port $http_x_forwarded_port;
     proxy_set_header X-Forwarded-For $http_x_forwarded_for;
     {% endif %}
-
-    # newrelic-specific header records the time when nginx handles a request.
-    proxy_set_header X-Queue-Start "t=${msec}";
-
     proxy_set_header Host $http_host;
 
     proxy_redirect off;
@@ -161,27 +127,45 @@ error_page {{ k }} {{ v }};
     {% if EDXAPP_LMS_ENABLE_BASIC_AUTH|bool %}
       {% include "basic-auth.j2" %}
     {% endif %}
-
+    {% if NGINX_EDXAPP_EMBARGO_CIDRS -%}
+    if ( $embargo ) {
+      return 302 /embargo;
+    }
+    {% endif -%}
+    {% if EDXAPP_NGINX_BACKUP_MAINTENANCE_PAGE %}
+    if (-f {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_FILE }}) {
+            return 503;
+    }
+    {% endif %}
     try_files $uri @proxy_to_lms_app;
   }
 
-  # /login?next=<any image> can be used by 3rd party sites in <img> tags to
-  # determine whether a user on their site is logged into edX.
-  # The most common image to use is favicon.ico.
-  location /login {
-    {% if EDXAPP_LMS_ENABLE_BASIC_AUTH|bool %}
-      {% include "basic-auth.j2" %}
-    {% endif %}
+  {% if EDXAPP_NGINX_BACKUP_MAINTENANCE_PAGE %}
+  error_page 503 /{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX }};
 
-    if ( $arg_next ~* "favicon.ico" ) {
-      return 403;
+  location = /{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX }} {
+        root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }};
+        try_files /{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX }} =404;
+    }
+  
+  location ~ ^/{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX_STATIC }}/(?P<file>.*) {
+      root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX_STATIC}};
+      try_files /$file =404;
+  }
+
+  location ~ ^/{{ EDXAPP_NGINX_LANDING_PAGE_CSS }}/(?P<file>.*) {
+        root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{ EDXAPP_NGINX_LANDING_PAGE_CSS}};
+        try_files /$file =404;
+    }
+  location ~ ^/{{ EDXAPP_NGINX_LANDING_PAGE_IMAGES }}/(?P<file>.*) {
+        root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{ EDXAPP_NGINX_LANDING_PAGE_IMAGES }};
+        try_files /$file =404;
     }
 
-    try_files $uri @proxy_to_lms_app;
-  }
+  {% endif %}
 
 {% if NGINX_EDXAPP_EMBARGO_CIDRS %}
-  location $embargo_url {
+  location /embargo {
     try_files $uri @proxy_to_lms_app;
   }
 {% endif %}
@@ -255,10 +239,6 @@ error_page {{ k }} {{ v }};
     {%- if EDXAPP_ENABLE_RATE_LIMITING -%}
     # Set Limit
     limit_req zone=cookies burst={{ EDXAPP_COURSES_REQUEST_BURST_RATE }};
-
-    {%- if EDXAPP_RATE_LIMITED_USER_AGENTS|length > 0 %}
-    limit_req zone=agents burst={{ EDXAPP_COURSES_USER_AGENT_BURST_RATE }};
-    {%- endif %}
     error_page  503 = /server/rate-limit.html;
     {%- endif -%}
 
