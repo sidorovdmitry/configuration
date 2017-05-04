@@ -28,6 +28,11 @@ server {
   
   rewrite ^(.*)/favicon.ico$ /static/images/favicon.ico last;
 
+  location '/.well-known/acme-challenge' {
+    allow all;
+    default_type "text/plain";
+    root /var/www/letsencrypt;
+  }
 
   location @proxy_to_cms_app {
         proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
