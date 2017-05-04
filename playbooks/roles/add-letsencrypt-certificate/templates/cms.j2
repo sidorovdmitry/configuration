@@ -1,5 +1,5 @@
 {%- if "cms" in nginx_default_sites -%}
-  {%- set default_site = "default_server" -%}
+  {%- set default_site = "default" -%}
 {%- else -%}
   {%- set default_site = "" -%}
 {%- endif -%}
@@ -32,14 +32,14 @@ error_page {{ k }} {{ v }};
 
   listen {{ EDXAPP_CMS_NGINX_PORT }} {{ default_site }};
 
-  {% if NGINX_ENABLE_SSL %}
+  {% if NGINX_ENABLE_SSL and USE_LETSENCRYPT == "yes" %}
 
-  listen {{ EDXAPP_CMS_SSL_NGINX_PORT }} ssl;
+  listen {{ EDXAPP_CMS_SSL_NGINX_PORT }} {{ default_site }} ssl;
 
-  ssl_certificate /etc/ssl/certs/{{ NGINX_SSL_CERTIFICATE|basename }};
-  ssl_certificate_key /etc/ssl/private/{{ NGINX_SSL_KEY|basename }};
+  ssl_certificate /etc/letsencrypt/live/{{ EDXAPP_SITE_NAME }}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/{{ EDXAPP_SITE_NAME }}/privkey.pem;
   # request the browser to use SSL for all connections
-  add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains";
   {% endif %}
 
   # Prevent invalid display courseware in IE 10+ with high privacy settings
@@ -79,7 +79,7 @@ error_page {{ k }} {{ v }};
   # CS184 requires uploads of up to 4MB for submitting screenshots. 
   # CMS requires larger value for course assest, values provided 
   # via hiera.
-  client_max_body_size 200M;
+  client_max_body_size 100M;
   
   rewrite ^(.*)/favicon.ico$ /static/images/favicon.ico last;
 
@@ -88,9 +88,6 @@ error_page {{ k }} {{ v }};
     default_type "text/plain";
     root /var/www/letsencrypt;
   }
-
-  {% include "python_lib.zip.j2" %}
-  {% include "common-settings.j2" %}
 
   location @proxy_to_cms_app {
     {% if NGINX_SET_X_FORWARDED_HEADERS %}
@@ -102,17 +99,9 @@ error_page {{ k }} {{ v }};
     proxy_set_header X-Forwarded-Port $http_x_forwarded_port;
     proxy_set_header X-Forwarded-For $http_x_forwarded_for;
     {% endif %}
-
-    # newrelic-specific header records the time when nginx handles a request.
-    proxy_set_header X-Queue-Start "t=${msec}";
-
     proxy_set_header Host $http_host;
 
     proxy_redirect off;
-    proxy_connect_timeout       600;
-    proxy_send_timeout          600;
-    proxy_read_timeout          600;
-    send_timeout                600;
     proxy_pass http://cms-backend;
   }
 
@@ -120,8 +109,37 @@ error_page {{ k }} {{ v }};
     {% if EDXAPP_CMS_ENABLE_BASIC_AUTH|bool %}
       {% include "basic-auth.j2" %}
     {% endif %}
+    {% if EDXAPP_NGINX_BACKUP_MAINTENANCE_PAGE %}
+    if (-f {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_FILE }}) {
+            return 503;
+    }
+    {% endif %}
     try_files $uri @proxy_to_cms_app;
   }
+
+  {% if EDXAPP_NGINX_BACKUP_MAINTENANCE_PAGE %}
+  error_page 503 /{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX }};
+
+  location = /{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX }} {
+        root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }};
+        try_files /{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX }} =404;
+    }
+  
+  location ~ ^/{{ EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX_STATIC }}/(?P<file>.*) {
+      root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX_STATIC}};
+      try_files /$file =404;
+  }
+
+  location ~ ^/{{ EDXAPP_NGINX_LANDING_PAGE_CSS }}/(?P<file>.*) {
+        root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{ EDXAPP_NGINX_LANDING_PAGE_CSS}};
+        try_files /$file =404;
+    }
+  location ~ ^/{{ EDXAPP_NGINX_LANDING_PAGE_IMAGES }}/(?P<file>.*) {
+        root {{ EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH }}/{{ EDXAPP_NGINX_LANDING_PAGE_IMAGES }};
+        try_files /$file =404;
+    }
+
+  {% endif %}
 
   # No basic auth security on the github_service_hook url, so that github can use it for cms
   location /github_service_hook {
