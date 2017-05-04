@@ -1,0 +1,27 @@
+le_packages:
+    - augeas-doc 
+    - augeas-tools
+    - libssl-dev
+    - dialog 
+    - python-virtualenv
+    - libssl1.0.0
+
+EDXAPP_CMS_SSL_NGINX_PORT: 443
+EDXAPP_LMS_SSL_NGINX_PORT: 443
+
+EDXAPP_NGINX_BACKUP_MAINTENANCE_PAGE: True
+EDXAPP_NGINX_BACKUP_MAINTENANCE_PATH: '/edx/var/nginx/server-static/maintenance'
+EDXAPP_NGINX_BACKUP_MAINTENANCE_FILE: 'maintenance'
+EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX: 'maintenance.html'
+EDXAPP_NGINX_BACKUP_MAINTENANCE_INDEX_STATIC: 'maintenance_index_files'
+EDXAPP_NGINX_LANDING_PAGE_CSS: 'css'
+EDXAPP_NGINX_LANDING_PAGE_IMAGES: 'images'
+
+LETSENCRYPT_ADDITIONAL_DOMAIN: []
+LETSENCRYPT_DOMAIN_STING: []
+LETSENCRYPT_ALL_DOMAIN: ''
+
+dhparamfile_dir: '/etc/nginx/ssl'
+
+EDXAPP_PROGRAMS_BASE_LOCAL: 127.0.0.1
+EDXAPP_CREDENTIALS_BASE_LOCAL: 127.0.0.1
