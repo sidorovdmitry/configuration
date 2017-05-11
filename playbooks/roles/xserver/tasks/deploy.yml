@@ -98,6 +98,15 @@
   register: xserver_grader_checkout
   become_user: "{{ xserver_user }}"
 
+- name: Install requirements
+  pip:
+    requirements: "{{ XSERVER_GRADER_DIR }}/requirements.txt"
+    virtualenv: "{{ xserver_venv_dir }}"
+    state: present
+  become_user: "{{ xserver_user }}"
+  notify:
+    - restart xserver
+
 - name: Remove read-only ssh key for the content repo
   file:
     path: "{{ xserver_git_identity }}"
