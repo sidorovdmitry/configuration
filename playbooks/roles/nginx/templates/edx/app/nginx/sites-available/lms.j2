@@ -74,7 +74,6 @@ error_page {{ k }} {{ v }};
     default_type "text/plain";
     root /var/www/letsencrypt;
   }
-
   location @proxy_to_lms_app {
 
     {% if NGINX_EDXAPP_ENABLE_MAINTENANCE %}
