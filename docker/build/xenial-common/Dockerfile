@@ -9,6 +9,7 @@ MAINTAINER Dmitry Gamanenko
 ENV LANG C.UTF-8
 
 ENV ANSIBLE_REPO="https://github.com/edx/ansible"
+ENV ANSIBLE_VERSION="master"
 ENV CONFIGURATION_REPO="https://github.com/raccoongang/configuration.git"
 ENV CONFIGURATION_VERSION="ficus-rg"
 

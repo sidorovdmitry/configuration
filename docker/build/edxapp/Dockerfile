@@ -7,8 +7,8 @@
 # This allows the dockerfile to update /edx/app/edx_ansible/edx_ansible
 # with the currently checked-out configuration repo.
 
-FROM edxops/precise-common:latest
-MAINTAINER edxops
+FROM raccoongang/edx-ubuntu:xenial
+MAINTAINER Dmitry Gamanenko
 
 USER root
 RUN apt-get update

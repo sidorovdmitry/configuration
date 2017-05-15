@@ -8,3 +8,6 @@ COMMON_PIP_VERBOSITY: "-vvvv"
 EDXAPP_MYSQL_HOST: "db.{{ DOCKER_TLD }}"
 EDXAPP_MONGO_HOSTS:
   - "mongo.{{ DOCKER_TLD }}"
+
+edx_platform_repo: "https://github.com/raccoongang/edx-platform.git"
+edx_platform_version: 'ficus-rg'
