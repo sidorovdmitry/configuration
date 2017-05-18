@@ -1,0 +1,17 @@
+---
+ec2_snapshot_enabled: yes
+ec2_snapshot_count: 7
+ec2_snapshot_incremental: 'daily'
+ec2_snapshot_tag_filter: 'yes'
+ec2_snapshot_profiles: []
+
+ec2_snapshot_user: root
+ec2_snapshot_group: "{{ ec2_snapshot_user }}"
+
+ec2_snapshot_logdir: /var/log/ec2_snapshot
+ec2_snapshot_logrotate: yes
+
+ec2_snapshot_cron: yes
+ec2_snapshot_cron_schedule: 0 4 * * *
+
+running_as_cronjob: no #crontab job additional variable

@@ -1,0 +1,12 @@
+---
+- include: cron.yml
+  when: ec2_snapshot_cron
+
+- include: logrotate.yml
+  when: ec2_snapshot_logrotate
+
+- include: ec2_snapshot_rotate.yml
+  with_items: "{{ ec2_snapshot_profiles }}"
+  loop_control:
+    loop_var: ec2_snapshot_profiles_item
+  when: ec2_snapshot_enabled or running_as_cronjob
