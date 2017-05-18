@@ -20,6 +20,7 @@
      nginx_extra_configs: "{{ NGINX_EDXAPP_EXTRA_CONFIGS }}"
      nginx_redirects: "{{ NGINX_EDXAPP_CUSTOM_REDIRECTS }}"
    - configure-backups 
+   - ec2-snapshot
    - edxapp
    - role: datadog
      when: COMMON_ENABLE_DATADOG
