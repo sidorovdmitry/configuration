@@ -16,7 +16,7 @@
 
 - name: Get ordered list of snapshots for each instance
   set_fact:
-    snaps_fact_list:  "{{ ec2_snapshot_facts_data.snapshots|selectattr('tags.identifier', 'equalto', 'awsbackup')|selectattr('tags.ec2_snapshot_tag_filter', 'equalto', profile_filter)|selectattr('tags.incremental', 'equalto', INCREMENTAL)|sort(attribute='start_time')|reverse|map(attribute='snapshot_id')|list }}"
+    snaps_fact_list:  "{{ ec2_snapshot_facts_data.snapshots|selectattr('tags.identifier', 'match', '^awsbackup$')|selectattr('tags.ec2_snapshot_tag_filter', 'match', profile_filter)|selectattr('tags.incremental', 'match', INCREMENTAL)|sort(attribute='start_time')|reverse|map(attribute='snapshot_id')|list }}"
   with_items: "{{ ec2_facts.instances }}"
   register: snaps_fact_list_register
 
