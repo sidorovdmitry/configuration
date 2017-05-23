@@ -5,6 +5,7 @@
   vars:
     serial_count: 1
     CLUSTER_NAME: 'edxapp'
+    USE_LETSENCRYPT: 'no'
   serial: "{{ serial_count }}"
   roles:
    - aws
