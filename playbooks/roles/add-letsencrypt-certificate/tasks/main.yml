@@ -144,13 +144,23 @@
   become: yes
   become_user: root
 
+- name: ensure that /usr/share/nginx/html dir exits
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+  - "{{ letsencrypt_webroot }}"
+  become_method: sudo
+  become: yes
+  become_user: root
+
 - name: Add auto-renewal task in cron
   cron: 
     name: "Automatic renewal letsencrypt certificate" 
     minute: "0" 
     hour: "1"
     month: "*/2"
-    job: '/usr/local/bin/certbot-auto renew --force-renewal --post-hook "service nginx restart" > /dev/null'
+    job: '/usr/local/bin/certbot-auto renew --force-renewal --webroot -w {{ letsencrypt_webroot }} --post-hook "service nginx restart" > /dev/null'
   become_method: sudo
   become: yes
   become_user: root
