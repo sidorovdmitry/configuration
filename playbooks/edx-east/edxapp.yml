@@ -8,6 +8,7 @@
     USE_LETSENCRYPT: 'no'
     CREATE_GRADES_AZURE_CONTAINER: "{{ azure_grades_blobstorage_create|default (false) }}"
     GRADE_STORAGE_TYPE: "{{ EDXAPP_GRADE_STORAGE_TYPE | default('local') }}"
+    EDXAPP_OLGA_ENABLE: yes
   serial: "{{ serial_count }}"
   roles:
    - aws
@@ -25,10 +26,12 @@
    - { role: azure-blob-create,
        when: (GRADE_STORAGE_TYPE == 'azure' and CREATE_GRADES_AZURE_CONTAINER)
      }
-   - configure-backups 
+   - configure-backups
    - ec2-snapshot
    - { role: 'add-letsencrypt-certificate', when: USE_LETSENCRYPT == 'yes' and CMS_NGINX_SSL_CERTIFICATE is undefined and CMS_NGINX_SSL_KEY is undefined, nginx_default_sites: lms }
    - edxapp
+   - role: olga
+     when: EDXAPP_OLGA_ENABLE
    - role: datadog
      when: COMMON_ENABLE_DATADOG
    - role: splunkforwarder

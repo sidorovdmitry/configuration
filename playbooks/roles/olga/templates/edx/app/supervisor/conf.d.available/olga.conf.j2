@@ -1,0 +1,11 @@
+#
+# {{ ansible_managed }}
+#
+[program:{{ olga_service_name }}]
+
+command={{ edxapp_venv_bin}}/python {{ edxapp_code_dir }}/manage.py lms --settings={{ EDX_PLATFORM_SETTINGS }} celery worker -B --loglevel=info --queues=edx.lms.core.low --hostname=edx.lms.core.low.%%h --concurrency=1 -s {{ COMMON_APP_DIR }}/{{ olga_service_name }}/{{ celerydb_name }}
+user={{ common_web_user }}
+stdout_logfile={{ supervisor_log_dir }}/%(program_name)s-stdout.log
+stderr_logfile={{ supervisor_log_dir }}/%(program_name)s-stderr.log
+killasgroup=true
+stopasgroup=true
