@@ -1,0 +1,6 @@
+---
+olga_service_name: "olga"
+EDXAPP_SETTINGS: "{{ COMMON_EDXAPP_SETTINGS }}"
+EDX_PLATFORM_SETTINGS: "{{ EDXAPP_SETTINGS }}"
+celerydb_name: celerydb
+
