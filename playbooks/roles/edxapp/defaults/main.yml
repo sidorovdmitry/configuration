@@ -42,6 +42,16 @@ EDXAPP_ADDITIONAL_MIDDLEWARE_CLASSES: !!null #must be a list of MIDDLEWARE's
 EDXAPP_BADGR_API_TOKEN: ""
 EDXAPP_BADGR_BASE_URL: ""
 EDXAPP_BADGR_ISSUER_SLUG: ""
+
+#OLGA
+EDXAPP_OPENEDX_LEARNERS_GLOBAL_ANALYTICS:
+  ACCEPTOR_URL: ""
+  ACCEPTOR_URL_DEVELOP: "https://olga-demo.raccoongang.com"
+  CELERY_TIMEZONE: "Europe/Kiev"
+  PLATFORM_CITY_NAME: "Kiev"
+  STATISTICS_LEVEL: "paranoid"
+#OLGA
+
 ## END RACCOONGANG ##
 
 # Bucket used for xblock file storage
@@ -503,6 +513,13 @@ EDXAPP_REGISTRATION_EXTRA_FIELDS:
   honor_code: "required"
   city: "hidden"
   country: "hidden"
+
+EDXAPP_CELERY_BEAT:
+  enabled: True
+  monitor: True
+  service_variant: lms
+  beat_file: "{{ supervisor_data_dir }}/beat"
+  pid_file: "{{ supervisor_data_dir }}/celery_beat.pid"
 
 EDXAPP_CELERY_WORKERS:
   - queue: low
@@ -1100,6 +1117,8 @@ lms_env_config:
   THIRD_PARTY_AUTH_BACKENDS: "{{ EDXAPP_THIRD_PARTY_AUTH_BACKENDS }}"
   ENABLE_ADDITIONAL_MIDDLEWARE_CLASSES: "{{ EDXAPP_ENABLE_ADDITIONAL_MIDDLEWARE_CLASSES }}"
   ADDITIONAL_MIDDLEWARE_CLASSES: "{{ EDXAPP_ADDITIONAL_MIDDLEWARE_CLASSES }}"
+  ## RACCOONGANG ##
+  OPENEDX_LEARNERS_GLOBAL_ANALYTICS: "{{ EDXAPP_OPENEDX_LEARNERS_GLOBAL_ANALYTICS }}"
   ## END RACCOONGANG ##
 
 cms_auth_config:
