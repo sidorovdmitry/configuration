@@ -13,6 +13,16 @@
       when: edx_insights_some_undefined_variable_to_skip_role is defined
     - role: insights
       when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: nginx
+      when: edx_insights_some_undefined_variable_to_skip_role is defined
+    - role: insights-letsencrypt
+      NGINX_REDIRECT_TO_HTTPS: True
+      nginx_sites:
+        - hadoop
+      nginx_default_sites:
+        - hadoop
+      nginx_skip_domains: [ "{{ INSIGHTS_BASE }}", "{{ ANALYTICS_API_BASE }}" ]
+      when: INSIGHTS_USE_LETSENCRYPT|lower == 'yes'
     - insights-app-config
     - analytics_api-app-config
     - hadoop_config 

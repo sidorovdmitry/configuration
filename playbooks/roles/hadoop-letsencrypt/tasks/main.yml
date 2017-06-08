@@ -24,7 +24,7 @@
   become_user: root
   become: True
 
-- stat: path="/etc/letsencrypt/live/{{ INSIGHTS_BASE }}/fullchain.pem" 
+- stat: path="/etc/letsencrypt/live/{{ HADOOP_WEB_CONSOLE_BASE }}/fullchain.pem" 
   register: le_cert_exists
   become_method: sudo
   become: yes
@@ -85,26 +85,15 @@
     - install
     - install:configuration
 
-- name: Compare LETSENCRYPT_MAIN_DOMAIN with INSIGHTS_BASE
-  set_fact:
-    LETSENCRYPT_MAIN_DOMAIN: "{{ LETSENCRYPT_MAIN_DOMAIN|default([]) + [INSIGHTS_BASE] }}"
-  when: INSIGHTS_BASE not in nginx_skip_domains
-
-- name: Compare LETSENCRYPT_MAIN_DOMAIN with ANALYTICS_API_BASE
-  set_fact:
-    LETSENCRYPT_MAIN_DOMAIN: "{{ LETSENCRYPT_MAIN_DOMAIN|default([]) + [ANALYTICS_API_BASE] }}"
-  when: ANALYTICS_API_BASE not in nginx_skip_domains
-
 - name: Compare LETSENCRYPT_MAIN_DOMAIN with HADOOP_WEB_CONSOLE_BASE
   set_fact:
     LETSENCRYPT_MAIN_DOMAIN: "{{ LETSENCRYPT_MAIN_DOMAIN|default([]) + [HADOOP_WEB_CONSOLE_BASE] }}"
-  when: (HADOOP_WEB_CONSOLE_BASE not in nginx_skip_domains) or ("{{ HADOOP_WEB_CONSOLE_BASE }}" == "{{ INSIGHTS_BASE }}")
 
 - name: Compare LETSENCRYPT_MAIN_DOMAIN with LETSENCRYPT_ADDITIONAL_DOMAIN
   set_fact:
     LETSENCRYPT_ALL_DOMAIN: "{{ LETSENCRYPT_MAIN_DOMAIN + LETSENCRYPT_ADDITIONAL_DOMAIN }}"
 
-- name: Requesting for INSIGHTS_BASE, ANALYTICS_API_BASE and LETSENCRYPT_ADDITIONAL_DOMAIN certificates
+- name: Requesting for HADOOP_WEB_CONSOLE_BASE certificates
   command: /usr/local/bin/certbot-auto certonly --agree-tos --non-interactive --text --rsa-key-size 2048 --webroot -w /var/www/letsencrypt -d {{ LETSENCRYPT_ALL_DOMAIN|join(' -d ') }}  --register-unsafely-without-email --force-renewal
   become_method: sudo
   become: yes
