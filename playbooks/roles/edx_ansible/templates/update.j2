@@ -13,8 +13,9 @@ IFS=","
             -h        this
 
     <repo> - must be one of edx-platform, edx-workers, xqueue, cs_comments_service, credentials, xserver, configuration,
-    read-only-certificate-code, edx-analytics-data-api, edx-ora2, insights, ecommerce, course_discovery, notifier, edx-notes-api
+    read-only-certificate-code, edx-analytics-data-api, edx-ora2, insights, ecommerce, course_discovery, notifier, edx-notes-api, microsites
     <version> - can be a commit or tag
+	when <repo> == microsites, the 3rd argument must be the path to or the actual ssh key locked to the repo
 
 EO
 IFS=$SAVE_IFS
@@ -61,7 +62,7 @@ repos_to_cmd["ecommerce"]="$edx_ansible_cmd ecommerce.yml -e 'ECOMMERCE_VERSION=
 repos_to_cmd["discovery"]="$edx_ansible_cmd discovery.yml -e 'DISCOVERY_VERSION=$2'"
 repos_to_cmd["notifier"]="$edx_ansible_cmd notifier.yml -e 'NOTIFIER_VERSION=$2'"
 repos_to_cmd["edx-notes-api"]="$edx_ansible_cmd notes.yml -e 'EDX_NOTES_API_VERSION=$2'"
-repos_to_cmd["notifier"]="$edx_ansible_cmd notifier.yml -e 'NOTIFIER_VERSION=$2'"
+repos_to_cmd["microsites"]="$edx_ansible_cmd microsites.yml -e 'microsite_version=$2' -e 'edxapp_git_ssh_key=$3'"
 
 if [[ -z $1 || -z $2 ]]; then
     echo
@@ -75,6 +76,13 @@ if [[ -z ${repos_to_cmd[$1]} ]]; then
     echo "ERROR: Invalid repo name"
     usage
     exit 1
+fi
+
+if [[ "$1" == "microsites" && -z $3 ]]; then
+	echo
+	echo "ERROR: You must provide the microsite ssh key"
+	usage
+	exit 1
 fi
 
 cd {{ edx_ansible_code_dir }}/playbooks/edx-east
