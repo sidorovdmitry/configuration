@@ -4,6 +4,8 @@
   become_method: sudo
   become: yes
   become_user: ubuntu
+  vars:
+    cleanup_hdfs_tracking_log_dir_value: {{ cleanup_hdfs_tracking_log_dir|default(yes) }}
   tasks:
 
   - name: Check if "{{ hadoop_tracking_files_tmp }}" exist
@@ -43,6 +45,7 @@
     command: "{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -rm -r /{{ hdfs_tracking_logs }}/*"
     become_method: sudo
     ignore_errors: yes
+    when: cleanup_hdfs_tracking_log_dir_value
     become: yes
     become_user: "{{ hadoop_common_user }}"
 

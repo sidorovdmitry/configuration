@@ -10,58 +10,109 @@ cd {{ root_data_dir }}/{{ PIPELINE_REMOTE_NAME }}/{{ pipeline_repo_dir_name }}
 hdfs dfs -mkdir -p {{ dir }}
 {% endfor %}
 #------------------------------------------------------------------------------
+
 TO_DATE=$(date +%Y-%m-%d)
+
+frequency='nightly'
+
+if [ $# -gt 0 ]; then
+  if [ $1 = "nightly" ]; then
+    frequency='nightly'
+  else
+    if [ $1 = "weekly" ]; then
+      frequency='weekly'
+    fi
+  fi
+fi
+
+DATE_FROM_2WEAKS_AGO=$(date -d '2 weeks ago' +%Y-%m-%d)
+
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
 launch-task ImportAllDatabaseTablesTask --local-scheduler
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
 launch-task AnswerDistributionWorkflow --local-scheduler \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
---name AnswerDistributionWorkflow-$(date +%Y%m%d%H%M%S) \
+--name AnswerDistributionWorkflow-$(date +%Y%m%d%H%M%S -d "$TO_DATE") \
 --src {{ hdfs_event_log_source }}/ \
---dest {{ hdfs_answer_distribution_raw }}/$(date +%Y%m%d%H%M%S)data \
---manifest "{{ hdfs_answer_distribution }}/manifest-$(date +%Y%m%d%H%M%S).txt" \
+--dest {{ hdfs_answer_distribution_raw }}/$(date +%Y%m%d%H%M%S -d "$TO_DATE")data \
+--manifest "{{ hdfs_answer_distribution }}/manifest-$(date +%Y%m%d%H%M%S -d "$TO_DATE").txt" \
 --output-root {{ hdfs_answer_distribution }}/ \
---marker {{ hdfs_answer_distribution_raw }}/$(date +%Y%m%d%H%M%S)/marker \
+--marker {{ hdfs_answer_distribution_raw }}/$(date +%Y%m%d%H%M%S -d "$TO_DATE")/marker \
 --include '{{ pipeline_event_logs_pattern }}' \
 --overwrite \
 --remote-log-level DEBUG
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
 launch-task AnswerDistributionToMySQLTaskWorkflow --local-scheduler \
---name AnswerDistributionToMySQLTaskWorkflow-$(date +%Y%m%d%H%M%S) \
+--name AnswerDistributionToMySQLTaskWorkflow-$(date +%Y%m%d%H%M%S -d "$TO_DATE") \
 --dest {{ hdfs_warehouse }}/edx-analytics-pipeline/ \
 --overwrite \
 --src {{ hdfs_event_log_source }}
 #------------------------------------------------------------------------------
+#Intended to be run weekly
+
+if [ $frequency = "weekly" ]; then
 launch-task CourseActivityWeeklyTask --local-scheduler \
   --end-date $(date +%Y-%m-%d -d "$TO_DATE") \
   --weeks 24 \
   --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }}
+fi
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
 launch-task ImportEnrollmentsIntoMysql --local-scheduler \
-  --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d) \
+  --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
   --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
   --overwrite-n-days {{ INSIGHTS_PIPELINE_OVERRIDE_N_DAYS_TASKS }}
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
+launch-task CourseEnrollmentEventsTask --local-scheduler \
+  --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
+  --n-reduce-tasks {{ INSIGHTS_PIPELINE_OVERRIDE_N_DAYS_TASKS }}
+#------------------------------------------------------------------------------
+
+#Intended to run nightly
+
 launch-task ImportCourseSummaryEnrollmentsIntoMysql --local-scheduler \
---interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d) \
+--interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
 --overwrite-n-days {{ INSIGHTS_PIPELINE_OVERRIDE_N_DAYS_TASKS }}
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
 launch-task InsertToMysqlCourseEnrollByCountryWorkflow --local-scheduler \
- --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d) \
+ --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
  --interval-start $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}") \
- --interval-end $(date +%Y-%m-%d) \
+ --interval-end $(date +%Y-%m-%d -d "$TO_DATE") \
  --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
  --overwrite \
  --overwrite-n-days {{ INSIGHTS_PIPELINE_OVERRIDE_N_DAYS_TASKS }} \
  --geolocation-data {{ hdfs_pipeline }}/GeoIP.dat \
- --warehouse-path {{ hdfs_warehouse }} 
+ --warehouse-path {{ hdfs_warehouse }}
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
 launch-task LastDailyIpAddressOfUserTask --local-scheduler \
-  --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d) \
+  --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
   --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }}
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
+launch-task ModuleEngagementIntervalTask --local-scheduler \
+  --interval $(date +%Y-%m-%d -d "$DATE_FROM_2WEAKS_AGO")-$(date +%Y-%m-%d -d "$TO_DATE") \
+  --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
+  --overwrite-from-date $(date +%Y-%m-%d -d "$TO_DATE") \
+  --overwrite-mysql
+#------------------------------------------------------------------------------
+#Intended to run nightly
+
 launch-task ModuleEngagementWorkflowTask --local-scheduler \
---date $(date +%Y-%m-%d) \
+--date $(date +%Y-%m-%d -d "$TO_DATE") \
 --date-pattern %Y-%m-%d \
 --mapreduce-engine hadoop \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
@@ -69,14 +120,16 @@ launch-task ModuleEngagementWorkflowTask --local-scheduler \
 --overwrite \
 --throttle 0.5
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
 launch-task ProblemResponseReportWorkflow --local-scheduler \
 --mapreduce-engine hadoop \
---marker {{ hdfs_outputs }}/marker/ProblemResponseReportWorkflow-$(date +%Y%m%d%H%M%S) \
+--marker {{ hdfs_outputs }}/marker/ProblemResponseReportWorkflow-$(date +%Y%m%d%H%M%S -d "$TO_DATE") \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
 --overwrite \
---interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d) \
+--interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
 --output-root {{ hdfs_report_output_root }} \
---interval-end $(date +%Y-%m-%d) \
+--interval-end $(date +%Y-%m-%d -d "$TO_DATE") \
 --source {{ hdfs_event_log_source }}/ \
 --remote-log-level DEBUG \
 --input-format org.edx.hadoop.input.ManifestTextInputFormat \
@@ -85,28 +138,35 @@ launch-task ProblemResponseReportWorkflow --local-scheduler \
 --partition-format %Y-%m-%d \
 --expand-interval '7 days, 0:00:00'
 #------------------------------------------------------------------------------
+#Intended to run nightly
 launch-task TagsDistributionWorkflow --local-scheduler \
 --date-pattern %Y-%m-%d \
---interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d) \
+--interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
---output-root {{ hdfs_pipeline }}/TagsDistributionWorkflow-$(date +%Y%m%d%H%M%S)/ \
+--output-root {{ hdfs_pipeline }}/TagsDistributionWorkflow-$(date +%Y%m%d%H%M%S -d "$TO_DATE")/ \
 --overwrite
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
 launch-task UserVideoViewingTask --local-scheduler \
---interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d) \
+--interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
---output-root {{ hdfs_pipeline }}/UserVideoViewingTask-$(date +%Y%m%d%H%M%S)
+--output-root {{ hdfs_pipeline }}/UserVideoViewingTask-$(date +%Y%m%d%H%M%S -d "$TO_DATE")
 #------------------------------------------------------------------------------
+#Intended to run nightly
+
 launch-task InsertToMysqlAllVideoTask --local-scheduler \
 --date-pattern %Y-%m-%d \
---interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d) \
+--interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
 --mapreduce-engine hadoop \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }}
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
+if [ $frequency = "weekly" ]; then
 #CleanUp:
 hdfs dfs -rm -r {{ hdfs_tmp }}/*
 hdfs dfs -rm -r {{ hdfs_pipeline }}/*
 hdfs dfs -mkdir /data/cleanedup
 hdfs dfs -rm -r {{ hdfs_event_log_source }}/*
+fi
 

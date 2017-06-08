@@ -8,3 +8,24 @@
   become_method: sudo
   become: yes
   become_user: "{{ edxapp_user }}"
+
+- name: Ensure "{{ tracking_log_hdfs_upload_log_dir }}" exist
+  file:
+    path: "{{ tracking_log_hdfs_upload_log_dir }}"
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+  become_method: sudo
+  become: yes
+  become_user: root
+
+- name: Create cron tracking logs to hdfs upload job
+  cron:
+    user: ubuntu
+    name: "Tracking logs to hdfs upload"
+    job: '/usr/local/bin/ansible-playbook -i ",{{ HADOOP_HDFS_HOST_IP_ADDRESS }}" -e@{{ edx_ansible_var_file }} {{ edxapp_app_dir }}/tracking-log-hdfs-upload.yml > {{ tracking_log_hdfs_upload_log_dir }}/tracking-log-hdfs-upload.log 2>&1'
+    hour: 0
+    minute: 05
+  become_method: sudo
+  become: yes
+  become_user: ubuntu

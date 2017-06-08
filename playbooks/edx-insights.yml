@@ -34,6 +34,7 @@
       nginx_sites:
         - analytics_api
         - insights
+        - hadoop
       nginx_default_sites:
         - insights
       when: INSIGHTS_USE_LETSENCRYPT|lower == 'yes'

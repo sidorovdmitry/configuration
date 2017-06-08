@@ -11,3 +11,11 @@ hadoop_common_user: hadoop
 
 hdfs_tracking_logs: "data"
 
+HADOOP_HDFS_HOST_IP_ADDRESS: '127.0.0.1'
+
+edx_ansible_app_dir: "{{ COMMON_APP_DIR }}/edx_ansible"
+edx_ansible_var_file: "{{ edx_ansible_app_dir }}/server-vars.yml"
+
+tracking_log_hdfs_upload_log_dir: "{{ COMMON_LOG_DIR }}/tracking_log_hdfs_upload"
+
+cleanup_hdfs_tracking_log_dir: yes

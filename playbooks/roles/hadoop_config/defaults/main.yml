@@ -14,7 +14,7 @@ INSIGHTS_PIPELINE_INTERVAL_END: 2097-01-01
 
 INSIGHTS_PIPELINE_N_REDUCE_TASKS: 1
 pipeline_event_logs_pattern: '.*tracking.log.*.gz'
-INSIGHTS_PIPELINE_OVERRIDE_N_DAYS_TASKS: 2
+INSIGHTS_PIPELINE_OVERRIDE_N_DAYS_TASKS: 3
 
 ANALYTICS_PIPELINE_LOGGING_CFG: "logging.cfg"
 
@@ -152,4 +152,8 @@ edx_analytics_pipeline_requirements:
 PIPELINE_REMOTE_NAME: "uuid"
 root_data_dir: "/var/lib/analytics-tasks"
 pipeline_repo_dir_name: "repo"
+
+ANALYTICS_PIPELINE_REMOTE_CRON_JOB: 'no'
+
+HADOOP_TASKS_LOG_DIR: "{{ HADOOP_COMMON_USER_HOME }}/logs"
 

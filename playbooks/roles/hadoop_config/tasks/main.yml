@@ -38,6 +38,22 @@
     group: ubuntu
   when: check_hadoop_additional_files_tmp.stat.exists == False
 
+- name: Check if "{{ HADOOP_TASKS_LOG_DIR }}" exist
+  stat:
+    path: "{{ HADOOP_TASKS_LOG_DIR }}"
+  register: check_HADOOP_TASKS_LOG_DIR
+
+- name: Create "{{ HADOOP_TASKS_LOG_DIR }}" if not exist
+  file:
+    path: "{{ HADOOP_TASKS_LOG_DIR }}"
+    state: directory
+    owner: "{{ hadoop_common_user }}"
+    group: "{{ hadoop_common_user }}"
+  when: check_HADOOP_TASKS_LOG_DIR.stat.exists == False
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
 - name: "Copy hadoop additional files to {{ hadoop_additional_files_tmp }} on analytics instance"
   copy:
     src: "{{ item }}"
@@ -75,7 +91,6 @@
   become_method: sudo
   become: yes
   become_user: "{{ hadoop_common_user }}"
-
 
 - name: Create hadoop_tasks.sh at {{ HADOOP_COMMON_USER_HOME }} (on analytics instance) from template
   template:
@@ -203,4 +218,32 @@
   become_method: sudo
   become: yes
   become_user: "{{ hadoop_common_user }}"
+
+- name: Cron job Run pipeline tasks nightly
+  cron:
+    user: "{{ hadoop_common_user }}"
+    name: "Run pipeline tasks nightly"
+    job: "{{ HADOOP_COMMON_USER_HOME }}/hadoop_tasks.sh nightly > {{ HADOOP_TASKS_LOG_DIR }}/hadoop-tasks-nightly.log 2>&1"
+    weekday: 1-6
+    hour: 01
+    minute: 05
+  when: ANALYTICS_PIPELINE_REMOTE_CRON_JOB|lower == 'yes'
+
+- name: Cron job Run pipeline tasks weekly
+  cron:
+    user: "{{ hadoop_common_user }}"
+    name: "Run pipeline tasks weekly"
+    job: "{{ HADOOP_COMMON_USER_HOME }}/hadoop_tasks.sh weekly > {{ HADOOP_TASKS_LOG_DIR }}/hadoop-tasks-weekly.log 2>&1"
+    weekday: 0
+    hour: 01
+    minute: 05
+  when: ANALYTICS_PIPELINE_REMOTE_CRON_JOB|lower == 'yes'
+
+- name: remove cron job syncs tracking log file to hdfs
+  cron:
+    user: "{{ hadoop_common_user }}"
+    name: "Sync tracking log to HDFS"
+    state: absent
+    job: "{{ HADOOP_COMMON_HOME }}/bin/hdfs dfs -put -f {{ COMMON_LOG_DIR }}/tracking/tracking.log {{ ANALYTICS_PIPELINE_HDFS_DATA_DIR }}/tracking.log"
+  when: ANALYTICS_PIPELINE_REMOTE_CRON_JOB|lower == 'yes'
 
