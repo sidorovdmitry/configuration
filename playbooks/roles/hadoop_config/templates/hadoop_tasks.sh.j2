@@ -162,10 +162,10 @@ launch-task InsertToMysqlAllVideoTask --local-scheduler \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }}
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-if [ $frequency = "weekly" ]; then
 #CleanUp:
 hdfs dfs -rm -r {{ hdfs_tmp }}/*
 hdfs dfs -rm -r {{ hdfs_pipeline }}/*
+if [ $frequency = "weekly" ]; then
 hdfs dfs -mkdir /data/cleanedup
 hdfs dfs -rm -r {{ hdfs_event_log_source }}/*
 fi
