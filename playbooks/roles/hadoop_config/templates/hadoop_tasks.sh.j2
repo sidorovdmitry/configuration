@@ -7,7 +7,7 @@ source {{ edx_analytics_pipeline_venv_dir }}/bin/activate
 cd {{ root_data_dir }}/{{ PIPELINE_REMOTE_NAME }}/{{ pipeline_repo_dir_name }}
 
 {% for dir in HDFS_DIRS %}
-hdfs dfs -mkdir -p {{ dir }}
+{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -mkdir -p {{ dir }}
 {% endfor %}
 #------------------------------------------------------------------------------
 
@@ -30,11 +30,11 @@ DATE_FROM_2WEAKS_AGO=$(date -d '2 weeks ago' +%Y-%m-%d)
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task ImportAllDatabaseTablesTask --local-scheduler
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task ImportAllDatabaseTablesTask --local-scheduler
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task AnswerDistributionWorkflow --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task AnswerDistributionWorkflow --local-scheduler \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
 --name AnswerDistributionWorkflow-$(date +%Y%m%d%H%M%S -d "$TO_DATE") \
 --src {{ hdfs_event_log_source }}/ \
@@ -48,7 +48,7 @@ launch-task AnswerDistributionWorkflow --local-scheduler \
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task AnswerDistributionToMySQLTaskWorkflow --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task AnswerDistributionToMySQLTaskWorkflow --local-scheduler \
 --name AnswerDistributionToMySQLTaskWorkflow-$(date +%Y%m%d%H%M%S -d "$TO_DATE") \
 --dest {{ hdfs_warehouse }}/edx-analytics-pipeline/ \
 --overwrite \
@@ -57,7 +57,7 @@ launch-task AnswerDistributionToMySQLTaskWorkflow --local-scheduler \
 #Intended to be run weekly
 
 if [ $frequency = "weekly" ]; then
-launch-task CourseActivityWeeklyTask --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task CourseActivityWeeklyTask --local-scheduler \
   --end-date $(date +%Y-%m-%d -d "$TO_DATE") \
   --weeks 24 \
   --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }}
@@ -65,27 +65,27 @@ fi
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task ImportEnrollmentsIntoMysql --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task ImportEnrollmentsIntoMysql --local-scheduler \
   --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
   --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
   --overwrite-n-days {{ INSIGHTS_PIPELINE_OVERRIDE_N_DAYS_TASKS }}
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task CourseEnrollmentEventsTask --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task CourseEnrollmentEventsTask --local-scheduler \
   --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
   --n-reduce-tasks {{ INSIGHTS_PIPELINE_OVERRIDE_N_DAYS_TASKS }}
 #------------------------------------------------------------------------------
 
 #Intended to run nightly
 
-launch-task ImportCourseSummaryEnrollmentsIntoMysql --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task ImportCourseSummaryEnrollmentsIntoMysql --local-scheduler \
 --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
 --overwrite-n-days {{ INSIGHTS_PIPELINE_OVERRIDE_N_DAYS_TASKS }}
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task InsertToMysqlCourseEnrollByCountryWorkflow --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task InsertToMysqlCourseEnrollByCountryWorkflow --local-scheduler \
  --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
  --interval-start $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}") \
  --interval-end $(date +%Y-%m-%d -d "$TO_DATE") \
@@ -97,13 +97,13 @@ launch-task InsertToMysqlCourseEnrollByCountryWorkflow --local-scheduler \
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task LastDailyIpAddressOfUserTask --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task LastDailyIpAddressOfUserTask --local-scheduler \
   --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
   --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }}
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task ModuleEngagementIntervalTask --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task ModuleEngagementIntervalTask --local-scheduler \
   --interval $(date +%Y-%m-%d -d "$DATE_FROM_2WEAKS_AGO")-$(date +%Y-%m-%d -d "$TO_DATE") \
   --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
   --overwrite-from-date $(date +%Y-%m-%d -d "$TO_DATE") \
@@ -111,7 +111,7 @@ launch-task ModuleEngagementIntervalTask --local-scheduler \
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task ModuleEngagementWorkflowTask --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task ModuleEngagementWorkflowTask --local-scheduler \
 --date $(date +%Y-%m-%d -d "$TO_DATE") \
 --date-pattern %Y-%m-%d \
 --mapreduce-engine hadoop \
@@ -122,7 +122,7 @@ launch-task ModuleEngagementWorkflowTask --local-scheduler \
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task ProblemResponseReportWorkflow --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task ProblemResponseReportWorkflow --local-scheduler \
 --mapreduce-engine hadoop \
 --marker {{ hdfs_outputs }}/marker/ProblemResponseReportWorkflow-$(date +%Y%m%d%H%M%S -d "$TO_DATE") \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
@@ -139,7 +139,7 @@ launch-task ProblemResponseReportWorkflow --local-scheduler \
 --expand-interval '7 days, 0:00:00'
 #------------------------------------------------------------------------------
 #Intended to run nightly
-launch-task TagsDistributionWorkflow --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task TagsDistributionWorkflow --local-scheduler \
 --date-pattern %Y-%m-%d \
 --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
@@ -148,14 +148,14 @@ launch-task TagsDistributionWorkflow --local-scheduler \
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task UserVideoViewingTask --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task UserVideoViewingTask --local-scheduler \
 --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
 --n-reduce-tasks {{ INSIGHTS_PIPELINE_N_REDUCE_TASKS }} \
 --output-root {{ hdfs_pipeline }}/UserVideoViewingTask-$(date +%Y%m%d%H%M%S -d "$TO_DATE")
 #------------------------------------------------------------------------------
 #Intended to run nightly
 
-launch-task InsertToMysqlAllVideoTask --local-scheduler \
+{{ edx_analytics_pipeline_venv_dir }}/bin/launch-task InsertToMysqlAllVideoTask --local-scheduler \
 --date-pattern %Y-%m-%d \
 --interval $(date +%Y-%m-%d -d "{{ INSIGHTS_PIPELINE_INTERVAL_START }}")-$(date +%Y-%m-%d -d "$TO_DATE") \
 --mapreduce-engine hadoop \
@@ -163,10 +163,10 @@ launch-task InsertToMysqlAllVideoTask --local-scheduler \
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 #CleanUp:
-hdfs dfs -rm -r {{ hdfs_tmp }}/*
-hdfs dfs -rm -r {{ hdfs_pipeline }}/*
+{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -rm -r {{ hdfs_tmp }}/*
+{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -rm -r {{ hdfs_pipeline }}/*
 if [ $frequency = "weekly" ]; then
-hdfs dfs -mkdir /data/cleanedup
-hdfs dfs -rm -r {{ hdfs_event_log_source }}/*
+{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -mkdir /data/cleanedup
+{{ HADOOP_COMMON_USER_HOME }}/hadoop-{{ HADOOP_COMMON_VERSION }}/bin/hdfs dfs -rm -r {{ hdfs_event_log_source }}/*
 fi
 
