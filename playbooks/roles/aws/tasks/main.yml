@@ -31,22 +31,22 @@
     - deploy
 
 - name: Set the MTU to 1500 temporarily
-  shell: /sbin/ifconfig eth0 mtu 1500 up
+  shell: /sbin/ifconfig {{ ansible_default_ipv4.interface }} mtu 1500 up
   when: ansible_distribution in common_debian_variants
 
-- name: Check for eth0.cfg
+- name: Check for {{ ansible_default_ipv4.interface }}.cfg
   stat:
-    path: /etc/network/interfaces.d/eth0.cfg
-  register: eth0_cfg
+    path: /etc/network/interfaces.d/{{ ansible_default_ipv4.interface }}.cfg
+  register: ethernet_cfg
   when: ansible_distribution in common_debian_variants
 
-- name: Set the MTU to 1500 inside eth0.cfg file
+- name: Set the MTU to 1500 inside {{ ansible_default_ipv4.interface }}.cfg file
   lineinfile:
-    dest: /etc/network/interfaces.d/eth0.cfg
-    regexp: "^post-up /sbin/ifconfig eth0 mtu 1500"
-    line: "post-up /sbin/ifconfig eth0 mtu 1500"
+    dest: /etc/network/interfaces.d/{{ ansible_default_ipv4.interface }}.cfg
+    regexp: "^post-up /sbin/ifconfig {{ ansible_default_ipv4.interface }} mtu 1500"
+    line: "post-up /sbin/ifconfig {{ ansible_default_ipv4.interface }} mtu 1500"
     insertafter: "^iface"
-  when: ansible_distribution in common_debian_variants and eth0_cfg.stat.exists
+  when: ansible_distribution in common_debian_variants and ethernet_cfg.stat.exists
 
 #
 # End dealing with Jumbo frames issue in mixed MTU deployements in AWS
