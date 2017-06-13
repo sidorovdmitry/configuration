@@ -65,21 +65,6 @@
     - install
     - install:code
 
-- name: checkout {{ edxapp_theme_name }} theme into themes directory
-  git:
-    dest: "{{ edxapp_app_dir }}/themes/{{ edxapp_theme_name }}"
-    repo: "{{ edxapp_theme_source_repo }}"
-    version: "{{ edxapp_theme_version }}"
-    key_file: "{{ edxapp_git_ssh_key }}"
-    accept_hostkey: yes
-  when: (edxapp_theme_name is defined and edxapp_theme_name != '') and (edxapp_git_ssh_key is defined and edxapp_git_ssh_key != '')
-  become_user: "{{ edxapp_user }}"
-  register: edxapp_theme_checkout
-  tags:
-    - install
-    - install:code
-    - install:theme
-
 - name: Stat each requirements file with Github URLs to ensure it exists
   stat:
     path: "{{ item }}"
