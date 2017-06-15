@@ -29,6 +29,8 @@ EDXAPP_LOCALESET_FROM_REQUEST:
   'uk': 'uk_UA.UTF-8'
 
 REMOVE_STATICFILES_DIR_DURING_UPDATE: no
+
+UPDATE_ASSETS_ASYNC: "{{ EDXAPP_UPDATE_ASSETS_ASYNC | default(false) }}"
 ## END RACCOONGANG ##
 
 # Bucket used for xblock file storage

@@ -1,0 +1,5 @@
+---
+STATIC_ASSETS_ASYNC_TIME: 3600
+UPDATE_ASSETS_ASYNC: "{{ EDXAPP_UPDATE_ASSETS_ASYNC | default(false) }}"
+
+edxapp_app_dir: "{{ COMMON_APP_DIR }}/edxapp"

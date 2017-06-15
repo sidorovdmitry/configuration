@@ -24,6 +24,7 @@
    - ec2-snapshot
    - { role: 'add-letsencrypt-certificate', when: USE_LETSENCRYPT == 'yes' and CMS_NGINX_SSL_CERTIFICATE is undefined and CMS_NGINX_SSL_KEY is undefined, nginx_default_sites: lms }
    - edxapp
+   - { role: edxapp_async_assets,UPDATE_ASSETS_ASYNC: "{{ EDXAPP_UPDATE_ASSETS_ASYNC|default(false) }}"}
    - role: datadog
      when: COMMON_ENABLE_DATADOG
    - role: splunkforwarder
@@ -32,3 +33,5 @@
      when: COMMON_ENABLE_NEWRELIC
    - role: minos
      when: COMMON_ENABLE_MINOS
+   - { role: edxapp_async_assets_check, CHECK_ASSETS_ASYNC: "{{ EDXAPP_CHECK_ASSETS_ASYNC|default(false) }}"}
+

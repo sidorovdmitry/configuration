@@ -1,0 +1,62 @@
+---
+- name: check LMS assets async process status
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  register: lms_job_result
+  until: lms_job_result.finished
+  retries: "{{ STATIC_ASSETS_ASYNC_TIME_RETRIES }}"
+  delay: "{{ STATIC_ASSETS_ASYNC_TIME_DELAY }}"
+  with_items: "{{ lms_assets_process.results }}"
+
+- name: "remove edxapp-update-assets-{{ item }}.lock file in {{ edxapp_app_dir }}"
+  file:
+    path: "{{ edxapp_app_dir }}/edxapp-update-assets-{{ item }}.lock"
+    state: absent
+  with_items:
+    - lms
+  become: yes
+  become_user: "{{ edxapp_user }}"
+
+- set_fact:
+    lms_async_job_results: "{{ lms_async_job_results|default([]) + [ item ] }}"
+  no_log: True
+  with_items: "{{ lms_job_result.results }}"
+
+- set_fact:
+    lms_async_job_result_stdout: "{{ lms_async_job_result_stdout|default([]) + [ item.stdout_lines ] }}"
+  no_log: True
+  with_items: "{{ lms_async_job_results }}"
+
+- debug: msg="{{ lms_async_job_result_stdout }}"
+
+- name: check CMS assets async process status
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  register: cms_job_result
+  until: cms_job_result.finished
+  retries: "{{ STATIC_ASSETS_ASYNC_TIME_RETRIES }}"
+  delay: "{{ STATIC_ASSETS_ASYNC_TIME_DELAY }}"
+  with_items: "{{ cms_assets_process.results }}"
+
+- name: "remove edxapp-update-assets-{{ item }}.lock file in {{ edxapp_app_dir }}"
+  file:
+    path: "{{ edxapp_app_dir }}/edxapp-update-assets-{{ item }}.lock"
+    state: absent
+  with_items:
+    - cms
+  become: yes
+  become_user: "{{ edxapp_user }}"
+
+- set_fact:
+    cms_async_job_results: "{{ cms_async_job_results|default([]) + [ item ] }}"
+  no_log: True
+  with_items: "{{ cms_job_result.results }}"
+
+- set_fact:
+    cms_async_job_result_stdout: "{{ cms_async_job_result_stdout|default([]) + [ item.stdout_lines ] }}"
+  no_log: True
+  with_items: "{{ cms_async_job_results }}"
+
+- debug: msg="{{ cms_async_job_result_stdout }}"
+
+

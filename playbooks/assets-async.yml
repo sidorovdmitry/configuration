@@ -1,0 +1,12 @@
+- name: Deploy edxapp
+  hosts: all
+  become: True
+  gather_facts: True
+  vars:
+    serial_count: 1
+    CLUSTER_NAME: 'edxapp'
+  serial: "{{ serial_count }}"
+  roles:
+   - { role: edxapp_async_assets,UPDATE_ASSETS_ASYNC: "{{ EDXAPP_UPDATE_ASSETS_ASYNC|default(true) }}"}
+   - { role: edxapp_async_assets_check, CHECK_ASSETS_ASYNC: "{{ EDXAPP_CHECK_ASSETS_ASYNC|default(true) }}"}
+

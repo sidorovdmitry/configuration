@@ -1,0 +1,56 @@
+---
+- name: "check {{ edxapp_app_dir }}/edxapp-update-assets-{{ item }}.lock file stat"
+  stat:
+    path: "{{ edxapp_app_dir }}/edxapp-update-assets-{{ item }}.lock"
+  register: stat_assets_lock_file
+  with_items:
+    - cms
+    - lms
+
+- fail:
+    msg: "compile assets is locked - check {{ edxapp_app_dir }}/edxapp-update-assets-lms/cms.lock file and processes (ps uax | grep assets)"
+  when: item.stat.exists
+  with_items: "{{ stat_assets_lock_file.results }}"
+
+# Gather CMS assets (async) using paver if possible
+- name: "gather {{ item }} static assets with paver"
+  command: "{{ COMMON_BIN_DIR }}/edxapp-update-assets-{{ item }} && rm -rf {{ edxapp_app_dir }}/edxapp-update-assets-{{ item }}.lock"
+  async: "{{ STATIC_ASSETS_ASYNC_TIME }}"
+  poll: 0
+  register: cms_assets_process
+  with_items:
+    - cms
+  tags:
+    - gather_static_assets
+    - assets
+
+- name: "create edxapp-update-assets-{{ item }}.lock file in {{ edxapp_app_dir }}"
+  file:
+    path: "{{ edxapp_app_dir }}/edxapp-update-assets-{{ item }}.lock"
+    state: touch
+  with_items:
+    - cms
+  become: yes
+  become_user: "{{ edxapp_user }}"
+
+# Gather LMS assets (async) using paver if possible
+- name: "gather {{ item }} static assets with paver"
+  command: "{{ COMMON_BIN_DIR }}/edxapp-update-assets-{{ item }} && rm -rf {{ edxapp_app_dir }}/edxapp-update-assets-{{ item }}.lock"
+  async: "{{ STATIC_ASSETS_ASYNC_TIME }}"
+  poll: 0
+  register: lms_assets_process
+  with_items:
+    - lms
+  tags:
+    - gather_static_assets
+    - assets
+
+- name: "create edxapp-update-assets-{{ item }}.lock file in {{ edxapp_app_dir }}"
+  file:
+    path: "{{ edxapp_app_dir }}/edxapp-update-assets-{{ item }}.lock"
+    state: touch
+  with_items:
+    - lms
+  become: yes
+  become_user: "{{ edxapp_user }}"
+

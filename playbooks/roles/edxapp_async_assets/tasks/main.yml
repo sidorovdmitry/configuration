@@ -1,0 +1,4 @@
+---
+- include: update-assets-async.yml
+  when: UPDATE_ASSETS_ASYNC
+

@@ -1,0 +1,3 @@
+---
+- include: check-assets-async.yml
+  when: CHECK_ASSETS_ASYNC
