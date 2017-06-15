@@ -140,6 +140,23 @@
     - install
     - install:base
  
+- block:
+    - stat:
+        path: "/etc/apparmor.d/usr.lib.snapd.snap-confine"
+      register: sandbox_apparmor_bug_file1
+
+    - stat:
+        path: "/etc/apparmor.d/usr.lib.snapd.snap-confine.real"
+      register: sandbox_apparmor_bug_file2
+
+    - name: code sandbox | fixing apparmor ubuntu bug - https://bugs.launchpad.net/ubuntu/+source/snapd/+bug/1682023
+      file:
+        path: "/etc/apparmor.d/usr.lib.snapd.snap-confine"
+        state: absent
+      when: sandbox_apparmor_bug_file1.stat.exists and sandbox_apparmor_bug_file2.stat.exists
+  tags:
+    - edxapp-sandbox
+
 # Set up the python sandbox execution environment
 - include: python_sandbox_env.yml
   when: EDXAPP_PYTHON_SANDBOX
