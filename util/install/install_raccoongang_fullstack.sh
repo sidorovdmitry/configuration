@@ -38,7 +38,7 @@ if [[ -z "${PLATFORM_VERSION}" ]]; then
 fi
 
 if [[ -z "${MICROSERVICES_VERSION}" ]]; then
-  PLATFORM_VERSION="open-release/ficus.3"
+  MICROSERVICES_VERSION="open-release/ficus.3"
 fi
 
 #
@@ -180,11 +180,7 @@ if [[ "true" == "${RUN_ANSIBLE}" ]]; then
     -e 'edx_platform_repo: ${PLATFORM_REPO}' \
     -e 'edx_platform_version: ${PLATFORM_VERSION}'"
 
-    sudo su -
-    . /edx/app/edx_ansible/venvs/edx_ansible/bin/activate
-    cd /edx/app/edx_ansible/edx_ansible/playbooks/
-    /edx/app/edx_ansible/venvs/edx_ansible/bin/ansible-playbook -c local -i 'localhost,' ./run_role.yml -e "role=rabbitmq" -e "rabbitmq_ip=127.0.0.1"
-    exit
+    eval "/edx/app/edx_ansible/venvs/edx_ansible/bin/ansible-playbook -c local -i 'localhost,' /edx/app/edx_ansible/edx_ansible/playbooks/run_role.yml -e 'role=rabbitmq' -e 'rabbitmq_ip=127.0.0.1'"
 
     eval "sudo /edx/app/edx_ansible/update edx-platform ${ANSIBLE_VERSION}"
 
