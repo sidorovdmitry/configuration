@@ -1,5 +1,5 @@
 ---
-ec2_snapshot_enabled: yes
+ec2_snapshot_enabled: no
 ec2_snapshot_count: 7
 ec2_snapshot_incremental: 'daily'
 ec2_snapshot_tag_filter: 'yes'
