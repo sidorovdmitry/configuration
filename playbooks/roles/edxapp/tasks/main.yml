@@ -101,6 +101,7 @@
   file:
    path: "{{EDXAPP_GRADE_STORAGE_KWARGS.location}}"
    state: absent
+  when: (EDXAPP_GRADE_STORAGE_TYPE_LOCAL is defined) and (EDXAPP_GRADE_STORAGE_TYPE_LOCAL == true)
 
 - name: Creates {{EDXAPP_GRADE_STORAGE_KWARGS.location}} directory
   file: path="{{EDXAPP_GRADE_STORAGE_KWARGS.location}}" state=directory owner=www-data group=www-data mode=0775 recurse=yes
