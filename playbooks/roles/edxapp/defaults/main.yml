@@ -2,6 +2,9 @@
 # when the role is included
 ---
 EDXAPP_ADMINS: []
+
+REMOVE_STATICFILES_DIR_DURING_UPDATE: no
+
 # These are variables that default to a localhost
 # setup and are meant to be overwritten for
 # different environments.
