@@ -106,4 +106,3 @@
   with_items: "{{ service_variants_enabled }}"
   tags:
     - migrate
-
