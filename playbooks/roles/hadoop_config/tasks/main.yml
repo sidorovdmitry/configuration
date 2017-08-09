@@ -101,15 +101,15 @@
   become: yes
   become_user: "{{ hadoop_common_user }}"
 
-- name: Create hadoop_tasks.sh at {{ HADOOP_COMMON_USER_HOME }} (on analytics instance) from template
-  template:
-    src: "hadoop_tasks.sh.j2"
-    dest: "{{ root_data_dir }}/{{ PIPELINE_REMOTE_NAME }}/{{ pipeline_repo_dir_name }}/hadoop_tasks.sh"
-    mode: "u=rwx,g=rxw,o=r"
-  when: PIPELINE_REMOTE_NAME != "uuid"
-  become_method: sudo
-  become: yes
-  become_user: "{{ hadoop_common_user }}"
+#- name: Create hadoop_tasks.sh at {{ root_data_dir }}/{{ PIPELINE_REMOTE_NAME }}/{{ pipeline_repo_dir_name }} (on analytics instance) from template
+#  template:
+#    src: "hadoop_tasks.sh.j2"
+#    dest: "{{ root_data_dir }}/{{ PIPELINE_REMOTE_NAME }}/{{ pipeline_repo_dir_name }}/hadoop_tasks.sh"
+#    mode: "u=rwx,g=rxw,o=r"
+#  when: PIPELINE_REMOTE_NAME != 'uuid'
+#  become_method: sudo
+#  become: yes
+#  become_user: "{{ hadoop_common_user }}"
 
 - name: Create database-export_credentials.json.j2 at {{ hadoop_additional_files_tmp }} (on analytics instance) from template
   template:
@@ -211,10 +211,20 @@
 
 #- debug: var=provision_pipeline_out.stdout_lines
 
-- debug: msg="{{ edx_analytics_pipeline_venv_dir }}/bin/ansible-playbook -c local -i ',localhost' {{ ANALYTICS_PIPELINE_CODE_DIR }}/share/task.yml -e 'name=all' {{ analyticstack_remote_name }} -u {{ hadoop_common_user }} -e@{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/roles/luigi/defaults/main.yml"
+- debug: msg="{{ edx_analytics_pipeline_venv_dir }}/bin/ansible-playbook -c local -i ',localhost' {{ ANALYTICS_PIPELINE_CODE_DIR }}/share/task.yml -e 'name=all' {{ analyticstack_remote_name }} -u {{ hadoop_common_user }} -e@{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/roles/luigi/defaults/main.yml -e@{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/group_vars/all.yml"
 
 - name: Provision pipeline
-  command: "{{ edx_analytics_pipeline_venv_dir }}/bin/ansible-playbook -c local -i ',localhost' {{ ANALYTICS_PIPELINE_CODE_DIR }}/share/task.yml -e 'name=all' {{ analyticstack_remote_name }} -u {{ hadoop_common_user }} -e@{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/roles/luigi/defaults/main.yml"
+  command: "{{ edx_analytics_pipeline_venv_dir }}/bin/ansible-playbook -c local -i ',localhost' {{ ANALYTICS_PIPELINE_CODE_DIR }}/share/task.yml -e 'name=all' {{ analyticstack_remote_name }} -u {{ hadoop_common_user }} -e@{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/roles/luigi/defaults/main.yml -e@{{ ANALYTICS_PIPELINE_CODE_DIR }}/share/group_vars/all.yml"
+  become_method: sudo
+  become: yes
+  become_user: "{{ hadoop_common_user }}"
+
+- name: Create hadoop_tasks.sh at {{ root_data_dir }}/{{ PIPELINE_REMOTE_NAME }}/{{ pipeline_repo_dir_name }} (on analytics instance) from template
+  template:
+    src: "hadoop_tasks.sh.j2"
+    dest: "{{ root_data_dir }}/{{ PIPELINE_REMOTE_NAME }}/{{ pipeline_repo_dir_name }}/hadoop_tasks.sh"
+    mode: "u=rwx,g=rxw,o=r"
+  when: PIPELINE_REMOTE_NAME != 'uuid'
   become_method: sudo
   become: yes
   become_user: "{{ hadoop_common_user }}"

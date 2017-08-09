@@ -48,3 +48,13 @@
     - "{{ ANALYTICS_API_DATABASE_DEFAULT_HOST }}"
     - "127.0.0.1"
 
+- name: setup the {{ SECRET_INSIGHTS_DATABASES_USERNAME }} db user for {{ INSIGHTS_DATABASE_NAME }} insights hosts
+  mysql_user: >
+    name={{ SECRET_INSIGHTS_DATABASES_USERNAME }}
+    password={{ SECRET_INSIGHTS_DATABASES_PASSWORD }}
+    priv='{{ INSIGHTS_DATABASE_NAME }}.*:ALL'
+    append_privs=yes
+    host={{ item }}
+  with_items:
+    - "{{ ANALYTICS_API_DATABASE_DEFAULT_HOST }}"
+    - "127.0.0.1"
