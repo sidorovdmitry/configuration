@@ -176,7 +176,8 @@ EDXAPP_ENABLE_AUTO_AUTH: false
 # Settings for enabling and configuring third party authorization
 EDXAPP_ENABLE_THIRD_PARTY_AUTH: true
 EDXAPP_ENABLE_OAUTH2_PROVIDER: false
-
+EDXAPP_THIRD_PARTY_AUTH_BACKENDS: 
+  'social.backends.linkedin.LinkedinOAuth2'
 EDXAPP_ENABLE_MOBILE_REST_API: false
 
 # Settings for API access management
@@ -1168,6 +1169,7 @@ lms_env_config:
   PASSWORD_MIN_LENGTH: "{{ EDXAPP_PASSWORD_MIN_LENGTH }}"
   PASSWORD_MAX_LENGTH: "{{ EDXAPP_PASSWORD_MAX_LENGTH }}"
   ENTERPRISE_ENROLLMENT_API_URL: "{{ EDXAPP_ENTERPRISE_ENROLLMENT_API_URL }}"
+  THIRD_PARTY_AUTH_BACKENDS: "{{ EDXAPP_THIRD_PARTY_AUTH_BACKENDS }}"
 
 cms_auth_config:
   <<: *edxapp_generic_auth
