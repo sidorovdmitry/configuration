@@ -10,9 +10,10 @@
     ENABLE_DATADOG: False
     ENABLE_SPLUNKFORWARDER: False
     ENABLE_NEWRELIC: False
-  pre_tasks:
-    - include_vars: edx-insights-override-defaults.yml
+#  pre_tasks:
+#    - include_vars: edx-insights-override-defaults.yml
   roles:
+    - aws
     - mysql
     - mysql-insights-custom
     - edxlocal
@@ -21,7 +22,7 @@
     - common
     - elasticsearch
     - analytics_api
-    - analytics_pipeline
+#    - analytics_pipeline
     - insights
     - role: nginx
       nginx_sites:
@@ -40,7 +41,7 @@
       when: INSIGHTS_USE_LETSENCRYPT|lower == 'yes'
     - insights-app-config
     - analytics_api-app-config
-    - hadoop_config
+#    - hadoop_config
 
 - name: Remove Insights services
   hosts: localhost
