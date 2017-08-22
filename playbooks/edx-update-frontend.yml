@@ -1,0 +1,42 @@
+---
+# - hosts: "{{ edx_hosts }}"
+#   tasks:
+#     - name: Gathering ec2 facts
+#       action: ec2_facts
+
+#     - name: set_fact ELB NODE_STATE absent
+#       set_fact:
+#         NODE_STATE: absent
+
+#     - include: instance_elb_state.yml
+
+- hosts: "{{ edx_hosts }}"
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  vars:
+    service_variants_enabled:
+      - cms
+      - lms
+    migrate_db: "yes"
+
+  roles:
+    - role: nginx
+      nginx_sites:
+      - cms
+      - lms
+      nginx_default_sites:
+      - lms
+      CMS_HOSTNAME: "{{ EDXAPP_CMS_SITE_NAME }}" 
+    - edxapp
+
+# - hosts: "{{ edx_hosts }}"
+#   tasks:
+
+#     - name: set_fact ELB NODE_STATE absent
+#       set_fact:
+#         NODE_STATE: present
+
+#     - include: instance_elb_state.yml
+
