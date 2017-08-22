@@ -1,0 +1,36 @@
+---
+# - hosts: "{{ edx_hosts }}"
+#   tasks:
+#     - name: Gathering ec2 facts
+#       action: ec2_facts
+
+#     - name: set_fact ELB NODE_STATE absent
+#       set_fact:
+#         NODE_STATE: absent
+
+#     - include: instance_elb_state.yml
+
+- hosts: "{{ edx_hosts }}"
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  vars:
+    service_variants_enabled:
+      - cms
+      - lms
+    EDXAPP_WORKERS:
+      cms: 4
+      lms: 16
+  roles:
+    - { role: 'edxapp', celery_worker: True, celery_cms_worker: True, celery_lms_worker: True}
+
+# - hosts: "{{ edx_hosts }}"
+#   tasks:
+
+#     - name: set_fact ELB NODE_STATE absent
+#       set_fact:
+#         NODE_STATE: present
+
+#     - include: instance_elb_state.yml
+
