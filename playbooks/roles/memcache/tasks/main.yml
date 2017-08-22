@@ -8,3 +8,16 @@
   tags:
     - install
     - install:memcache
+
+- name: Copy memcached config file
+  template:
+    src: memcached.conf.j2
+    dest: /etc/memcached.conf
+    backup: yes
+
+- name: Retart memcached service
+  service:
+    name: memcached
+    state: restarted
+    enabled: yes
+
