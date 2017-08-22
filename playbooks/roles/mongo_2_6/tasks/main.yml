@@ -39,7 +39,7 @@
 - name: Add the mongodb signing key
   apt_key:
     id: "{{ MONGODB_APT_KEY }}"
-    keyserver: "{{ MONGODB_APT_KEYSERVER }}"
+    keyserver: "hkp://{{ MONGODB_APT_KEYSERVER }}:80"
     state: present
   tags:
     - install
