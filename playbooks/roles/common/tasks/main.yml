@@ -56,7 +56,7 @@
 - name: Add edX PPA apt key
   apt_key:
     id: "{{ COMMON_EDX_PPA_KEY_ID }}"
-    keyserver: "{{ COMMON_EDX_PPA_KEY_SERVER }}"
+    keyserver: "hkp://{{ COMMON_EDX_PPA_KEY_SERVER }}:80"
     state: "present"
   when: >
     ansible_distribution in common_debian_variants
