@@ -1,0 +1,13 @@
+---
+
+- hosts: xqueue
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  roles:
+    - role: nginx
+      nginx_sites:
+      - xqueue
+    - { role: "xqueue", update_users: true }
+
