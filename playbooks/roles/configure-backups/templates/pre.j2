@@ -14,11 +14,11 @@ pg_dump -U {{backup_postgres_user}} {{ '-h ' + backup_postgres_host  if backup_p
 
 {% if item.source == 'mysql://' %}
 # Dump all databases
-mysqldump -u {{backup_mysql_user}} -p{{backup_mysql_pass}} --all-databases > ${WORKDIR}/dump
+mysqldump -u {{backup_mysql_user}} -p{{backup_mysql_pass}} {{ '-h ' + backup_mysql_host  if backup_mysql_host else ''}} --all-databases > ${WORKDIR}/dump
 {% else %}
 # Dump the passed database
 DBNAME={{item.source.split('mysql://')[-1]}}
-mysqldump -u {{backup_mysql_user}} -p{{backup_mysql_pass}} $DBNAME  > ${WORKDIR}/dump
+mysqldump -u {{backup_mysql_user}} -p{{backup_mysql_pass}} {{ '-h ' + backup_mysql_host  if backup_mysql_host else ''}}  $DBNAME  > ${WORKDIR}/dump
 {% endif %}
 
 {% elif item.source.startswith('mongo://') %}
@@ -41,7 +41,7 @@ ARGS="$ARGS --oplog"
 
 {% endif %}
 
-mongodump --out $WORKDIR/dump $ARGS
+mongodump {{ '--host ' + backup_mongo_host  if backup_mongo_host else ''}} --out $WORKDIR/dump $ARGS
 
 {% endif %}
 

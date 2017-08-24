@@ -15,17 +15,17 @@ rm -rf $WORKDIR/dump
 
 {% if item.source == 'mysql://' %}
 # Restore all databases
-mysql -u {{backup_mysql_user}} -p{{backup_mysql_pass}} < ${WORKDIR}/dump
+mysql -u {{backup_mysql_user}} -p{{backup_mysql_pass}} {{ '-h ' + backup_mysql_host  if backup_mysql_host else ''}} < ${WORKDIR}/dump
 {% else %}
 # Restore the passed database
 DBNAME={{item.source.split('mysql://')[-1]}}
-mysql -u {{backup_mysql_user}} -p{{backup_mysql_pass}} $DBNAME  < ${WORKDIR}/dump
+mysql -u {{backup_mysql_user}} -p{{backup_mysql_pass}} {{ '-h ' + backup_mysql_host  if backup_mysql_host else ''}} $DBNAME  < ${WORKDIR}/dump
 rm -rf $WORKDIR/dump
 {% endif %}
 
 {% elif item.source.startswith('mongo://') %}
 
-mongorestore --drop $WORKDIR/dump
+mongorestore {{ '--host ' + backup_mongo_host  if backup_mongo_host else ''}} --drop $WORKDIR/dump
 rm -rf $WORKDIR/dump
 
 {% endif %}
