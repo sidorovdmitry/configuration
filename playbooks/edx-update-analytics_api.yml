@@ -1,0 +1,33 @@
+---
+# - hosts: "{{ edx_hosts }}"
+#   tasks:
+#     - name: Gathering ec2 facts
+#       action: ec2_facts
+
+#     - name: set_fact ELB NODE_STATE absent
+#       set_fact:
+#         NODE_STATE: absent
+
+#     - include: instance_elb_state.yml
+
+- hosts: "{{ edx_hosts }}"
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+
+  roles:
+    - analytics_api
+    - role: nginx
+      nginx_sites:
+        - analytics_api
+
+# - hosts: "{{ edx_hosts }}"
+#   tasks:
+
+#     - name: set_fact ELB NODE_STATE absent
+#       set_fact:
+#         NODE_STATE: present
+
+#     - include: instance_elb_state.yml
+
