@@ -146,13 +146,21 @@
       privileges:
         - "{{ ANALYTICS_API_REPORTS_DB_NAME }}.*:ALL"
       <<: *default_connection
+
+    - name: "{{ ANALYTICS_MYSQL_RO_USERNAME }}"
+      state: "present"
+      password: "{{ ANALYTICS_MYSQL_RO_PASSWORD }}"
+      host: "%"
+      privileges:
+        - "{{ EDXAPP_MYSQL_DB_NAME }}.*:SELECT"
+      <<: *default_connection
         
     - name: "{{ COMMON_MYSQL_READ_ONLY_USER }}"
       state: "present"
       password: "{{ COMMON_MYSQL_READ_ONLY_PASS }}"
       host: "%"
       privileges:
-        - '*.*:SELECT'
+        - '*.*:SELECT,LOCK TABLES'
       <<: *default_connection
     
     - name: "{{ COMMON_MYSQL_ADMIN_USER }}"
