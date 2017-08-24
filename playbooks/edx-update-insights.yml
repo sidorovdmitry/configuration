@@ -1,0 +1,38 @@
+---
+# - hosts: "{{ edx_hosts }}"
+#   tasks:
+#     - name: Gathering ec2 facts
+#       action: ec2_facts
+
+#     - name: set_fact ELB NODE_STATE absent
+#       set_fact:
+#         NODE_STATE: absent
+
+#     - include: instance_elb_state.yml
+
+- hosts: "{{ edx_hosts }}"
+  become: true
+  become_method: sudo
+  become_user: root
+  gather_facts: True
+  vars:
+    edxapp_user: edxapp
+    edxapp_venv_bin: "/edx/app/edxapp/venvs/edxapp/bin"
+    edxapp_code_dir: "/edx/app/edxapp/edx-platform"
+  roles:
+    - insights
+    - insights-app-config
+    - insights-to-edx
+    - role: nginx
+      nginx_sites:
+        - insights
+
+# - hosts: "{{ edx_hosts }}"
+#   tasks:
+
+#     - name: set_fact ELB NODE_STATE absent
+#       set_fact:
+#         NODE_STATE: present
+
+#     - include: instance_elb_state.yml
+
