@@ -33,8 +33,14 @@ backup_postgres_user: postgres
 backup_postgres_host: ""
 backup_postgres_port: 5432
 
+#MongoDB
+backup_mongo_host: localhost
+backup_mongo_user: "admin"
+backup_mongo_password: "password"
+
 # Mysql
 backup_mysql_user: mysql
+backup_mysql_host: localhost
 backup_mysql_pass: ""
 
 backup_profiles: []           # Setup backup profiles
