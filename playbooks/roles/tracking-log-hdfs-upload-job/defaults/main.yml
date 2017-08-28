@@ -1,9 +1,13 @@
 ---
+UPLOAD_TRACKING_LOGS_TO_HDFS: no
+UPLOAD_TRACKING_LOGS_TO_S3: yes
+
 COMMON_BASE_DIR: /edx
+COMMON_APP_DIR: "/edx/app"
 COMMON_LOG_DIR: "{{ COMMON_DATA_DIR }}/log"
 COMMON_DATA_DIR: "{{ COMMON_BASE_DIR}}/var"
 edxapp_user: edxapp
-
+edxapp_app_dir: /edx/app/edxapp
 hadoop_tracking_files_tmp: "/tmp/tracking"
 
 HADOOP_COMMON_USER_HOME: "{{ COMMON_APP_DIR }}/hadoop"
