@@ -1,4 +1,8 @@
 insights_waffle_switches:
+  enable_course_passing:
+    active: 'off'
+  enable_course_filters:
+    active: 'off'
   display_verified_enrollment:
     active: 'off'
   enable_ccx_courses:
