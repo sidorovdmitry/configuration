@@ -1,0 +1,1 @@
+UserParameter=memcached.state[*],sudo python {{ zabbix_agent_scripts }}/check_memcached.py -h localhost -p 11211 -a $1

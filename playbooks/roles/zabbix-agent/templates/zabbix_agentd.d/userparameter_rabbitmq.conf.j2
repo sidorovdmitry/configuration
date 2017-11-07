@@ -1,0 +1,1 @@
+UserParameter=rabbitmq.current.local.queues.count[*],sudo rabbitmqctl -q list_queues name $1 | grep -wv 0 | wc -l

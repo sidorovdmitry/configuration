@@ -1,0 +1,118 @@
+---
+- name: "Install the correct repository"
+  include: "Debian.yml"
+  when:
+    - ansible_os_family == "Debian"
+
+- name: Adding existing user zabbix to group sudo
+  user: name=zabbix
+        groups=sudo
+        append=yes
+  notify:
+    - restart zabbix-agent
+  become: yes
+
+- name: Allow sudo group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+  notify:
+    - restart zabbix-agent
+  become: yes
+
+- name: "Configure zabbix-agent"
+  template:
+    src: zabbix_agentd.conf.j2
+    dest: /etc/zabbix/{{ zabbix_agent_conf }}
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart zabbix-agent
+  become: yes
+
+- debug: msg="{{zabbix_agent_tlspskfile}}"
+- name: "Create directory for PSK file if not exist."
+  file:
+    path: "{{ zabbix_agent_tlspskfile | dirname }}"
+    mode: 0755
+    state: directory
+  when:
+    - zabbix_agent_tlspskfile is defined
+    - zabbix_agent_tlspskfile
+    - zabbix_agent_tlspskfile != ''
+
+- name: "Place TLS PSK File"
+  copy:
+    dest: "{{ zabbix_agent_tlspskfile }}"
+    content: "{{ zabbix_agent_tlspsk_secret }}"
+    owner: zabbix
+    group: zabbix
+    mode: 0400
+  when:
+    - zabbix_agent_tlspskfile is defined
+    - zabbix_agent_tlspsk_secret is defined
+    - zabbix_agent_tlspskfile
+    - zabbix_agent_tlspsk_secret
+    - zabbix_agent_tlspskfile != ''
+    - zabbix_agent_tlspsk_secret != ''
+
+- name: "Create include dir zabbix-agent"
+  file:
+    path: "{{ zabbix_agent_include }}"
+    owner: root
+    group: root
+    state: directory
+  become: yes
+
+- name: "Create zabbix-agent include files from template"
+  template:
+    src: "zabbix_agentd.d/{{ item }}.j2"
+    dest: "{{ zabbix_agent_include }}/{{ item}}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - "userparameter_edx.conf"
+    - "userparameter_elasticsearch.conf"
+    - "userparameter_memcached.conf"
+    - "userparameter_mongodb.conf"
+    - "userparameter_mysql.conf"
+    - "userparameter_rabbitmq.conf"
+  notify:
+    - restart zabbix-agent
+  become: yes
+
+- name: "Create zabbix-agent scripts dir"
+  file:
+    path: "{{ zabbix_agent_scripts }}"
+    owner: root
+    group: root
+    state: directory
+  become: yes
+
+- name: "Create zabbix-agent script files from template"
+  template:
+    src: "scripts/{{ item }}.j2"
+    dest: "{{ zabbix_agent_scripts }}/{{ item}}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - "check_edx_supervisor.sh"
+    - "check_elasticsearch.py"
+    - "check_memcached.py"
+    - "check_mongodb.py"
+  notify:
+    - restart zabbix-agent
+  become: yes
+
+- name: "Make sure the zabbix-agent service is running"
+  service:
+    name: zabbix-agent
+    state: started
+    enabled: yes
+  become: yes
