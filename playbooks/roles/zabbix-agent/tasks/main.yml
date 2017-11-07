@@ -1,0 +1,58 @@
+---
+- name: "Install the correct repository"
+  include: "Debian.yml"
+  when:
+    - ansible_os_family == "Debian"
+
+- name: "Configure zabbix-agent"
+  template:
+    src: zabbix_agentd.conf.j2
+    dest: /etc/zabbix/{{ zabbix_agent_conf }}
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart zabbix-agent
+  become: yes
+
+- debug: msg="{{zabbix_agent_tlspskfile}}"
+- name: "Create directory for PSK file if not exist."
+  file:
+    path: "{{ zabbix_agent_tlspskfile | dirname }}"
+    mode: 0755
+    state: directory
+  when:
+    - zabbix_agent_tlspskfile is defined
+    - zabbix_agent_tlspskfile
+    - zabbix_agent_tlspskfile != ''
+
+- name: "Place TLS PSK File"
+  copy:
+    dest: "{{ zabbix_agent_tlspskfile }}"
+    content: "{{ zabbix_agent_tlspsk_secret }}"
+    owner: zabbix
+    group: zabbix
+    mode: 0400
+  when:
+    - zabbix_agent_tlspskfile is defined
+    - zabbix_agent_tlspsk_secret is defined
+    - zabbix_agent_tlspskfile
+    - zabbix_agent_tlspsk_secret
+    - zabbix_agent_tlspskfile != ''
+    - zabbix_agent_tlspsk_secret != ''
+
+- name: "Create include dir zabbix-agent"
+  file:
+    path: "{{ zabbix_agent_include }}"
+    owner: root
+    group: root
+    state: directory
+  become: yes
+
+- name: "Make sure the zabbix-agent service is running"
+  service:
+    name: zabbix-agent
+    state: started
+    enabled: yes
+  become: yes
+
