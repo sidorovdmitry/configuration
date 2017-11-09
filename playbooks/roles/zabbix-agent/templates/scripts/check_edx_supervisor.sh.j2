@@ -1,0 +1,9 @@
+#!/bin/bash
+
+service_state=`sudo -S /edx/bin/supervisorctl status | grep -w $1 | awk '{print $2}'`
+if [[ "$service_state" != "RUNNING" ]]
+then
+	echo "0"
+else
+	echo "1"
+fi

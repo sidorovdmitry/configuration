@@ -49,10 +49,51 @@
     state: directory
   become: yes
 
+- name: "Create zabbix-agent include files from template"
+  template:
+    src: "zabbix_agentd.d/{{ item }}.j2"
+    dest: "{{ zabbix_agent_include }}/{{ item}}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - "userparameter_edx.conf"
+    - "userparameter_elasticsearch.conf"
+    - "userparameter_memcached.conf"
+    - "userparameter_mongodb.conf"
+    - "userparameter_mysql.conf"
+    - "userparameter_rabbitmq.conf"
+  notify:
+    - restart zabbix-agent
+  become: yes
+
+- name: "Create zabbix-agent scripts dir"
+  file:
+    path: "{{ zabbix_agent_scripts }}"
+    owner: root
+    group: root
+    state: directory
+  become: yes
+
+- name: "Create zabbix-agent script files from template"
+  template:
+    src: "scripts/{{ item }}.j2"
+    dest: "{{ zabbix_agent_scripts }}/{{ item}}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - "check_edx_supervisor.sh"
+    - "check_elasticsearch.py"
+    - "check_memcached.py"
+    - "check_mongodb.py"
+  notify:
+    - restart zabbix-agent
+  become: yes
+
 - name: "Make sure the zabbix-agent service is running"
   service:
     name: zabbix-agent
     state: started
     enabled: yes
   become: yes
-

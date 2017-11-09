@@ -1,0 +1,2 @@
+UserParameter=elasticsearch.cluster[*],sudo python {{ zabbix_agent_scripts }}/check_elasticsearch.py cluster $1
+UserParameter=elasticsearch.node[*],sudo python {{ zabbix_agent_scripts }}/check_elasticsearch.py node $1

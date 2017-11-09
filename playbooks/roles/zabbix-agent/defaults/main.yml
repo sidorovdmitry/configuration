@@ -15,6 +15,7 @@ sign_keys:
       sign_key: E709712C
 
 zabbix_agent_conf: zabbix_agentd.conf
+zabbix_agent_scripts: /etc/zabbix/scripts
 
 zabbix_agent_pidfile: /var/run/zabbix/zabbix_agentd.pid
 zabbix_agent_logfile: /var/log/zabbix/zabbix_agentd.log
