@@ -35,25 +35,20 @@
       mode: push
 
   - name: recursive chmod
-    command: |
-      chmod -c -R ug=rw,o=r,a-x+X "{{ '{{ item }}' }}"
-    register: chmod_status
-    changed_when: chmod_status.stdout != ""
-    with_items:
-      - "{{ tracking_files_tmp }}"
+    file:
+      dest: "{{ tracking_files_tmp }}"
+      mode: 0755
+      recurse: yes
     become_method: sudo
     become: yes
     become_user: root
-
-  - shell: ls {{ tracking_files_tmp }}/*
-    register: path_files
 
   - name: Put configs and packages into S3 bucket
     s3_sync:
       aws_access_key: "{{ EDXAPP_AWS_ACCESS_KEY_ID }}"
       aws_secret_key: "{{ EDXAPP_AWS_SECRET_ACCESS_KEY }}"
       bucket: "{{ ANALITICS_TRACKING_LOGS_BUCKET }}"
-      file_root: /tmp/tracking/
+      file_root: "{{ tracking_files_tmp }}"
 
   - name: Delete "{{ tracking_files_tmp }}" dir
     file:
