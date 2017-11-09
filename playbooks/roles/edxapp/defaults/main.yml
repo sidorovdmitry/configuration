@@ -15,6 +15,8 @@
 # Variables set to "None" will be converted to None
 # when the edxapp config is written to disk.
 
+EDXAPP_ADDL_INSTALLED_APPS: []
+
 # Bucket used for xblock file storage
 EDXAPP_XBLOCK_FS_STORAGE_BUCKET: "None"
 EDXAPP_XBLOCK_FS_STORAGE_PREFIX: "None"
@@ -1063,6 +1065,7 @@ lms_env_config:
   RECALCULATE_GRADES_ROUTING_KEY: "{{ EDXAPP_RECALCULATE_GRADES_ROUTING_KEY }}"
   CELERY_QUEUES: "{{ EDXAPP_LMS_CELERY_QUEUES }}"
   ALTERNATE_WORKER_QUEUES: "cms"
+  ADDL_INSTALLED_APPS: "{{ EDXAPP_ADDL_INSTALLED_APPS }}"
 
 cms_auth_config:
   <<: *edxapp_generic_auth
