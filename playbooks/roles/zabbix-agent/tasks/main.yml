@@ -4,6 +4,25 @@
   when:
     - ansible_os_family == "Debian"
 
+- name: Adding existing user zabbix to group sudo
+  user: name=zabbix
+        groups=sudo
+        append=yes
+  notify:
+    - restart zabbix-agent
+  become: yes
+
+- name: Allow sudo group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudo'
+    line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+  notify:
+    - restart zabbix-agent
+  become: yes
+
 - name: "Configure zabbix-agent"
   template:
     src: zabbix_agentd.conf.j2

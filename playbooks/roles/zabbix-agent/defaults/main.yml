@@ -17,6 +17,8 @@ sign_keys:
 zabbix_agent_conf: zabbix_agentd.conf
 zabbix_agent_scripts: /etc/zabbix/scripts
 
+zabbix_agent_hostname: "{{ EDXAPP_PLATFORM_NAME | default('') }}"
+
 zabbix_agent_pidfile: /var/run/zabbix/zabbix_agentd.pid
 zabbix_agent_logfile: /var/log/zabbix/zabbix_agentd.log
 zabbix_agent_logfilesize: 0
@@ -29,7 +31,6 @@ zabbix_agent_listenport: 10050
 zabbix_agent_listenip: 0.0.0.0
 zabbix_agent_startagents: 3
 zabbix_agent_serveractive: zabbix.raccoongang.com
-zabbix_agent_hostname: 
 zabbix_agent_hostnameitem: system.hostname
 zabbix_agent_hostmetadata:
 zabbix_agent_hostmetadataitem:
