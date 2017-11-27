@@ -314,6 +314,7 @@ if [[ $TARGET == *eucalyptus* ]] ; then
   cd ../../..
 
   echo "Migrate to fix oauth2_provider"
+  sudo sed -ri 's/"OAUTH_EXPIRE_CONFIDENTIAL_CLIENT_DAYS": "365"/"OAUTH_EXPIRE_CONFIDENTIAL_CLIENT_DAYS": 365/g;s/"OAUTH_EXPIRE_PUBLIC_CLIENT_DAYS": "30"/"OAUTH_EXPIRE_PUBLIC_CLIENT_DAYS": 30/g;s/"ENABLE_COMPREHENSIVE_THEMING": "False"/"ENABLE_COMPREHENSIVE_THEMING": false/g' /edx/app/edxapp/lms.env.json
   ${OPENEDX_ROOT}/bin/edxapp-migrate-lms --fake oauth2_provider zero
   ${OPENEDX_ROOT}/bin/edxapp-migrate-lms --fake-initial
 

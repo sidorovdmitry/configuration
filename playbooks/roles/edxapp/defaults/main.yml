@@ -1096,7 +1096,7 @@ sandbox_post_requirements:  "{{ edxapp_code_dir }}/requirements/edx-sandbox/post
 # conditionally based on the value of EDXAPP_INSTALL_PRIVATE_REQUIREMENTS.
 edxapp_requirements_files:
   - "{{ pre_requirements_file }}"
-  - "{{ github_requirements_file }}"
+#  - "{{ github_requirements_file }}"
   - "{{ custom_requirements_file }}"
   - "{{ local_requirements_file }}"
   - "{{ base_requirements_file }}"
