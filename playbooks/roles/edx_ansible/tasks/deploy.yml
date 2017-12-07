@@ -10,8 +10,16 @@
     - install
     - install:code
 
-- shell: /edx/app/edxapp/venvs/edxapp/bin/pip install --upgrade pip
-- shell: /edx/app/edxapp/venvs/edxapp/bin/pip install setuptools
+- name : upgrade setuptools
+  pip:
+    name: setuptools
+    virtualenv: "{{ edx_ansible_venv_dir }}"
+    state: present
+    extra_args: "--upgrade -i {{ COMMON_PYPI_MIRROR_URL }}"
+  sudo_user: "{{ edx_ansible_user }}"
+  tags:
+    - install
+    - install:app-requirements
 
 - name: Install edx_ansible venv requirements
   pip:
