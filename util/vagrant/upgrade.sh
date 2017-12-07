@@ -204,8 +204,8 @@ chmod 777 $TEMPDIR
 cd $TEMPDIR
 # Set the CONFIGURATION_TARGET environment variable to use a different branch
 # in the configuration repo, defaults to $TARGET.
-git clone https://github.com/edx/configuration.git \
-  --depth=1 --single-branch --branch=${CONFIGURATION_TARGET-$TARGET}
+git clone https://github.com/raccoongang/configuration.git \
+  --depth=1 --single-branch --branch=eucalyptus-migrate-rg
 make_config_venv
 
 # Dogwood details
