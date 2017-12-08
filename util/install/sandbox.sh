@@ -69,24 +69,28 @@ if [[ -f my-passwords.yml ]]; then
     EXTRA_VARS="-e@$(pwd)/my-passwords.yml $EXTRA_VARS"
 fi
 
+if [[ -f /edx/app/edx_ansible/server-vars.yml ]]; then
+    EXTRA_VARS="-e@/edx/app/edx_ansible/server-vars.yml $EXTRA_VARS"
+fi
+
 CONFIGURATION_VERSION=${CONFIGURATION_VERSION-${OPENEDX_RELEASE-master}}
 
 ##
 ## Clone the configuration repository and run Ansible
 ##
-cd /var/tmp
-git clone https://github.com/edx/configuration
-cd configuration
-git checkout $CONFIGURATION_VERSION
-git pull
+#cd /var/tmp
+#git clone https://github.com/edx/configuration
+#cd configuration
+#git checkout $CONFIGURATION_VERSION
+#git pull
 
 ##
 ## Install the ansible requirements
 ##
-cd /var/tmp/configuration
+cd /edx/app/edx_ansible/edx_ansible
 sudo -H pip install -r requirements.txt
 
 ##
 ## Run the edx_sandbox.yml playbook in the configuration/playbooks directory
 ##
-cd /var/tmp/configuration/playbooks && sudo -E ansible-playbook -c local ./edx_sandbox.yml -i "localhost," $EXTRA_VARS "$@"
+cd /edx/app/edx_ansible/edx_ansible/playbooks && sudo -E ALLOW_WORLD_READABLE_TMPFILES=true ansible-playbook -c local ./edx_sandbox.yml -vvvv -i "localhost," $EXTRA_VARS "$@"
