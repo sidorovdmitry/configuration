@@ -1,24 +1,34 @@
 ---
 - name: Copy maintenance files to edx instance
-  copy:
-    src: /encrypted/ansible/edx/playbooks/maintenance-work/maintenance
-    dest: /edx/var/nginx/server-static/
-    owner: root
-    group: www-data
-    mode: 0644
+  git:
+    dest: /edx/var/nginx/server-static/maintenance
+    repo: https://github.com/raccoongang/scout_landingpage.git
+    version: master
+    force: yes
   become: true
   become_method: sudo
   become_user: root
 
+# - name: Copy maintenance files to edx instance
+#   copy:
+#     src: /encrypted/ansible/edx/playbooks/maintenance-work/maintenance
+#     dest: /edx/var/nginx/server-static/
+#     owner: root
+#     group: www-data
+#     mode: 0644
+#   become: true
+#   become_method: sudo
+#   become_user: root
+
 - name: set_fact maintenance_state on
   set_fact:
     maintenance_state: 'touch'
-  when: (NGINX_MAINTENANCE_STATE is defined) and ("{{ NGINX_MAINTENANCE_STATE }}"=='true')
+  when: (NGINX_MAINTENANCE_STATE is defined) and NGINX_MAINTENANCE_STATE
 
 - name: set_fact maintenance_state off
   set_fact:
     maintenance_state: 'absent'
-  when: (NGINX_MAINTENANCE_STATE is defined) and ("{{ NGINX_MAINTENANCE_STATE }}"=='false')
+  when: (NGINX_MAINTENANCE_STATE is defined) and not NGINX_MAINTENANCE_STATE
 
 - name: Enable maintenance works
   file:

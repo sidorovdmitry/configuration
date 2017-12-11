@@ -10,9 +10,9 @@
 
     - include: instance_elb_state.yml
 
-    - name: set_fact maintenance_state on
+    - name: set_fact maintenance_state on/off
       set_fact:
-        NGINX_MAINTENANCE_STATE: true
+        NGINX_MAINTENANCE_STATE: True
 
     - include: maintenance-work/copy-maintenance.yml
 
@@ -58,7 +58,7 @@
   tasks:
     - name: set_fact maintenance_state off
       set_fact:
-        NGINX_MAINTENANCE_STATE: false
+        NGINX_MAINTENANCE_STATE: True
 
     - include: maintenance-work/copy-maintenance.yml
 
