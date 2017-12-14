@@ -198,15 +198,16 @@ make_config_venv () {
   pip install -r configuration/requirements.txt
 }
 
-TEMPDIR=`mktemp -d`
-echo "Working in $TEMPDIR"
-chmod 777 $TEMPDIR
-cd $TEMPDIR
+#TEMPDIR=`mktemp -d`
+#echo "Working in $TEMPDIR"
+#chmod 777 $TEMPDIR
+#cd $TEMPDIR
 # Set the CONFIGURATION_TARGET environment variable to use a different branch
 # in the configuration repo, defaults to $TARGET.
-git clone https://github.com/edx/configuration.git \
-  --depth=1 --single-branch --branch=${CONFIGURATION_TARGET-$TARGET}
-make_config_venv
+#git clone https://github.com/edx/configuration.git \
+#  --depth=1 --single-branch --branch=${CONFIGURATION_TARGET-$TARGET}
+#make_config_venv
+cd /edx/app/edx_ansible/edx_ansible
 
 # Dogwood details
 
@@ -303,9 +304,9 @@ if [[ $TARGET == *eucalyptus* ]] ; then
   fi
 
   echo "Upgrade the code"
-  cd configuration/playbooks/vagrant
+  cd playbooks/vagrant
   $ANSIBLE_PLAYBOOK \
-    $SERVER_VARS \
+    $SERVER_VARS -vvv \
     --extra-vars="edx_platform_version=$TARGET" \
     --extra-vars="xqueue_version=$TARGET" \
     --extra-vars="migrate_db=no" \
@@ -325,7 +326,7 @@ fi
 # Update to target.
 
 echo "Updating to final version of code"
-cd configuration/playbooks
+cd edx_ansible/playbooks
 echo "edx_platform_version: $TARGET" > vars.yml
 echo "certs_version: $TARGET" >> vars.yml
 echo "forum_version: $TARGET" >> vars.yml
@@ -357,5 +358,5 @@ if [[ $TARGET == *dogwood* ]] ; then
 fi
 
 cd /
-sudo rm -rf $TEMPDIR
+#sudo rm -rf $TEMPDIR
 echo "Upgrade complete. Please reboot your machine."
