@@ -29,7 +29,7 @@ RABBIT_USERS:
   - name: 'edx'
     password: 'edx'
   - name: 'celery'
-    password: 'celery'
+    password: "{{ EDXAPP_CELERY_PASSWORD }}"
 
 RABBITMQ_VHOSTS:
   - '/'
