@@ -11,7 +11,7 @@ oraclejdk_url: "http://download.oracle.com/otn-pub/java/jdk/{{ oraclejdk_version
 oraclejdk_link: "/usr/lib/jvm/java-8-oracle"
 
 oraclejdk_debian_pkgs:
-  - curl
+- curl
 
 oraclejdk_file_from_raccoongang_s3: yes
 s3_production_packages_bucket: edx-production-packages

@@ -14,8 +14,8 @@
     extra_args="--upgrade -i {{ COMMON_PYPI_MIRROR_URL }}"
   sudo_user: "{{ edx_ansible_user }}"
   tags:
-    - install
-    - install:app-requirements
+  - install
+  - install:app-requirements
 
 - name : install edx_ansible venv requirements
   pip: >
