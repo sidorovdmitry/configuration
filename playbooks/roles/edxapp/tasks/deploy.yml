@@ -290,7 +290,7 @@
 - name: install calc
   shell: >
     {{ edxapp_sandbox_venv_dir }}/bin/pip install --no-cache-dir -i {{ COMMON_PYPI_MIRROR_URL }} {{ item }}                      
-    chdir={{ edxapp_code_dir }}
+  chdir={{ edxapp_code_dir }}
   with_items:
     - "numpy==1.13.3"  
     - "scipy==1.0.0"
