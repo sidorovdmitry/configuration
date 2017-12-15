@@ -183,8 +183,8 @@
 
 - name: install nltk
   shell: >
-    {{ edxapp_sandbox_venv_dir }}/bin/pip install --no-cache-dir https://s3-us-west-2.amazonaws.com/jdimatteo-personal-public-readaccess/nltk-2.0.5-https-distribute.tar.gz
-    chdir={{ edxapp_code_dir }}
+    {{ edxapp_sandbox_venv_dir }}/bin/pip install https://s3-us-west-2.amazonaws.com/jdimatteo-personal-public-readaccess/nltk-2.0.5-https-distribute.tar.gz
+    chdir={{ edxapp_code_dir }}
   with_items:
   - "numpy==1.13.3"
   - "scipy==1.0.0"
