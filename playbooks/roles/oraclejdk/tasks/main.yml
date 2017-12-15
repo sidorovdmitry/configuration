@@ -13,10 +13,10 @@
 #   - oraclejdk
 
 - name: download Oracle Java
- get_url:
-   url: "{{ oraclejdk_s3_url }}"    
-   dest: "{{ oraclejdk_tmp_dir }}/{{ oraclejdk_s3_file }}"    
-   force: yes
+  get_url:
+    url: "{{ oraclejdk_s3_url }}"    
+    dest: "{{ oraclejdk_tmp_dir }}/{{ oraclejdk_s3_file }}"    
+    force: yes
 
 - name: create jvm dir
   file: >
@@ -26,10 +26,10 @@
     group=root
 
 - name: untar Oracle Java
- shell: >
-   tar -C /usr/lib/jvm -zxvf {{ oraclejdk_tmp_dir }}/{{ oraclejdk_file }}
-   executable=/bin/bash
-   creates=/usr/lib/jvm/{{ oraclejdk_base }}
+  shell: >
+    tar -C /usr/lib/jvm -zxvf {{ oraclejdk_tmp_dir }}/{{ oraclejdk_file }}
+    executable=/bin/bash
+    creates=/usr/lib/jvm/{{ oraclejdk_base }}
 
 - name: create symlink expected by elasticsearch
   file: src=/usr/lib/jvm/{{ oraclejdk_base }} dest={{ oraclejdk_link }} state=link force=yes
