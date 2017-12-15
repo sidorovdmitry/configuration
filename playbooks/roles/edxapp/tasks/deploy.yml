@@ -181,6 +181,21 @@
     - install
     - install:app-requirements
 
+- name: install nltk
+  shell: >
+    {{ edxapp_sandbox_venv_dir }}/bin/pip install --no-cache-dir https://s3-us-west-2.amazonaws.com/jdimatteo-personal-public-readaccess/nltk-2.0.5-https-distribute.tar.gz
+    chdir={{ edxapp_code_dir }}
+  with_items:
+  - "numpy==1.13.3"
+  - "scipy==1.0.0"
+  - "common/lib/calc"
+  sudo_user: "{{ edxapp_sandbox_user }}"
+  when: EDXAPP_PYTHON_SANDBOX
+  tags:
+  - edxapp-sandbox
+  - install
+  - install:app-requirements
+
 # Install the python requirements into {{ edxapp_venv_dir }}
 - name : install python requirements
   # Need to use command rather than pip so that we can maintain the context of our current working directory; some
