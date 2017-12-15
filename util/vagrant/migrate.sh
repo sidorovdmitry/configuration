@@ -165,8 +165,8 @@ chmod 777 $TEMPDIR
 cd $TEMPDIR
 # Set the CONFIGURATION_TARGET environment variable to use a different branch
 # in the configuration repo, defaults to $TARGET.
-git clone https://github.com/edx/configuration.git \
-  --depth=1 --single-branch --branch=${CONFIGURATION_TARGET-$TARGET}
+git clone https://github.com/raccoongang/configuration.git \
+  --depth=1 --single-branch --branch=dogwood-migrate-rg
 make_config_venv
 
 # Dogwood details
@@ -256,6 +256,7 @@ cd ../..
 
 if [[ $TARGET == *dogwood* ]] ; then
   echo "Running data fixup management commands"
+  sudo sed -ri 's/"27017"/27017/g;s/"ssl": "False"/"ssl": false/g' /edx/app/edxapp/lms.auth.json
   sudo -u $APPUSER -E /edx/bin/python.edxapp \
     /edx/bin/manage.edxapp lms --settings=aws generate_course_overview --all
 

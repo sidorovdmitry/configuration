@@ -287,6 +287,21 @@
   - install
   - install:app-requirements
 
+- name: install calc
+ shell: >
+   {{ edxapp_sandbox_venv_dir }}/bin/pip install --no-cache-dir -i {{ COMMON_PYPI_MIRROR_URL }} {{ item }}                      
+   chdir={{ edxapp_code_dir }}
+ with_items:
+ - "numpy==1.13.3"  
+ - "scipy==1.0.0"
+ - "common/lib/calc"
+ sudo_user: "{{ edxapp_sandbox_user }}"
+ when: EDXAPP_PYTHON_SANDBOX
+ tags:
+ - edxapp-sandbox
+ - install
+ - install:app-requirements
+
 - name: code sandbox | Install sandbox requirements into sandbox venv
   shell: >
     {{ edxapp_sandbox_venv_dir }}/bin/pip install -i {{ COMMON_PYPI_MIRROR_URL }} --exists-action w -r {{ item }}

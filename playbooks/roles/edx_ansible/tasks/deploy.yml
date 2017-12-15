@@ -8,6 +8,15 @@
     - install
     - install:code
 
+- name : upgrade setuptools
+ pip: >
+   name=setuptools virtualenv="{{ edx_ansible_venv_dir }}" state=present
+   extra_args="--upgrade -i {{ COMMON_PYPI_MIRROR_URL }}"
+ sudo_user: "{{ edx_ansible_user }}"
+ tags:
+   - install
+   - install:app-requirements
+
 - name : install edx_ansible venv requirements
   pip: >
     requirements="{{ edx_ansible_requirements_file }}" virtualenv="{{ edx_ansible_venv_dir }}" state=present
