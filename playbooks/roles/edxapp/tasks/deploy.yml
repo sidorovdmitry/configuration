@@ -191,6 +191,16 @@
   - install
   - install:app-requirements
 
+- name: install django
+  shell: >
+    {{ edxapp_venv_dir }}/bin/pip install django==1.4.22
+    chdir={{ edxapp_code_dir }}
+  sudo_user: "{{ edxapp_user }}"
+  environment: "{{ edxapp_environment }}"
+  tags:
+  - install
+  - install:app-requirements
+
 # Install the python requirements into {{ edxapp_venv_dir }}
 - name : install python requirements
   # Need to use command rather than pip so that we can maintain the context of our current working directory; some
