@@ -1,0 +1,6 @@
+---
+# Dependencies for building pysqlite
+sqlite_version: "2.8.3"
+sqlite_autoconf_version: "3210000"
+sqlite_user: jenkins
+sqlite_venv_dir: /home/jenkins/edx-venv/

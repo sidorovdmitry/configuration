@@ -18,7 +18,7 @@ if [[ -z "${ANSIBLE_REPO}" ]]; then
 fi
 
 if [[ -z "${ANSIBLE_VERSION}" ]]; then
-  ANSIBLE_VERSION="ficus-rg"
+  ANSIBLE_VERSION="worker-ficus-rg"
 fi
 
 if [[ -z "${CONFIGURATION_REPO}" ]]; then
@@ -26,7 +26,7 @@ if [[ -z "${CONFIGURATION_REPO}" ]]; then
 fi
 
 if [[ -z "${CONFIGURATION_VERSION}" ]]; then
-  CONFIGURATION_VERSION="ficus-rg"
+  CONFIGURATION_VERSION="worker-ficus-rg"
 fi
 
 if [[ -z "${UPGRADE_OS}" ]]; then
