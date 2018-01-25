@@ -15,6 +15,35 @@
 # Variables set to "None" will be converted to None
 # when the edxapp config is written to disk.
 
+## BEGIN RACCOONGANG ##
+EDXAPP_S3_USE_SIGV4: false
+EDXAPP_S3_HOST: null
+EDXAPP_COURSE_CATALOG_VISIBILITY_PERMISSION: 'see_exists'
+EDXAPP_COURSE_ABOUT_VISIBILITY_PERMISSION: 'see_exists'
+EDXAPP_CMS_MKTG_URLS:
+  TOS: "/tos"
+
+EDXAPP_ADDL_INSTALLED_APPS: []
+
+EDXAPP_LOCALESET_FROM_REQUEST:
+  'en': 'en_US.utf8'
+  'ru': 'ru_RU.UTF-8'
+  'uk': 'uk_UA.UTF-8'
+
+REMOVE_STATICFILES_DIR_DURING_UPDATE: no
+
+# OLGA
+EDXAPP_OPENEDX_LEARNERS_GLOBAL_ANALYTICS_ENABLE: false
+EDXAPP_OPENEDX_LEARNERS_GLOBAL_ANALYTICS:
+  ACCEPTOR_URL: ""
+  ACCEPTOR_URL_DEVELOP: "https://olga-demo.raccoongang.com"
+  CELERY_TIMEZONE: '{{ EDXAPP_TIME_ZONE }}'
+  PLATFORM_CITY_NAME: "Dublin"
+  STATISTICS_LEVEL: "enthusiast"
+# OLGA
+
+## END RACCOONGANG ##
+
 # Bucket used for xblock file storage
 EDXAPP_XBLOCK_FS_STORAGE_BUCKET: "None"
 EDXAPP_XBLOCK_FS_STORAGE_PREFIX: "None"
@@ -470,6 +499,13 @@ EDXAPP_REGISTRATION_EXTRA_FIELDS:
   honor_code: "required"
   city: "hidden"
   country: "hidden"
+
+EDXAPP_CELERY_BEAT:
+  enabled: True
+  monitor: True
+  service_variant: lms
+  beat_file: "{{ supervisor_data_dir }}/beat"
+  pid_file: "{{ supervisor_data_dir }}/celery_beat.pid"
 
 EDXAPP_CELERY_WORKERS:
   - queue: low
@@ -1056,6 +1092,10 @@ lms_env_config:
   RECALCULATE_GRADES_ROUTING_KEY: "{{ EDXAPP_RECALCULATE_GRADES_ROUTING_KEY }}"
   CELERY_QUEUES: "{{ EDXAPP_LMS_CELERY_QUEUES }}"
   ALTERNATE_WORKER_QUEUES: "cms"
+  ## RACCOONGANG ##
+  OPENEDX_LEARNERS_GLOBAL_ANALYTICS: "{{ EDXAPP_OPENEDX_LEARNERS_GLOBAL_ANALYTICS }}"
+  OPENEDX_LEARNERS_GLOBAL_ANALYTICS_ENABLE: "{{ EDXAPP_OPENEDX_LEARNERS_GLOBAL_ANALYTICS_ENABLE }}"
+  ## END RACCOONGANG ##
 
 cms_auth_config:
   <<: *edxapp_generic_auth
