@@ -29,6 +29,17 @@ EDXAPP_LOCALESET_FROM_REQUEST:
   'uk': 'uk_UA.UTF-8'
 
 REMOVE_STATICFILES_DIR_DURING_UPDATE: no
+
+# OLGA
+EDXAPP_OPENEDX_LEARNERS_GLOBAL_ANALYTICS_ENABLE: false
+EDXAPP_OPENEDX_LEARNERS_GLOBAL_ANALYTICS:
+  ACCEPTOR_URL: ""
+  ACCEPTOR_URL_DEVELOP: "https://olga-demo.raccoongang.com"
+  CELERY_TIMEZONE: '{{ EDXAPP_TIME_ZONE }}'
+  PLATFORM_CITY_NAME: "Dublin"
+  STATISTICS_LEVEL: "enthusiast"
+# OLGA
+
 ## END RACCOONGANG ##
 
 # Bucket used for xblock file storage
@@ -490,6 +501,13 @@ EDXAPP_REGISTRATION_EXTRA_FIELDS:
   honor_code: "required"
   city: "hidden"
   country: "hidden"
+
+EDXAPP_CELERY_BEAT:
+  enabled: True
+  monitor: True
+  service_variant: lms
+  beat_file: "{{ supervisor_data_dir }}/beat"
+  pid_file: "{{ supervisor_data_dir }}/celery_beat.pid"
 
 EDXAPP_CELERY_WORKERS:
   - queue: low
@@ -1079,6 +1097,10 @@ lms_env_config:
   RECALCULATE_GRADES_ROUTING_KEY: "{{ EDXAPP_RECALCULATE_GRADES_ROUTING_KEY }}"
   CELERY_QUEUES: "{{ EDXAPP_LMS_CELERY_QUEUES }}"
   ALTERNATE_WORKER_QUEUES: "cms"
+  ## RACCOONGANG ##
+  OPENEDX_LEARNERS_GLOBAL_ANALYTICS: "{{ EDXAPP_OPENEDX_LEARNERS_GLOBAL_ANALYTICS }}"
+  OPENEDX_LEARNERS_GLOBAL_ANALYTICS_ENABLE: "{{ EDXAPP_OPENEDX_LEARNERS_GLOBAL_ANALYTICS_ENABLE }}"
+  ## END RACCOONGANG ##
 
 cms_auth_config:
   <<: *edxapp_generic_auth
