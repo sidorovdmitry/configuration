@@ -39,5 +39,6 @@
     state: absent
     snapshot_id: "{{ item }}"
   with_items: "{{ snaps_joined }}"
+  when: snaps_joined is defined
   register: deleted_snapshots
 
