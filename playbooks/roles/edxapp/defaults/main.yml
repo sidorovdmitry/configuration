@@ -16,6 +16,7 @@
 # when the edxapp config is written to disk.
 
 ## RACCOONGANG ##
+EDXAPP_CLOUDSOCIETY_SECRET: ''
 EDXAPP_COURSE_CATALOG_VISIBILITY_PERMISSION: 'see_exists'
 EDXAPP_COURSE_ABOUT_VISIBILITY_PERMISSION: 'see_exists'
 EDXAPP_CMS_MKTG_URLS:
@@ -1052,6 +1053,7 @@ lms_auth_config:
                 render_template: 'edxmako.shortcuts.render_to_string'
   PROCTORING_BACKEND_PROVIDER: "{{ EDXAPP_PROCTORING_BACKEND_PROVIDER }}"
   SOCIAL_AUTH_OAUTH_SECRETS: "{{ EDXAPP_SOCIAL_AUTH_OAUTH_SECRETS }}"
+  CLOUDSOCIETY_SECRET: "{{ EDXAPP_CLOUDSOCIETY_SECRET }}"
 
 
 lms_env_config:
