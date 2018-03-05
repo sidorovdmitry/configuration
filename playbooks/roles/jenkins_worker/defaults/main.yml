@@ -3,7 +3,7 @@ jenkins_user: "jenkins"
 jenkins_group: "jenkins"
 jenkins_home: /home/jenkins
 
-jenkins_edx_platform_version: ficus-rg-auto
+jenkins_edx_platform_version: ficus-rg
 
 # System packages
 jenkins_debian_pkgs:
