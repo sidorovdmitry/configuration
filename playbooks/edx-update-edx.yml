@@ -12,7 +12,7 @@
 
     - name: set_fact maintenance_state on/off
       set_fact:
-        NGINX_MAINTENANCE_STATE: True
+        NGINX_MAINTENANCE_STATE: False
 
     - include: maintenance-work/copy-maintenance.yml
 
@@ -58,7 +58,7 @@
   tasks:
     - name: set_fact maintenance_state off
       set_fact:
-        NGINX_MAINTENANCE_STATE: True
+        NGINX_MAINTENANCE_STATE: False
 
     - include: maintenance-work/copy-maintenance.yml
 
