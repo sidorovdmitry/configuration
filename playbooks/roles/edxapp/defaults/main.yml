@@ -72,6 +72,7 @@ EDXAPP_AWS_ACCESS_KEY_ID:  "None"
 EDXAPP_AWS_SECRET_ACCESS_KEY:  "None"
 EDXAPP_AWS_QUERYSTRING_AUTH: false
 EDXAPP_AWS_STORAGE_BUCKET_NAME: "SET-ME-PLEASE (ex. bucket-name)"
+EDXAPP_IMPORT_EXPORT_BUCKET: "SET-ME-PLEASE (ex. bucket-name)"
 EDXAPP_AWS_S3_CUSTOM_DOMAIN: "SET-ME-PLEASE (ex. bucket-name.s3.amazonaws.com)"
 EDXAPP_SWIFT_USERNAME: "None"
 EDXAPP_SWIFT_KEY: "None"
@@ -522,6 +523,9 @@ EDXAPP_CELERY_WORKERS:
     concurrency: 1
     monitor: False
     max_tasks_per_child: 1
+
+EDXAPP_LMS_CELERY_QUEUES: "{{ edxapp_workers|selectattr('service_variant', 'equalto', 'lms')|map(attribute='queue')|map('regex_replace', '(.*)', 'edx.lms.core.\\1')|list }}"
+EDXAPP_CMS_CELERY_QUEUES: "{{ edxapp_workers|selectattr('service_variant', 'equalto', 'cms')|map(attribute='queue')|map('regex_replace', '(.*)', 'edx.cms.core.\\1')|list }}"
 
 EDXAPP_DEFAULT_CACHE_VERSION: "1"
 EDXAPP_OAUTH_ENFORCE_SECURE: True
@@ -1051,6 +1055,8 @@ lms_env_config:
   ## END RACCOONGANG ##
   PLATFORM_TWITTER_ACCOUNT: "{{ EDXAPP_PLATFORM_TWITTER_ACCOUNT }}"
   PLATFORM_FACEBOOK_ACCOUNT: "{{ EDXAPP_PLATFORM_FACEBOOK_ACCOUNT }}"
+  CELERY_QUEUES: "{{ EDXAPP_LMS_CELERY_QUEUES }}"
+  ALTERNATE_WORKER_QUEUES: "cms"
 
 cms_auth_config:
   <<: *edxapp_generic_auth
@@ -1081,6 +1087,9 @@ cms_env_config:
   SITE_NAME:  "{{ EDXAPP_CMS_SITE_NAME }}"
   GIT_REPO_EXPORT_DIR: "{{ EDXAPP_GIT_REPO_EXPORT_DIR }}"
   DOC_LINK_BASE_URL: "{{ EDXAPP_CMS_DOC_LINK_BASE_URL }}"
+  CELERY_QUEUES: "{{ EDXAPP_CMS_CELERY_QUEUES }}"
+  ALTERNATE_WORKER_QUEUES: "lms"
+  COURSE_IMPORT_EXPORT_BUCKET: "{{ EDXAPP_IMPORT_EXPORT_BUCKET }}"
   ##   RACCOONGANG   ##
   CMS_MKTG_URLS: "{{ EDXAPP_CMS_MKTG_URLS }}"
   ## END RACCOONGANG ##
