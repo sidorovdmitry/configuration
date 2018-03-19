@@ -7,6 +7,7 @@
     CLUSTER_NAME: 'edxapp'
     CREATE_GRADES_AZURE_CONTAINER: "{{ azure_grades_blobstorage_create|default (false) }}"
     GRADE_STORAGE_TYPE: "{{ EDXAPP_GRADE_STORAGE_TYPE | default('local') }}"
+    EDXAPP_CUSTOM_CELERYD_ENABLE: no
   serial: "{{ serial_count }}"
   roles:
    - aws
@@ -27,6 +28,8 @@
    - configure-backups 
    - ec2-snapshot
    - edxapp
+   - role: celeryd
+     when: EDXAPP_CUSTOM_CELERYD_ENABLE
    - role: datadog
      when: COMMON_ENABLE_DATADOG
    - role: splunkforwarder

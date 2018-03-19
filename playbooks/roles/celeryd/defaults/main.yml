@@ -1,0 +1,4 @@
+---
+celeryd_service_name: export_data
+EDXAPP_SETTINGS: "{{ COMMON_EDXAPP_SETTINGS }}"
+EDX_PLATFORM_SETTINGS: "{{ EDXAPP_SETTINGS }}"
