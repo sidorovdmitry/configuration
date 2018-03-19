@@ -8,6 +8,7 @@
     USE_LETSENCRYPT: 'no'
     CREATE_GRADES_AZURE_CONTAINER: "{{ azure_grades_blobstorage_create|default (false) }}"
     GRADE_STORAGE_TYPE: "{{ EDXAPP_GRADE_STORAGE_TYPE | default('local') }}"
+    EDXAPP_EXPORT_DATA_ENABLE: yes
   serial: "{{ serial_count }}"
   roles:
    - aws
@@ -29,6 +30,8 @@
    - ec2-snapshot
    - { role: 'add-letsencrypt-certificate', when: USE_LETSENCRYPT == 'yes' and CMS_NGINX_SSL_CERTIFICATE is undefined and CMS_NGINX_SSL_KEY is undefined, nginx_default_sites: lms }
    - edxapp
+   - role: export-data-celeryd
+     when: EDXAPP_EXPORT_DATA_ENABLE
    - role: datadog
      when: COMMON_ENABLE_DATADOG
    - role: splunkforwarder

@@ -1,0 +1,11 @@
+#
+# {{ ansible_managed }}
+#
+[program:{{ export_data_service_name }}]
+
+command={{ edxapp_venv_bin}}/python {{ edxapp_code_dir }}/manage.py lms --settings={{ EDX_PLATFORM_SETTINGS }} celeryd -B --loglevel=info --queues=edx.lms.core.low --hostname=edx.lms.core.low.%%h --concurrency=1 -s {{ supervisor_data_dir }}/{{ export_data_service_name }}.pid
+user={{ common_web_user }}
+stdout_logfile={{ supervisor_log_dir }}/%(program_name)s-stdout.log
+stderr_logfile={{ supervisor_log_dir }}/%(program_name)s-stderr.log
+killasgroup=true
+stopasgroup=true
