@@ -4,7 +4,14 @@ set -e
 
 if [[ -f {{ edx_ansible_var_file }} ]]; then
     extra_args="-e@{{ edx_ansible_var_file }}"
+else
+    echo "file {{ edx_ansible_var_file }} not found. exiting..." >&2
+    exit 1
 fi
+
+for cfile in ~edxapp/*.json ; do
+    cp -fap ${cfile} ${cfile}.bak || exit 1
+done
 
 {% if devstack %}
 extra_args="$extra_args -e 'disable_edx_services=true' -e devstack=true"
