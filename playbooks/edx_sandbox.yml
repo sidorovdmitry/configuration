@@ -61,12 +61,12 @@
       nginx_sites:
       - programs
     - role: programs
-    - role: programs-to-edx
+    # - role: programs-to-edx
     - role: nginx
       nginx_sites:
       - credentials
     - credentials
-    - role: credentials-to-edx
+    # - role: credentials-to-edx
 #    - analytics_api
 #    - insights
     # not ready yet: - edx_notes_api
