@@ -8,6 +8,8 @@
   hosts: all
   gather_facts: no
   become: True
+  vars:
+    ENABLE_INSIGHTS: "{{ RUN_INSIGHTS_ROLES | default(False) }}"
   roles:
     - python
 
@@ -36,9 +38,9 @@
       celery_worker: True
     - edxapp
     - role: analytics_api
-      when: EDXAPP_ANALYTICS_DASHBOARD_URL != 'http://localhost:18110/courses'
+      when: ENABLE_INSIGHTS
     - role: insights
-      when: EDXAPP_ANALYTICS_DASHBOARD_URL != 'http://localhost:18110/courses'
+      when: ENABLE_INSIGHTS
     - oauth_client_setup
     - oraclejdk
     - role: elasticsearch
