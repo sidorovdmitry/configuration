@@ -35,6 +35,10 @@
     - role: edxapp
       celery_worker: True
     - edxapp
+    - role: analytics_api
+      when: "{{ RUN_INSIGHTS_ROLES | default(False) }}"
+    - role: insights
+      when: "{{ RUN_INSIGHTS_ROLES | default(False) }}"
     - demo
     - oauth_client_setup
     - oraclejdk
