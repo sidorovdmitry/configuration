@@ -47,7 +47,7 @@
       when: "{{ RUN_INSIGHTS_ROLES | default(False) }}"
     - role: nginx
       nginx_sites:
-      - edx_notes_api
+      - analytics_api
       - insights
       when: "{{ RUN_INSIGHTS_ROLES | default(False) }}"
     - oauth_client_setup
