@@ -236,7 +236,7 @@
     - manage:start
 
 - name: create_or_update_site ecommerce
-  shell: "{{ ecommerce_venv_dir }}/bin/python ./manage.py create_or_update_site --site-id={{ item.site_id }} --site-domain={{ item.site_domain }} --partner-code='{{ item.partner_code }}' --partner-name='{{ item.partner_name }}' --lms-url-root={{ item.lms_url_root }} --payment-processors={{ item.payment_processors }} --client-id={{ item.client_id }} --client-secret={{ item.client_secret }} --from-email='{{ item.from_email }}'"
+  shell: "DB_MIGRATION_USER={{ COMMON_MYSQL_MIGRATE_USER }} DB_MIGRATION_PASS={{ COMMON_MYSQL_MIGRATE_PASS }} ECOMMERCE_CFG={{ COMMON_CFG_DIR }}/{{ ecommerce_service_name }}.yml {{ ecommerce_venv_dir }}/bin/python ./manage.py create_or_update_site --site-id={{ item.site_id }} --site-domain={{ item.site_domain }} --partner-code='{{ item.partner_code }}' --partner-name='{{ item.partner_name }}' --lms-url-root={{ item.lms_url_root }} --payment-processors={{ item.payment_processors }} --client-id={{ item.client_id }} --client-secret={{ item.client_secret }} --from-email='{{ item.from_email }}'"
   args:
     chdir: "{{ ecommerce_code_dir }}"
   become_user: "{{ ecommerce_user }}"
