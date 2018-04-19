@@ -242,6 +242,7 @@
   become_user: "{{ ecommerce_user }}"
   environment: "{{ ecommerce_environment }}"
   with_items: "{{ create_or_update_site_data }}"
+  when: create_or_update_site_ecommerce_exec
   tags:
     - install
     - manage

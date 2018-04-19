@@ -15,6 +15,8 @@
   hosts: all
   become: True
   gather_facts: True
+  vars:
+    create_or_update_site_ecommerce_exec: False
   roles:
     - role: swapfile
       SWAPFILE_SIZE: 8GB

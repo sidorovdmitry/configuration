@@ -258,3 +258,4 @@ ecommerce_debian_pkgs:
 ecommerce_redhat_pkgs: []
 
 create_or_update_site_data: []
+create_or_update_site_ecommerce_exec: False
