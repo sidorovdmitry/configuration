@@ -31,7 +31,7 @@
 
 - name: Install apt repository for datadog
   apt_repository:
-    repo: 'deb http://apt.datadoghq.com/ stable 6'
+    repo: 'deb https://apt.datadoghq.com/ stable 6'
     state: present
     update_cache: yes
   tags:
