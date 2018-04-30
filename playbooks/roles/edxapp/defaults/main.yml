@@ -39,6 +39,7 @@ EDXAPP_THIRD_PARTY_AUTH_BACKENDS:
 
 EDXAPP_S3_USE_SIGV4: false
 EDXAPP_S3_HOST: null
+EDXAPP_EDX_APP_SEMBLER_API_KEY: ""
 ## END RACCOONGANG ##
 
 # Bucket used for xblock file storage
@@ -1052,7 +1053,7 @@ lms_auth_config:
                 render_template: 'edxmako.shortcuts.render_to_string'
   PROCTORING_BACKEND_PROVIDER: "{{ EDXAPP_PROCTORING_BACKEND_PROVIDER }}"
   SOCIAL_AUTH_OAUTH_SECRETS: "{{ EDXAPP_SOCIAL_AUTH_OAUTH_SECRETS }}"
-
+  EDX_APP_SEMBLER_API_KEY: "{{ EDXAPP_EDX_APP_SEMBLER_API_KEY }}"
 
 lms_env_config:
   <<: *edxapp_generic_env
