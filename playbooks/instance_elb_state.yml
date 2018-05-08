@@ -31,6 +31,10 @@
     ec2_elbs: "{{ MULTITENANT_VAR_AWS_EC2_TAGS_PREFIX }}-frontend-ELB"
   when: (NODE_STATE is defined) and ("{{ NODE_STATE }}"=='absent') and (elb_attached is defined) and (elb_attached)
 
+- name: Pause for ELB health checks
+  pause:
+    minutes: 2
+
 - name: Instance Register
   local_action:
     module: ec2_elb
