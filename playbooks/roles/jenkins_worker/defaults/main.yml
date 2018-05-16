@@ -3,7 +3,8 @@ jenkins_user: "jenkins"
 jenkins_group: "jenkins"
 jenkins_home: /home/jenkins
 
-jenkins_edx_platform_version: master
+jenkins_edx_platform_repo: https://github.com/raccoongang/edx-platform.git
+jenkins_edx_platform_version: hetmantsev-hawthorn-ci-compare
 
 # System packages
 jenkins_debian_pkgs:
