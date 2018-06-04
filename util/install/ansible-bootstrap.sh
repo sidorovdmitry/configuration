@@ -147,7 +147,7 @@ cd "${CONFIGURATION_DIR}"/playbooks/edx-east
    
 . /edx/app/edx_ansible/venvs/edx_ansible/bin/activate
     
-pip install -r requirements.txt
+pip install -r ${CONFIGURATION_DIR}/requirements.txt
      
 ansible-playbook -c local ${EDX_ANSIBLE_DIR}/playbooks/edx-east/jenkins_worker.yml -i "localhost,"  
      
