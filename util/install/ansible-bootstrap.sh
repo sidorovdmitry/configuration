@@ -46,6 +46,7 @@ SETUPTOOLS_VERSION="24.0.3"
 VIRTUAL_ENV="/tmp/bootstrap"
 PYTHON_BIN="${VIRTUAL_ENV}/bin"
 ANSIBLE_DIR="/tmp/ansible"
+EDX_ANSIBLE_DIR="/edx/app/edx_ansible"
 CONFIGURATION_DIR="/tmp/configuration"
 EDX_PPA="deb http://ppa.edx.org precise main"
 EDX_PPA_KEY_SERVER="keyserver.ubuntu.com"
@@ -136,41 +137,31 @@ PATH=/usr/local/bin:${PATH}
 pip install setuptools=="${SETUPTOOLS_VERSION}"
 pip install virtualenv=="${VIRTUAL_ENV_VERSION}"
 
+# create a new virtual env
+/usr/local/bin/virtualenv "${VIRTUAL_ENV}"
+PATH="${PYTHON_BIN}":${PATH}
 
-if [[ "true" == "${RUN_ANSIBLE}" ]]; then
-    # create a new virtual env
-    /usr/local/bin/virtualenv "${VIRTUAL_ENV}"
+# Install the configuration repository to install
+# edx_ansible role
+git clone ${CONFIGURATION_REPO} ${CONFIGURATION_DIR}
+cd ${CONFIGURATION_DIR}
+git checkout ${CONFIGURATION_VERSION}
+make requirements
 
-    PATH="${PYTHON_BIN}":${PATH}
+cd "${CONFIGURATION_DIR}"/playbooks/edx-east
+"${PYTHON_BIN}"/ansible-playbook edx_ansible.yml -i '127.0.0.1,' -c local -e "configuration_version=${CONFIGURATION_VERSION}" -e "edx_ansible_source_repo=${CONFIGURATION_REPO}"
+   
+. /edx/app/edx_ansible/venvs/edx_ansible/bin/activate
+    
+sudo -H -u edx-ansible bash -c 'pip install -r requirements.txt'
+     
+sudo -E ansible-playbook -c local ${EDX_ANSIBLE_DIR}/playbooks/edx-east/jenkins_worker.yml -i "localhost,"  
+     
+# cleanup
+rm -rf "${ANSIBLE_DIR}"
+rm -rf "${EDX_ANSIBLE_DIR}"
+rm -rf "${CONFIGURATION_DIR}"
+rm -rf "${VIRTUAL_ENV}"
+rm -rf "${HOME}/.ansible"
 
-    # Install the configuration repository to install
-    # edx_ansible role
-    git clone ${CONFIGURATION_REPO} ${CONFIGURATION_DIR}
-    cd ${CONFIGURATION_DIR}
-    git checkout ${CONFIGURATION_VERSION}
-    make requirements
-
-    cd "${CONFIGURATION_DIR}"/playbooks/edx-east
-    "${PYTHON_BIN}"/ansible-playbook edx_ansible.yml -i '127.0.0.1,' -c local -e "configuration_version=${CONFIGURATION_VERSION}" -e "edx_ansible_source_repo=${CONFIGURATION_REPO}"
-
-    # cleanup
-    rm -rf "${ANSIBLE_DIR}"
-    rm -rf "${CONFIGURATION_DIR}"
-    rm -rf "${VIRTUAL_ENV}"
-    rm -rf "${HOME}/.ansible"
-
-    cat << EOF
-    ******************************************************************************
-
-    Done bootstrapping, edx_ansible is now installed in /edx/app/edx_ansible.
-    Time to run some plays.  Activate the virtual env with
-
-    > . /edx/app/edx_ansible/venvs/edx_ansible/bin/activate
-
-    ******************************************************************************
-EOF
-else
-    mkdir -p /edx/ansible/facts.d
-    echo '{ "ansible_bootstrap_run": true }' > /edx/ansible/facts.d/ansible_bootstrap.json
-fi
 
