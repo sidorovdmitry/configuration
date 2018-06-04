@@ -150,7 +150,7 @@ cd "${CONFIGURATION_DIR}"/playbooks/edx-east
 #pip install -r ${CONFIGURATION_DIR}/requirements.txt
 
 cd "${CONFIGURATION_DIR}"/playbooks/edx-east
-"${PYTHON_BIN}"/ansible-playbook jenkins_worker.yml -i '127.0.0.1,' -c local
+"${PYTHON_BIN}"/ansible-playbook jenkins_worker.yml -i '127.0.0.1,' -c local -vvvv
      
 # cleanup
 rm -rf "${ANSIBLE_DIR}"
