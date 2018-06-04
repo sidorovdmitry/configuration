@@ -41,7 +41,7 @@ fi
 # Bootstrapping constants
 #
 VIRTUAL_ENV_VERSION="15.0.2"
-PIP_VERSION="8.1.2"
+PIP_VERSION="9.1.2"
 SETUPTOOLS_VERSION="24.0.3"
 VIRTUAL_ENV="/tmp/bootstrap"
 PYTHON_BIN="${VIRTUAL_ENV}/bin"
@@ -122,14 +122,9 @@ apt-get install -y python2.7 python2.7-dev python-pip python-apt python-yaml pyt
 
 # Workaround for a 16.04 bug, need to upgrade to latest and then
 # potentially downgrade to the preferred version.
-if [[ "xenial" = "${SHORT_DIST}" ]]; then
-    apt-get install -y python2.7 python2.7-dev python-pip python-apt python-yaml python-jinja2
-    pip install pip=="${PIP_VERSION}"
-    apt-get install -y build-essential sudo git-core libmysqlclient-dev
-else
-    #apt-get install -y python2.7 python2.7-dev python-pip python-apt python-yaml python-jinja2 build-essential sudo git-core libmysqlclient-dev
-    pip install --upgrade pip=="${PIP_VERSION}"
-fi
+apt-get install -y python2.7 python2.7-dev python-pip python-apt python-yaml python-jinja2
+pip install pip=="${PIP_VERSION}"
+apt-get install -y build-essential sudo git-core libmysqlclient-dev
 
 # pip moves to /usr/local/bin when upgraded
 PATH=/usr/local/bin:${PATH}
