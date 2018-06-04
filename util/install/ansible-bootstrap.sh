@@ -148,8 +148,9 @@ cd "${CONFIGURATION_DIR}"/playbooks/edx-east
 . /edx/app/edx_ansible/venvs/edx_ansible/bin/activate
     
 #pip install -r ${CONFIGURATION_DIR}/requirements.txt
-     
-ansible-playbook -c local ${EDX_ANSIBLE_DIR}/playbooks/edx-east/jenkins_worker.yml -i "localhost,"  
+
+cd "${CONFIGURATION_DIR}"/playbooks/edx-east
+"${PYTHON_BIN}"/ansible-playbook jenkins_worker.yml -i '127.0.0.1,' -c local
      
 # cleanup
 rm -rf "${ANSIBLE_DIR}"
