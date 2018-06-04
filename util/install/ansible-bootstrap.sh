@@ -153,9 +153,9 @@ cd "${CONFIGURATION_DIR}"/playbooks/edx-east
    
 . /edx/app/edx_ansible/venvs/edx_ansible/bin/activate
     
-sudo -H -u edx-ansible bash -c 'pip install -r requirements.txt'
+pip install -r requirements.txt
      
-sudo -E ansible-playbook -c local ${EDX_ANSIBLE_DIR}/playbooks/edx-east/jenkins_worker.yml -i "localhost,"  
+ansible-playbook -c local ${EDX_ANSIBLE_DIR}/playbooks/edx-east/jenkins_worker.yml -i "localhost,"  
      
 # cleanup
 rm -rf "${ANSIBLE_DIR}"
