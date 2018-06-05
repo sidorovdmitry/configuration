@@ -13,17 +13,7 @@
     COMMON_SECURITY_UPDATES: yes
     SECURITY_UPGRADE_ON_ANSIBLE: true
   serial: "{{ serial_count }}"
-  vars_files:
-    - roles/edxapp/defaults/main.yml
-    - roles/xqueue/defaults/main.yml
-    - roles/xserver/defaults/main.yml
-    - roles/forum/defaults/main.yml
   roles:
-    - mysql
-    - edxlocal
-    - memcache
-    - mongo
     - browsers
     - browsermob-proxy
     - jenkins_worker
-    - sqlite
