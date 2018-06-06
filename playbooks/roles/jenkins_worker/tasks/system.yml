@@ -42,8 +42,8 @@
   shell: "ssh-keygen -f {{ jenkins_home }}/.ssh/known_hosts -H -F github.com | grep -q found || ssh-keyscan -H github.com > {{ jenkins_home }}/.ssh/known_hosts"
 
 # Edit the /etc/hosts file so that the Preview button will work in Studio
-- name: add preview.localhost to /etc/hosts
-  lineinfile:
-    dest: /etc/hosts
-    regexp: '^127.0.0.1'
-    line: '127.0.0.1 localhost preview.localhost'
+#- name: add preview.localhost to /etc/hosts
+#  lineinfile:
+#    dest: /etc/hosts
+#    regexp: '^127.0.0.1'
+#    line: '127.0.0.1 localhost preview.localhost'
